@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Access</title>
+    <style>
+        #video {
+            width: 50%;
+            height: 50%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay playsinline></video>
+
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                var video = document.getElementById('video');
+                video.srcObject = stream;
+            })
+            .catch(function(err) {
+                console.log("Error accessing camera: ", err);
+            });
+    </script>
+</body>
+</html>
