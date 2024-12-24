@@ -51,11 +51,6 @@ def add_employee(request):
     else:
         form = EmployeeForm()
     return render(request, 'add_employee.html', {'form': form})
-""" def view_employee_list(request):
-    # Fetch all employees from the database
-    employees = Employee.objects.all()
-    context = {'employees': employees}
-    return render(request, 'view_employee_list.html', context) """
 
 
 ############

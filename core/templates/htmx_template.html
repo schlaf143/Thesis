@@ -1,5 +1,8 @@
 {# templates/tables/bootstrap_htmx.html #}
-{% extends "django_tables2/bootstrap4.html" %}
+
+{% extends "django_tables2/bootstrap5.html" %}
+{% load static %}
+<script src="{% static 'js/htmx.min.js' %}"></script>
 
 {% load django_tables2 %}
 {% load i18n %}
