@@ -8,10 +8,29 @@ from pathlib import Path
 import os
 
 from .forms import EmployeeForm
+from .models import Employee
+from .tables import EmployeeHTMxTable
+from .filters import EmployeeFilter
+
+from django_tables2 import SingleTableMixin
+from django_filters.views import FilterView
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 EMBEDDINGS_FILE = BASE_DIR / 'face_embeddings.json'
 
+class EmployeeHTMxTableView(SingleTableMixin, FilterView):
+    table_class = EmployeeHTMxTable
+    queryset = Employee.objects.all()
+    filterset_class = EmployeeFilter
+    paginate_by = 3
 
+    def get_template_names(self):
+        if self.request.htmx:
+            template_name = "view_employee_list_htmx_partial.html"
+        else:
+            template_name = "view_employee_list_htmx.html"
+
+        return template_name
 
 def camera_view(request):
     return render(request, 'face_access.html')
@@ -32,6 +51,11 @@ def add_employee(request):
     else:
         form = EmployeeForm()
     return render(request, 'add_employee.html', {'form': form})
+""" def view_employee_list(request):
+    # Fetch all employees from the database
+    employees = Employee.objects.all()
+    context = {'employees': employees}
+    return render(request, 'view_employee_list.html', context) """
 
 
 ############

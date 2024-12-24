@@ -1,0 +1,6 @@
+django
+htmx
+django-tables2
+django-filter
+django-htmx
+crispy-bootstrap5

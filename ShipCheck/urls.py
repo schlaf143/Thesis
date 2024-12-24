@@ -25,7 +25,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('camera/', views.camera_view, name='camera'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('employee/register/', views.add_employee, name='add_employee'),  # Add this line
+    path('employee/register/', views.add_employee, name='add_employee'),
+    path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'),    
     path('save_face/', views.save_face, name='save_face'),
     path('save_face_embedding/', views.save_face_embedding, name='save_face_embedding'),
     path('get_saved_face_embeddings/', views.get_saved_face_embeddings, name='get_saved_face_embeddings'),

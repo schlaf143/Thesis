@@ -47,7 +47,15 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core",
     "corsheaders",
+    "django_htmx",
+    "django_tables2",
+    "django_filters",
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -58,6 +66,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'corsheaders.middleware.CorsMiddleware',
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
