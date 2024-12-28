@@ -33,20 +33,18 @@ class Employee(models.Model):
         verbose_name_plural = 'Employees'
         db_table = 'employee_table'  # Custom database table name
         constraints = [
-            models.UniqueConstraint(
-                fields=['company_id', 'employee_id'], name='unique_company_employee'
-            ),
             models.CheckConstraint(
                 check=models.Q(leave_credits__gte=0),
                 name='positive_leave_credits',
             ),
         ]
-
+        """models.UniqueConstraint(
+            fields=['company_id', 'employee_id'], name='unique_company_employee'
+        ), """
     def clean(self):
-        if Employee.objects.filter(company_id=self.company_id, employee_id=self.employee_id).exists():
-            raise ValidationError("This combination of Company ID and Employee ID already exists.")
         if self.leave_credits < 0:
             raise ValidationError("Leave credits cannot be negative.")
-        
+        """ if Employee.objects.filter(company_id=self.company_id, employee_id=self.employee_id).exists():
+            raise ValidationError("This combination of Company ID and Employee ID already exists.") """
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.employee_id})"

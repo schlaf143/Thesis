@@ -8,6 +8,7 @@
 
 {% block content %}
     {% block main %}
+    <div id="employee-list-container">
         <h1>Employee table</h1>
 
         {# Search form #}
@@ -34,23 +35,33 @@
                         hx-target="div.table-container" 
                         hx-swap="outerHTML" 
                         hx-indicator=".progress"
-                        class="btn btn-primary ms-2">
+                        class="btn btn-primary ms-2"
+                        id="clear-btn">
                     Clear
                 </button>
             </div>
         </div>
         
-        
-
-
         {# Progress indicator #}
         <div class="progress">
             <div class="indeterminate"></div>
         </div>
 
         {# The actual table #}
+        
+        <!-- Employee edit form container (this could be a modal or inline section) -->
+        
         {% render_table table %}
+    </div>
 
-
+        <script>
+            document.getElementById('clear-btn').addEventListener('click', function() {
+                // Clear the search input
+                document.querySelector('input[name="query"]').value = '';
+        
+                // Trigger form submission to reset the table
+                document.getElementById('search-form').submit();
+            });
+        </script>
     {% endblock %}
 {% endblock %}      

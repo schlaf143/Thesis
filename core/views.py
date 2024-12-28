@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 import json
 import numpy as np
+from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.edit import UpdateView, DeleteView
 from django.core.exceptions import BadRequest
 from pathlib import Path
 import os
@@ -31,6 +34,34 @@ class EmployeeHTMxTableView(SingleTableMixin, FilterView):
             template_name = "view_employee_list_htmx.html"
 
         return template_name
+
+class EmployeeEditView(UpdateView):
+    model = Employee
+    form_class = EmployeeForm
+    template_name = 'employee_edit_form.html'
+    success_url = reverse_lazy('view_employee_list')  # Redirect to the employee list page after successful edit
+
+    def get_object(self, queryset=None):
+        # Retrieve the employee object by primary key (from the URL)
+        return get_object_or_404(Employee, pk=self.kwargs['pk'])
+
+    def form_valid(self, form):
+        # Save the form and redirect to the success URL
+        self.object = form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # If the form is invalid, render the same form with error messages
+        return self.render_to_response(self.get_context_data(form=form))
+
+class EmployeeDeleteView(DeleteView):
+    model = Employee
+    template_name = 'employee_confirm_delete.html'  # Optional: Confirmation template
+    success_url = reverse_lazy('view_employee_list')  # Redirect after successful deletion
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Employee, pk=self.kwargs['pk'])
+
 
 def camera_view(request):
     return render(request, 'face_access.html')
