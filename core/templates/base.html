@@ -9,10 +9,15 @@
     
     <!----======== CSS ======== -->
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-    
+    <link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
     <!----===== Boxicons CSS ===== -->
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!-- JS Files -->
     <script src="{% static 'js/htmx.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/flatpickr.js' %}"></script>
+    <script src="{% static 'js/flatpickr_init.js' %}"></script>
 </head>
 <body>  
     <div class="container-fluid vh-100">
@@ -86,7 +91,6 @@
         </div>
     </div>
 
-    <!-- Add Bootstrap JS -->
-    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
 </body>
 </html>

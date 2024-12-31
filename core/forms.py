@@ -1,60 +1,62 @@
 from django import forms
-from .models import Employee
+from .models import Employee, EmployeeSchedule
+from django.templatetags.static import static
+from datetime import timedelta, datetime
+
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
         fields = '__all__'  # Include all fields from the model
+        
+    def clean(self):
+        """Remove redundant validation in the form."""
+        # Simply call the model's clean method to do the validation
+        cleaned_data = super().clean()
+        return cleaned_data
+class EmployeeScheduleForm(forms.ModelForm):
+    class Media:
+        # Reference to the local static files using the static tag
+        js = (static('js/flatpickr.js'), static('js/flatpickr_init.js'))  # Include Flatpickr JS from the static directory
+        css = {
+            'all': (static('css/flatpickr.min.css'),)  # Include Flatpickr CSS from the static directory
+        }
+    class Meta:
+        model = EmployeeSchedule
+        fields = [
+            'employee', 'monday_start', 'monday_end',
+            'tuesday_start', 'tuesday_end',
+            'wednesday_start', 'wednesday_end',
+            'thursday_start', 'thursday_end',
+            'friday_start', 'friday_end',
+            'saturday_start', 'saturday_end',
+            'sunday_start', 'sunday_end',
+        ]
+        time_widget = forms.TimeInput(attrs={ 
+                'class': 'flatpickr form-control',
+                'placeholder': 'Select start time',
+                'data-time_24hr': 'true',
+                'autocomplete' : 'off',
+            })
         widgets = {
-            'company_id': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter company ID',
-            }),
-            'first_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter first name',
-            }),
-            'middle_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter middle name (optional)',
-            }),
-            'last_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter last name',
-            }),
-            'sex': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'role': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'department': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter department',
-            }),
-            'contact_number': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'e.g., +1234567890',
-            }),
-            'date_employed': forms.DateInput(attrs={
-                'type': 'date',
-                'class': 'form-control',
-            }),
-            'leave_credits': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': 0,
-            }),
+        'employee': forms.Select(attrs={'class': 'form-control'}),
+        'monday_start': time_widget,
+        'monday_end': time_widget,
+        'tuesday_start': time_widget,
+        'tuesday_end': time_widget,
+        'wednesday_start': time_widget,
+        'wednesday_end': time_widget,
+        'thursday_start': time_widget,
+        'thursday_end': time_widget,
+        'friday_start': time_widget,
+        'friday_end': time_widget,
+        'saturday_start': time_widget,
+        'saturday_end': time_widget,
+        'sunday_start': time_widget,
+        'sunday_end': time_widget,
         }
 
-    def clean_contact_number(self):
-        contact_number = self.cleaned_data['contact_number']
-        if not contact_number.isdigit():
-            raise forms.ValidationError("Contact number must only contain digits.")
-        if len(contact_number) < 10:
-            raise forms.ValidationError("Contact number must be at least 10 digits long.")
-        return contact_number
-
-    def clean_leave_credits(self):
-        leave_credits = self.cleaned_data['leave_credits']
-        if leave_credits < 0:
-            raise forms.ValidationError("Leave credits cannot be negative.")
-        return leave_credits
+    def clean(self):
+        """Remove redundant validation in the form."""
+        # Simply call the model's clean method to do the validation
+        cleaned_data = super().clean()
+        return cleaned_data

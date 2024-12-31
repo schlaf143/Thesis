@@ -10,8 +10,8 @@ from django.core.exceptions import BadRequest
 from pathlib import Path
 import os
 
-from .forms import EmployeeForm
-from .models import Employee
+from .forms import EmployeeForm, EmployeeScheduleForm
+from .models import Employee, EmployeeSchedule
 from .tables import EmployeeHTMxTable
 from .filters import EmployeeFilter
 
@@ -75,13 +75,29 @@ def dashboard(request):
 
 def add_employee(request):
     if request.method == 'POST':
-        form = EmployeeForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('employee_list')  # Redirect to a list or detail view
+        employee_form = EmployeeForm(request.POST)
+        if employee_form.is_valid():
+            employee_form.save()
+            return redirect('view_employee_list')  # Redirect to a list or detail view
+        else:
+            print(employee_form.errors)
     else:
-        form = EmployeeForm()
-    return render(request, 'add_employee.html', {'form': form})
+        employee_form = EmployeeForm()
+    return render(request, 'add_employee.html', {'employee_form': employee_form})
+
+def add_schedule(request):
+    if request.method == 'POST':
+        schedule_form = EmployeeScheduleForm(request.POST)
+        if schedule_form.is_valid():
+            # Save the schedule data
+            schedule_form.save()
+            return redirect('view_schedule_list')  # Redirect to a list or detail view
+        else:
+            print(schedule_form.errors)
+    else:
+        schedule_form = EmployeeScheduleForm()
+
+    return render(request, 'add_schedule.html', {'schedule_form': schedule_form})
 
 
 ############

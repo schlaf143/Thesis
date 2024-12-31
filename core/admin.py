@@ -1,5 +1,9 @@
+from datetime import time
+from django import forms
 from django.contrib import admin
-from .models import Employee
+from django.forms.widgets import TextInput
+from django.templatetags.static import static
+from .models import Employee, EmployeeSchedule
 
 class EmployeeAdmin(admin.ModelAdmin):
     # Display all columns in the list view of the admin panel
@@ -26,5 +30,52 @@ class EmployeeAdmin(admin.ModelAdmin):
     # Optional: Read-only fields (optional)
     readonly_fields = ('employee_id',)
 
-# Register the Employee model and its admin configuration
+
+class EmployeeScheduleAdminForm(forms.ModelForm):
+    class Meta:
+        model = EmployeeSchedule
+        fields = '__all__'
+    time_widget = forms.TimeField(required=False, widget=TextInput(attrs={'class': 'flatpickr', 'data-time_24hr': 'false', 'data-date_format': 'h:i K'}))
+    # Apply Flatpickr to the start and end time fields for each day
+    monday_start = time_widget
+    monday_end = time_widget
+
+    tuesday_start = time_widget
+    tuesday_end = time_widget
+
+    wednesday_start = time_widget
+    wednesday_end = time_widget
+
+    thursday_start = time_widget
+    thursday_end = time_widget
+
+    friday_start = time_widget
+    friday_end = time_widget
+
+    saturday_start = time_widget
+    saturday_end = time_widget
+
+    sunday_start = time_widget
+    sunday_end = time_widget
+class EmployeeScheduleAdmin(admin.ModelAdmin):
+    form = EmployeeScheduleAdminForm
+
+    # Fields to display in the list view
+    list_display = ('employee', 'monday_start', 'monday_end', 'tuesday_start', 'tuesday_end', 
+                    'wednesday_start', 'wednesday_end', 'thursday_start', 'thursday_end', 
+                    'friday_start', 'friday_end', 'saturday_start', 'saturday_end', 
+                    'sunday_start', 'sunday_end')
+    
+    # Enable search for employees
+    search_fields = ('employee__first_name', 'employee__last_name')
+    
+    # Enable filtering by employee or department
+    list_filter = ('employee__department',)
+    class Media:
+        # Reference to the local static files using the static tag
+        js = (static('js/flatpickr.js'), static('js/flatpickr_init.js'))  # Include Flatpickr JS from the static directory
+        css = {
+            'all': (static('css/flatpickr.min.css'),)  # Include Flatpickr CSS from the static directory
+        }
 admin.site.register(Employee, EmployeeAdmin)
+admin.site.register(EmployeeSchedule, EmployeeScheduleAdmin)
