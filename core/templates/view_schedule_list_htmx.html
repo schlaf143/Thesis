@@ -1,0 +1,63 @@
+{# schedule/templates/schedule_table_htmx.html #}
+{% extends "base.html" %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    {% block main %}
+    <div id="schedule-list-container">
+        <h1>Employee Schedule</h1>
+
+        {# Search Form #}
+        <div class="d-flex w-100 mb-3">
+            <form 
+                hx-get="{% url 'schedule_htmx' %}" 
+                hx-target="div.table-container" 
+                hx-swap="outerHTML" 
+                hx-indicator=".progress" 
+                class="form-inline w-50 d-flex">
+                <div class="flex-grow-1 d-flex">
+                    <div class="form-group flex-grow-1">
+                        {% crispy filter.form %}
+                    </div>
+                    <div>
+                        <button class="btn btn-primary ms-2" type="submit">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <div>
+                <button 
+                    hx-get="{% url 'schedule_htmx' %}" 
+                    hx-target="div.table-container" 
+                    hx-swap="outerHTML" 
+                    hx-indicator=".progress"
+                    class="btn btn-primary ms-2"
+                    id="clear-btn">
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        {# Progress Indicator #}
+        <div class="progress">
+            <div class="indeterminate"></div>
+        </div>
+
+        {# Render Table #}
+            {% render_table table %}
+    </div>
+
+    <script>
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            // Clear the search input
+            document.querySelector('input[name="query"]').value = '';
+            // Trigger form submission to reset the table
+            document.getElementById('search-form').submit();
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

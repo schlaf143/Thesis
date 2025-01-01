@@ -13,6 +13,7 @@ class EmployeeForm(forms.ModelForm):
         # Simply call the model's clean method to do the validation
         cleaned_data = super().clean()
         return cleaned_data
+    
 class EmployeeScheduleForm(forms.ModelForm):
     class Media:
         # Reference to the local static files using the static tag

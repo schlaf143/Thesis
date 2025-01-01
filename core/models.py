@@ -57,9 +57,10 @@ class Employee(models.Model):
         #     raise ValidationError("This combination of Company ID and Employee ID already exists.")
         
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.employee_id})"
+        return f"{self.first_name} {self.middle_name} {self.last_name}"
+
 class EmployeeSchedule(models.Model):
-    employee = models.ForeignKey('Employee', on_delete=models.CASCADE, unique=True)
+    employee = models.OneToOneField('Employee', on_delete=models.CASCADE)
     monday_start = models.TimeField(null=True, blank=True)
     monday_end = models.TimeField(null=True, blank=True)
     tuesday_start = models.TimeField(null=True, blank=True)

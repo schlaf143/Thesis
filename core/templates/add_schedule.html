@@ -10,8 +10,7 @@
         {% csrf_token %}
         <h3>Employee Schedule</h3>
 
-        <!-- General non-field errors -->
-        {% if schedule_form.non_field_errors %}
+        <!-- {% if schedule_form.non_field_errors %}
         <div class="alert alert-danger">
             <ul>
                 {% for error in schedule_form.non_field_errors %}
@@ -19,7 +18,7 @@
                 {% endfor %}
             </ul>
         </div>
-        {% endif %}
+        {% endif %} -->
 
         <div class="form-group">
             <label for="id_employee">Employee:</label>

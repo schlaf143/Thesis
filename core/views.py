@@ -12,8 +12,8 @@ import os
 
 from .forms import EmployeeForm, EmployeeScheduleForm
 from .models import Employee, EmployeeSchedule
-from .tables import EmployeeHTMxTable
-from .filters import EmployeeFilter
+from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable
+from .filters import EmployeeFilter, EmployeeScheduleFilter
 
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
@@ -34,6 +34,21 @@ class EmployeeHTMxTableView(SingleTableMixin, FilterView):
             template_name = "view_employee_list_htmx.html"
 
         return template_name
+
+class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
+    table_class = EmployeeScheduleHTMxTable
+    queryset = EmployeeSchedule.objects.all()
+    filterset_class = EmployeeScheduleFilter
+    paginate_by = 3
+
+    def get_template_names(self):
+        if self.request.htmx:
+            template_name = "view_schedule_list_htmx_partial.html"
+        else:
+            template_name = "view_schedule_list_htmx.html"
+
+        return template_name
+
 
 class EmployeeEditView(UpdateView):
     model = Employee
