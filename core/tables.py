@@ -8,7 +8,7 @@ class EmployeeHTMxTable(tables.Table):
     class Meta:
         model = Employee
         template_name = "htmx_template.html"
-        exclude = ('employee_id',)
+        exclude = ('employee_id',"middle_name", "sex    ")
         
     def render_edit(self, record):
         return format_html(

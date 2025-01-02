@@ -41,17 +41,36 @@
                 </button>
             </div>
         </div>
-        
+<!--         
         {# Progress indicator #}
         <div class="progress">
             <div class="indeterminate"></div>
-        </div>
-
+        </div> -->
+        <hr>
         {# The actual table #}
         
         <!-- Employee edit form container (this could be a modal or inline section) -->
         
-        {% render_table table %}
+        <div class="mt-2">
+            <table id="{{ table.attrs.id }}" class="{{ table.attrs.class }} table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        {% for column in table.columns %}
+                            <th>{{ column.header }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in table.rows %}
+                        <tr>
+                            {% for cell in row %}
+                                <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </t>
+        </div>
     </div>
 
         <script>
