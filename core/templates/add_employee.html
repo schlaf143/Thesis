@@ -9,11 +9,8 @@
     {% block content %}
     <div class="container">
         <h3>Add Employee</h3>
-        <form method="POST">
-            {% csrf_token %}
-            
-            <!-- Display non-field errors -->
-            {% if employee_form.non_field_errors %}
+        <hr class="mb-5">
+        {% if employee_form.non_field_errors %}
             <div class="alert alert-danger">
                 <ul>
                     {% for error in employee_form.non_field_errors %}
@@ -22,116 +19,130 @@
                 </ul>
             </div>
             {% endif %}
+        <form method="POST" class="d-flex gap-2 flex-grow-1">
+            {% csrf_token %}
+            
+            <!-- Display non-field errors -->
+            
             
             <!-- Manually define each field with Bootstrap classes -->
-            <div class="form-group">
-                <label for="company_id">Company ID:</label>
-                <input type="text" name="company_id" id="company_id" class="form-control" placeholder="Enter company ID" autocomplete="off" value="{{ employee_form.company_id.value }}">
-                {% if employee_form.company_id.errors %}
-                <div class="text-danger">
-                    {{ employee_form.company_id.errors.0 }}
-                </div>
-                {% endif %}
-            </div>
 
-            <div class="form-group">
-                <label for="first_name">First Name:</label>
-                <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter first name" value="{{ employee_form.first_name.value }}">
-                {% if employee_form.first_name.errors %}
-                <div class="text-danger">
-                    {{ employee_form.first_name.errors.0 }}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="middle_name">Middle Name:</label>
-                <input type="text" name="middle_name" id="middle_name" class="form-control" placeholder="Enter middle name" value="{{ employee_form.middle_name.value }}">
-                {% if employee_form.middle_name.errors %}
-                <div class="text-danger">
-                    {{ employee_form.middle_name.errors.0 }}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="last_name">Last Name:</label>
-                <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter last name" value="{{ employee_form.last_name.value }}">
-                {% if employee_form.last_name.errors %}
-                <div class="text-danger">
-                    {{ employee_form.last_name.errors.0 }}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="sex">Sex:</label>
-                <select name="sex" id="sex" class="form-control">
-                    <option value="M" {% if employee_form.sex.value == 'M' %}selected{% endif %}>Male</option>
-                    <option value="F" {% if employee_form.sex.value == 'F' %}selected{% endif %}>Female</option>
-                </select>
-                {% if employee_form.sex.errors %}
-                <div class="text-danger">
-                    {{ employee_form.sex.errors.0 }}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="role">Role:</label>
-                <select name="role" id="role" class="form-control">
-                    <option value="Employee" {% if employee_form.role.value == 'Employee' %}selected{% endif %}>Employee</option>
-                    <option value="HR" {% if employee_form.role.value == 'HR' %}selected{% endif %}>HR</option>
-                    <option value="Admin" {% if employee_form.role.value == 'Admin' %}selected{% endif %}>Administrator</option>
-                </select>
-                {% if employee_form.role.errors %}
-                <div class="text-danger">
-                    {{ employee_form.role.errors.0 }}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="department">Department:</label>
-                <input type="text" name="department" id="department" class="form-control" placeholder="Enter department" value="{{ employee_form.department.value }}">
-                {% if employee_form.department.errors %}
-                <div class="text-danger">
-                    {{ employee_form.department.errors.0 }}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="contact_number">Contact Number:</label>
-                <input type="text" name="contact_number" id="contact_number" class="form-control" placeholder="Enter contact number" autocomplete="off" value="{{ employee_form.contact_number.value }}">
-                {% if employee_form.contact_number.errors %}
-                <div class="text-danger">
-                    {{ employee_form.contact_number.errors.0 }}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="date_employed">Date Employed:</label>
-                <input type="text" name="date_employed" id="date_employed" class="form-control" value="{{ employee_form.date_employed.value }}">
-                {% if employee_form.date_employed.errors %}
+            <div class="d-flex flex-column gap-3 flex-grow-1">
+                <div class="form-group" class="form-label">
+                    <label for="first_name" class="form-label">First Name:</label>
+                    <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter first name" value="{{ employee_form.first_name.value }}">
+                    {% if employee_form.first_name.errors %}
                     <div class="text-danger">
-                        {{ employee_form.date_employed.errors.0 }}
+                        {{ employee_form.first_name.errors.0 }}
                     </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                <label for="leave_credits">Leave Credits:</label>
-                <input type="number" name="leave_credits" id="leave_credits" class="form-control" placeholder="Enter leave credits" value="{{ employee_form.leave_credits.value }}">
-                {% if employee_form.leave_credits.errors %}
-                <div class="text-danger">
-                    {{ employee_form.leave_credits.errors.0 }}
+                    {% endif %}
                 </div>
-                {% endif %}
+    
+                <div class="form-group">
+                    <label for="middle_name" class="form-label">Middle Name:</label>
+                    <input type="text" name="middle_name" id="middle_name" class="form-control" placeholder="Enter middle name" value="{{ employee_form.middle_name.value }}">
+                    {% if employee_form.middle_name.errors %}
+                    <div class="text-danger">
+                        {{ employee_form.middle_name.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="last_name" class="form-label">Last Name:</label>
+                    <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter last name" value="{{ employee_form.last_name.value }}">
+                    {% if employee_form.last_name.errors %}
+                    <div class="text-danger">
+                        {{ employee_form.last_name.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="sex" class="form-label">Sex:</label>
+                    <select name="sex" id="sex" class="form-control">
+                        <option value="M" {% if employee_form.sex.value == 'M' %}selected{% endif %}>Male</option>
+                        <option value="F" {% if employee_form.sex.value == 'F' %}selected{% endif %}>Female</option>
+                    </select>
+                    {% if employee_form.sex.errors %}
+                    <div class="text-danger">
+                        {{ employee_form.sex.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="contact_number" class="form-label">Contact Number:</label>
+                    <input type="text" name="contact_number" id="contact_number" class="form-control" placeholder="Enter contact number" autocomplete="off" value="{{ employee_form.contact_number.value }}">
+                    {% if employee_form.contact_number.errors %}
+                    <div class="text-danger">
+                        {{ employee_form.contact_number.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex flex-column gap-3 flex-grow-1">
+                <div class="form-group">
+                    <label for="company_id" class="form-label">Company ID:</label>
+                    <input type="text" name="company_id" id="company_id" class="form-control" placeholder="Enter company ID" autocomplete="off" value="{{ employee_form.company_id.value }}">
+                    {% if employee_form.company_id.errors %}
+                    <div class="text-danger">
+                        {{ employee_form.company_id.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="role" class="form-label">Role:</label>
+                    <select name="role" id="role" class="form-control">
+                        <option value="Employee" {% if employee_form.role.value == 'Employee' %}selected{% endif %}>Employee</option>
+                        <option value="HR" {% if employee_form.role.value == 'HR' %}selected{% endif %}>HR</option>
+                        <option value="Admin" {% if employee_form.role.value == 'Admin' %}selected{% endif %}>Administrator</option>
+                    </select>
+                    {% if employee_form.role.errors %}
+                    <div class="text-danger">
+                        {{ employee_form.role.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="department" class="form-label">Department:</label>
+                    <input type="text" name="department" id="department" class="form-control" placeholder="Enter department" value="{{ employee_form.department.value }}">
+                    {% if employee_form.department.errors %}
+                    <div class="text-danger">
+                        {{ employee_form.department.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="date_employed" class="form-label">Date Employed:</label>
+                    <input type="text" name="date_employed" id="date_employed" class="form-control" value="{{ employee_form.date_employed.value }}">
+                    {% if employee_form.date_employed.errors %}
+                        <div class="text-danger">
+                            {{ employee_form.date_employed.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="leave_credits" class="form-label">Leave Credits:</label>
+                    <input type="number" name="leave_credits" id="leave_credits" class="form-control" placeholder="Enter leave credits" value="{{ employee_form.leave_credits.value }}">
+                    {% if employee_form.leave_credits.errors %}
+                    <div class="text-danger">
+                        {{ employee_form.leave_credits.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary align-self-end mt-4">Save Employee</button>
             </div>
 
-            <button type="submit" class="btn btn-primary">Save Employee</button>
+            
+
+            
+
+            
         </form>
     </div>
     {% endblock %}
