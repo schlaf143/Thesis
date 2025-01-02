@@ -34,7 +34,7 @@ class EmployeeScheduleForm(forms.ModelForm):
         ]
         time_widget = forms.TimeInput(attrs={ 
                 'class': 'flatpickr form-control',
-                'placeholder': 'Select start time',
+                'placeholder': 'Set Time',
                 'data-time_24hr': 'true',
                 'autocomplete' : 'off',
             })
