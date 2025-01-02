@@ -1,26 +1,25 @@
-{# product/templates/product_table_htmx.html #}
 {% extends "base.html" %}
 {% load static %}
 {% load render_table from django_tables2 %}
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-
 {% block content %}
     {% block main %}
     <div id="employee-list-container">
-        <h1>Employee table</h1>
+        <h1>Employee Table</h1>
 
         {# Search form #}
         <div class="d-flex w-100">
             <form
-                hx-get="{% url 'employee_htmx' %}" 
-                hx-target="div.table-container" 
-                hx-swap="outerHTML" 
-                hx-indicator=".progress" 
-                class="form-inline w-50 d-flex">
+                id="search-form"
+                hx-get="{% url 'employee_htmx' %}"
+                hx-target="div.table-container"
+                hx-swap="outerHTML"
+                hx-indicator=".progress"
+                class="form-inline w-50 d-flex mb-0">
                 <div class="flex-grow-1 d-flex">
-                    <div class="form-group flex-grow-1">
+                    <div class="form-group flex-grow-1  ">
                         {% crispy filter.form %}
                     </div>
                     <div>
@@ -31,56 +30,67 @@
                 </div>
             </form>
             <div>
-                <button hx-get="{% url 'employee_htmx' %}" 
-                        hx-target="div.table-container" 
-                        hx-swap="outerHTML" 
-                        hx-indicator=".progress"
-                        class="btn btn-primary ms-2"
-                        id="clear-btn">
+                <button 
+                    hx-get="{% url 'employee_htmx' %}"
+                    hx-target="div.table-container"
+                    hx-swap="outerHTML"
+                    hx-indicator=".progress"
+                    class="btn btn-primary ms-2"
+                    id="clear-btn">
                     Clear
                 </button>
+                
             </div>
+            <div class="ms-auto">
+                <a class="btn btn-success" href="{% url 'add_employee' %}">Add Employee</a>
+            </div>
+            
         </div>
-<!--         
-        {# Progress indicator #}
-        <div class="progress">
+
+        {# Progress indicator (optional) #}
+        <div class="progress" style="display: none;">
             <div class="indeterminate"></div>
-        </div> -->
+        </div>
+
         <hr>
+
         {# The actual table #}
-        
-        <!-- Employee edit form container (this could be a modal or inline section) -->
-        
-        <div class="mt-2">
-            <table id="{{ table.attrs.id }}" class="{{ table.attrs.class }} table table-hover">
-                <thead class="thead-dark">
+        <div class="table-container mt-2">
+            <table id="{{ table.attrs.id|default:'employee-table' }}" class="{{ table.attrs.class|default:'table table-hover' }}">
+                <thead class="thead-dark position-relative fixed-top">
                     <tr>
                         {% for column in table.columns %}
-                            <th>{{ column.header }}</th>
+                            <th class="fs-6">{{ column.header }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="tbody overflow-scroll">
                     {% for row in table.rows %}
                         <tr>
                             {% for cell in row %}
                                 <td>{{ cell }}</td>
                             {% endfor %}
                         </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="{{ table.columns|length }}" class="text-center">No records found.</td>
+                        </tr>
                     {% endfor %}
-                </tbody>
-            </t>
+                </div>
+            </table>
+            
         </div>
+        
     </div>
 
-        <script>
-            document.getElementById('clear-btn').addEventListener('click', function() {
-                // Clear the search input
-                document.querySelector('input[name="query"]').value = '';
-        
-                // Trigger form submission to reset the table
-                document.getElementById('search-form').submit();
-            });
-        </script>
+    <script>
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            // Clear the search inputs
+            document.querySelectorAll('#search-form input').forEach(input => input.value = '');
+
+            // Trigger form submission to reset the table
+            document.getElementById('search-form').submit();
+        });
+    </script>
     {% endblock %}
-{% endblock %}      
+{% endblock %}
