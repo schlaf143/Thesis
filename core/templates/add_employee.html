@@ -8,7 +8,11 @@
 <body>
     {% block content %}
     <div class="container">
-        <h3>Add Employee</h3>
+        <div class="d-flex">
+            <h3 class="flex-grow-1">Add Employee</h3>
+            <a class="btn btn-secondary mb-0" href="{% url 'view_employee_list' %}">Back to list</a>
+        </div>
+        
         <hr class="mb-5">
         {% if employee_form.non_field_errors %}
             <div class="alert alert-danger">
@@ -30,7 +34,7 @@
             <div class="d-flex flex-column gap-3 flex-grow-1">
                 <div class="form-group" class="form-label">
                     <label for="first_name" class="form-label">First Name:</label>
-                    <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter first name" value="{{ employee_form.first_name.value }}">
+                    <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter first name" >
                     {% if employee_form.first_name.errors %}
                     <div class="text-danger">
                         {{ employee_form.first_name.errors.0 }}
@@ -40,7 +44,7 @@
     
                 <div class="form-group">
                     <label for="middle_name" class="form-label">Middle Name:</label>
-                    <input type="text" name="middle_name" id="middle_name" class="form-control" placeholder="Enter middle name" value="{{ employee_form.middle_name.value }}">
+                    <input type="text" name="middle_name" id="middle_name" class="form-control" placeholder="Enter middle name" >
                     {% if employee_form.middle_name.errors %}
                     <div class="text-danger">
                         {{ employee_form.middle_name.errors.0 }}
@@ -50,7 +54,7 @@
     
                 <div class="form-group">
                     <label for="last_name" class="form-label">Last Name:</label>
-                    <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter last name" value="{{ employee_form.last_name.value }}">
+                    <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter last name">
                     {% if employee_form.last_name.errors %}
                     <div class="text-danger">
                         {{ employee_form.last_name.errors.0 }}
@@ -73,7 +77,7 @@
     
                 <div class="form-group">
                     <label for="contact_number" class="form-label">Contact Number:</label>
-                    <input type="text" name="contact_number" id="contact_number" class="form-control" placeholder="Enter contact number" autocomplete="off" value="{{ employee_form.contact_number.value }}">
+                    <input type="text" name="contact_number" id="contact_number" class="form-control" placeholder="Enter contact number" autocomplete="off">
                     {% if employee_form.contact_number.errors %}
                     <div class="text-danger">
                         {{ employee_form.contact_number.errors.0 }}
@@ -84,7 +88,7 @@
             <div class="d-flex flex-column gap-3 flex-grow-1">
                 <div class="form-group">
                     <label for="company_id" class="form-label">Company ID:</label>
-                    <input type="text" name="company_id" id="company_id" class="form-control" placeholder="Enter company ID" autocomplete="off" value="{{ employee_form.company_id.value }}">
+                    <input type="text" name="company_id" id="company_id" class="form-control" placeholder="Enter company ID" autocomplete="off">
                     {% if employee_form.company_id.errors %}
                     <div class="text-danger">
                         {{ employee_form.company_id.errors.0 }}
@@ -108,7 +112,7 @@
     
                 <div class="form-group">
                     <label for="department" class="form-label">Department:</label>
-                    <input type="text" name="department" id="department" class="form-control" placeholder="Enter department" value="{{ employee_form.department.value }}">
+                    <input type="text" name="department" id="department" class="form-control" placeholder="Enter department" >
                     {% if employee_form.department.errors %}
                     <div class="text-danger">
                         {{ employee_form.department.errors.0 }}
@@ -118,7 +122,7 @@
     
                 <div class="form-group">
                     <label for="date_employed" class="form-label">Date Employed:</label>
-                    <input type="text" name="date_employed" id="date_employed" class="form-control" value="{{ employee_form.date_employed.value }}">
+                    <input type="text" name="date_employed" id="date_employed" class="form-control">
                     {% if employee_form.date_employed.errors %}
                         <div class="text-danger">
                             {{ employee_form.date_employed.errors.0 }}
@@ -128,14 +132,18 @@
     
                 <div class="form-group">
                     <label for="leave_credits" class="form-label">Leave Credits:</label>
-                    <input type="number" name="leave_credits" id="leave_credits" class="form-control" placeholder="Enter leave credits" value="{{ employee_form.leave_credits.value }}">
+                    <input type="number" name="leave_credits" id="leave_credits" class="form-control" placeholder="Enter leave credits">
                     {% if employee_form.leave_credits.errors %}
                     <div class="text-danger">
                         {{ employee_form.leave_credits.errors.0 }}
                     </div>
                     {% endif %}
                 </div>
-                <button type="submit" class="btn btn-primary align-self-end mt-4">Save Employee</button>
+                <div class="d-flex justify-content-end mt-2 gap-2">
+                    <a class="btn btn-danger" href="{% url 'view_employee_list' %}">Cancel</a>
+                    <button type="submit" class="btn btn-success">Save Employee</button>
+                </div>
+                
             </div>
 
             
