@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Edit Employee</h1>
+    <hr>
     <form method="post" action="{% url 'employee_edit' employee.employee_id %}">
         {% csrf_token %}
         {{ form.as_p }}
