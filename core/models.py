@@ -5,14 +5,15 @@ from datetime import timedelta, datetime
 
 class Employee(models.Model):
     SEX_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Prefer not to Say'),
     ]
 
     ROLE_CHOICES = [
-        ('Employee', 'Employee'),
-        ('HR', 'Human Resources'),
-        ('Admin', 'Administrator'),
+        ('Regular Employee', 'Regular Employee'),
+        ('Department Head', 'Department Head'),
+        ('Administrator', 'Administrator'),
     ]
 
     employee_id = models.AutoField(primary_key=True)  # Auto-incrementing primary key
@@ -20,8 +21,9 @@ class Employee(models.Model):
     first_name = models.CharField(max_length=100, blank=False)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=False)
-    sex = models.CharField(max_length=1, choices=SEX_CHOICES, blank=False)
-    role = models.CharField(max_length=8, choices=ROLE_CHOICES, default='Employee', blank=False)
+    sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Employee', blank=False)
+
     department = models.CharField(max_length=100, blank=False)
     contact_number = models.CharField(max_length=15, blank=False)
     date_employed = models.DateField()
@@ -145,6 +147,9 @@ class EmployeeSchedule(models.Model):
     def get_schedule_for_day(self, day):
         """Return a formatted string for a specific day."""
         start = getattr(self, f"{day.lower()}_start")
+
+        # Get the end time for the day
+        
         end = getattr(self, f"{day.lower()}_end")
         if start and end:
             # Check if the end time is earlier than the start time (shift spans midnight)

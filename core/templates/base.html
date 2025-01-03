@@ -23,17 +23,60 @@
     <div class="container-fluid vh-100">
         <div class="row h-100">
             <!-- Sidebar -->
-            <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-3">
+            <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-2">
                 <div class="text-center mb-4">
-                    <img src="{% static 'assets/logo.png' %}" alt="Logo" class="img-fluid rounded-circle mb-3" style="max-width: 80px;">
+                    <!-- <img src="{% static 'assets/logo.png' %}" alt="Logo" class="img-fluid rounded-circle mb-3" style="max-width: 80px;"> -->
                     <h4>Workfore Monitoring</h4>
                 </div>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
+                <hr>
+                <!-- <ul class="nav flex-column"> -->
+                    <!-- <li class="nav-item">
                         <a href="/ems/dashboard" class="nav-link text-light d-flex align-items-center">
                             <i class='bx bx-home-alt me-2'></i> Dashboard
                         </a>
-                    </li>
+                    </li> -->
+
+                    <ul class="nav flex-column nav-pills">
+                        <li class="nav-item">
+                          <a class="nav-link text-light" aria-current="page" href="{ % url 'dashboard' % }">
+                            Dashboard<i class='bx bx-home-alt ms-2'></i></a>
+                        </li>
+
+                        <li class="nav-item">
+
+                          <button class="nav-link text-light " type="button" data-bs-toggle="collapse" data-bs-target="#manageEmpCollapse" aria-expanded="false" aria-controls="manageEmpCollapse">
+                            </i>Manage Employees<i class='bx bxs-down-arrow ms-2'></i></button>
+                            
+                          <div class="collapse multi-collapse" id="manageEmpCollapse">
+                            <div class="list-group  p-3">
+                                <a href="#" class="list-group-item list-group-item-action">View Employee List</a>
+                                <a href="#" class="list-group-item list-group-item-action">Add Employee</a>
+                              </div>
+                          </div>
+                        </li>
+                        <li class="nav-item">
+                            <!-- <a class="" href="#">Link</a> -->
+                            <button class="nav-link text-light " type="button" data-bs-toggle="collapse" data-bs-target="#manageShftCollapse" aria-expanded="false" aria-controls="manageShftCollapse">
+                            Manage Shifts<i class='bx bxs-down-arrow ms-2'></i></button>
+                            <div class="collapse multi-collapse" id="manageShftCollapse">
+                                <div class="list-group  p-3">
+                                    <a href="#" class="list-group-item list-group-item-action">View Shift Schedule</a>
+                                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
+                                  </div>
+                              </div>
+                          </li>
+
+                          <li class="nav-item">
+                            <a class="nav-link text-light" aria-current="page" href="{ % url 'dashboard' % }">
+                              Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link text-light" aria-current="page" href="{ % url 'dashboard' % }">
+                              Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
+                          </li>
+                      </ul>
+              
+                    <!--
                     <li class="nav-item">
                         <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
                             <i class='bx bx-bar-chart-alt-2 me-2'></i> Time-in and Time-out
@@ -68,10 +111,10 @@
                         <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
                             <i class='bx bx-bar-chart-alt-2 me-2'></i> Manage Employee Information
                         </a>
-                    </li>
+                    </li> -->
                     
                     <!-- Add more links as needed -->
-                </ul>
+                <!-- </ul> -->
                 <div class="mt-auto">
                     <a href="/logout" class="btn btn-danger w-100">Logout</a>
                 </div>
