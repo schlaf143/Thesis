@@ -3,6 +3,10 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ValidationError
 from datetime import timedelta, datetime
 
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db import models
+
 class Employee(models.Model):
     SEX_CHOICES = [
         ('Male', 'Male'),
@@ -22,12 +26,15 @@ class Employee(models.Model):
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=False)
     sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Employee', blank=False)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Regular Employee', blank=False)
 
     department = models.CharField(max_length=100, blank=False)
     contact_number = models.CharField(max_length=15, blank=False)
     date_employed = models.DateField()
     leave_credits = models.IntegerField(default=0, blank=False)
+
+    # Foreign key linking the employee to a user account
+    user_account = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='employee')
 
     class Meta:
         ordering = ['last_name', 'first_name']  # Default ordering
@@ -40,9 +47,7 @@ class Employee(models.Model):
                 name='positive_leave_credits',
             ),
         ]
-        """models.UniqueConstraint(
-            fields=['company_id', 'employee_id'], name='unique_company_employee'
-        ), """
+        
     def clean(self):
         # Validate contact number (must contain only digits and be at least 10 digits)
         if not self.contact_number.isdigit():
@@ -54,12 +59,9 @@ class Employee(models.Model):
         if self.leave_credits < 0:
             raise ValidationError("Leave credits cannot be negative.")
         
-        # Optional: Validate that the combination of company_id and employee_id is unique
-        # if Employee.objects.filter(company_id=self.company_id, employee_id=self.employee_id).exists():
-        #     raise ValidationError("This combination of Company ID and Employee ID already exists.")
-        
     def __str__(self):
         return f"{self.first_name} {self.middle_name} {self.last_name}"
+
 
 class EmployeeSchedule(models.Model):
     employee = models.OneToOneField('Employee', on_delete=models.CASCADE)

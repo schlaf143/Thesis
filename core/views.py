@@ -11,7 +11,7 @@ from pathlib import Path
 import os
 
 from .forms import EmployeeForm, EmployeeScheduleForm
-from .models import Employee, EmployeeSchedule
+from .models import Employee, EmployeeSchedule, User
 from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable
 from .filters import EmployeeFilter, EmployeeScheduleFilter
 
@@ -92,13 +92,20 @@ def add_employee(request):
     if request.method == 'POST':
         employee_form = EmployeeForm(request.POST)
         if employee_form.is_valid():
-            employee_form.save()
+            # Save the form and associate the selected user account with the employee
+            employee = employee_form.save(commit=False)
+            user_id = request.POST.get('user')  # Retrieve the selected user ID
+            if user_id:
+                employee.linked_account = User.objects.get(id=user_id)
+            employee.save()
             return redirect('view_employee_list')  # Redirect to a list or detail view
         else:
             print(employee_form.errors)
     else:
         employee_form = EmployeeForm()
-    return render(request, 'add_employee.html', {'employee_form': employee_form})
+
+    users = User.objects.exclude(employee__isnull=False)  # Assuming 'employee' is the related name for the User-Employee relationship
+    return render(request, 'add_employee.html', {'employee_form': employee_form, 'users': users})
 
 def add_schedule(request):
     if request.method == 'POST':

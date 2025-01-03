@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('camera/', views.camera_view, name='camera'),
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('', views.dashboard, name='dashboard'),
     
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 
