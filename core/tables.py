@@ -38,11 +38,12 @@ class EmployeeScheduleHTMxTable(tables.Table):
             'edit',
         )
         attrs = {
-            "class": "table table-bordered table-striped table-hover",
-        }  # Apply Bootstrap styles
+            "class": "table table-bordered table-striped table-hover align-middle text-center",
+        } 
 
     def render_edit(self, record):
         return format_html(
             '<a href="/schedule/edit/{}/" class="btn btn-sm btn-warning htmx-trigger">Edit</a>',
             record.employee_id
         )
+

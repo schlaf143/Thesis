@@ -6,13 +6,16 @@ from datetime import timedelta, datetime
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
-        fields = '__all__'  # Include all fields from the model
-        
-    def clean(self):
-        """Remove redundant validation in the form."""
-        # Simply call the model's clean method to do the validation
-        cleaned_data = super().clean()
-        return cleaned_data
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({'class': 'form-select'})
+            else:
+                field.widget.attrs.update({'class': 'form-control'})
+
     
 class EmployeeScheduleForm(forms.ModelForm):
     class Media:
