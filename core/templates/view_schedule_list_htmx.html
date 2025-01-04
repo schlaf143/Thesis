@@ -13,7 +13,7 @@
         {# Search Form #}
         <div class="d-flex w-100 mb-3">
             <form 
-                hx-get="{% url 'schedule_htmx' %}" 
+                hx-get="{% url 'view_schedule_list' %}" 
                 hx-target="div.table-container" 
                 hx-swap="outerHTML" 
                 hx-indicator=".progress" 
@@ -31,7 +31,7 @@
             </form>
             <div>
                 <button 
-                    hx-get="{% url 'schedule_htmx' %}" 
+                    hx-get="{% url 'view_schedule_list' %}" 
                     hx-target="div.table-container" 
                     hx-swap="outerHTML" 
                     hx-indicator=".progress"

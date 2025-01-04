@@ -34,12 +34,18 @@ urlpatterns = [
     path('employee/delete/<int:pk>/', views.EmployeeDeleteView.as_view(), name='employee_delete'),
     #!
     
+    #! CRUD operations for employee schedules | HR Side
     path('schedule/create/', views.add_schedule, name='add_schedule'), 
-    path('schedule/view/', views.EmployeeScheduleHTMxTableView.as_view(), name='schedule_htmx'),
+    path('schedule/view/', views.EmployeeScheduleHTMxTableView.as_view(), name='view_schedule_list'),
+    path('schedule/edit/<int:pk>/', views.EmployeeScheduleEditView.as_view(), name='employee_schedule_edit'),
+    path('employee/delete/<int:pk>/', views.EmployeeScheduleDeleteView.as_view(), name='employee_schedule_delete'),
     
-    path('save_face/', views.save_face, name='save_face'),
-    path('save_face_embedding/', views.save_face_embedding, name='save_face_embedding'),
-    path('get_saved_face_embeddings/', views.get_saved_face_embeddings, name='get_saved_face_embeddings'),
+    #! Attendance module
+    path('attendance/camera/', views.open_camera, name='open_camera'),
+    #path('attendance/time-in/', views.attendance_time_in, name='attendance_time_in'),
+
+    #!! Face Recognition Dataset
+    path('attendance/camera/register_faces/', views.create_dataset, name='create_dataset'),
 ]
 
 # Serve static files in development

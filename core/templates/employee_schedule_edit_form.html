@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Edit Schedule</h1>
+    <hr>
+    <form method="post" action="{% url 'employee_schedule_edit' employeeschedule.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <!-- Flexbox container for buttons -->
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'view_schedule_list' %}" class="btn btn-secondary">Cancel</a>
+            
+            <form method="POST" action="{% url 'employee_schedule_delete' employeeschedule.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this schedule?');">
+                    Delete Schedule
+                </button>
+            </form>
+        </div>
+    </form>
+{% endblock %}

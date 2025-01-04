@@ -9,7 +9,7 @@ class EmployeeAdmin(admin.ModelAdmin):
     # Display all columns in the list view of the admin panel
     list_display = (
         'employee_id', 'company_id', 'first_name', 'middle_name', 'last_name', 
-        'sex', 'role', 'department', 'contact_number', 'date_employed', 'leave_credits'
+        'sex', 'role', 'department', 'contact_number', 'date_employed', 'leave_credits', 'user_account'
     )
     
     # Optional: Add filtering options for more control
@@ -61,7 +61,7 @@ class EmployeeScheduleAdmin(admin.ModelAdmin):
     form = EmployeeScheduleAdminForm
 
     # Fields to display in the list view
-    list_display = ('employee', 'monday_start', 'monday_end', 'tuesday_start', 'tuesday_end', 
+    list_display = ('id','employee', 'monday_start', 'monday_end', 'tuesday_start', 'tuesday_end', 
                     'wednesday_start', 'wednesday_end', 'thursday_start', 'thursday_end', 
                     'friday_start', 'friday_end', 'saturday_start', 'saturday_end', 
                     'sunday_start', 'sunday_end')

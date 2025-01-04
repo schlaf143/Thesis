@@ -8,8 +8,19 @@ class EmployeeHTMxTable(tables.Table):
     class Meta:
         model = Employee
         template_name = "htmx_template.html"
-        exclude = ('employee_id',"middle_name", "sex", "date_employed")
-        
+        exclude = ('employee_id', "sex", "date_employed")
+        fields = (
+            'company_id',  
+            'first_name',
+            'middle_name',
+            'last_name',
+            'role',
+            'department',
+            'contact_number',
+            'leave_credits',
+            'user_account',
+            'edit',
+        )
     def render_edit(self, record):
         return format_html(
             '<a href="/employee/edit/{}/" class="btn btn-sm btn-warning">Edit</a>',
@@ -23,10 +34,11 @@ class EmployeeScheduleHTMxTable(tables.Table):
 
     class Meta:
         model = EmployeeSchedule
-        template_name = "django_tables2/bootstrap5.html"  # Use the Bootstrap 5 template
-        exclude = ('employee_id','employee_company_id')
+        template_name = "htmx_template.html"
+        exclude = ('employee_id',)
         fields = (
-            'employee',  
+            'employee', 
+            'employee_company_id',
             'employee_department',
             'monday_start', 'monday_end',
             'tuesday_start', 'tuesday_end',
@@ -44,5 +56,9 @@ class EmployeeScheduleHTMxTable(tables.Table):
     def render_edit(self, record):
         return format_html(
             '<a href="/schedule/edit/{}/" class="btn btn-sm btn-warning htmx-trigger">Edit</a>',
-            record.employee_id
+            record.id 
         )
+        
+        #record.employee_id -> employee
+        #record.id -> schedule
+        #this is where the url takes the primary key and passese it

@@ -9,6 +9,9 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.core.exceptions import BadRequest
 from pathlib import Path
 import os
+import cv2
+from imutils.video import VideoStream
+from django.conf import settings
 
 from .forms import EmployeeForm, EmployeeScheduleForm
 from .models import Employee, EmployeeSchedule, User
@@ -18,14 +21,14 @@ from .filters import EmployeeFilter, EmployeeScheduleFilter
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-EMBEDDINGS_FILE = BASE_DIR / 'face_embeddings.json'
+# Path to Haarcascade file
+HAAR_CASCADE_PATH = os.path.join(settings.BASE_DIR, "haarcascades", "haarcascade_frontalface_default.xml")
 
 class EmployeeHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeHTMxTable
     queryset = Employee.objects.all()
     filterset_class = EmployeeFilter
-    # paginate_by = 3
+    paginate_by = 2
 
     def get_template_names(self):
         if self.request.htmx:
@@ -39,7 +42,7 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeScheduleHTMxTable
     queryset = EmployeeSchedule.objects.all()
     filterset_class = EmployeeScheduleFilter
-    # paginate_by = 3
+    paginate_by = 2
 
     def get_template_names(self):
         if self.request.htmx:
@@ -71,19 +74,41 @@ class EmployeeEditView(UpdateView):
 
 class EmployeeDeleteView(DeleteView):
     model = Employee
-    template_name = 'employee_confirm_delete.html'  # Optional: Confirmation template
+    #template_name = 'employee_confirm_delete.html'  # Optional: Confirmation template
     success_url = reverse_lazy('view_employee_list')  # Redirect after successful deletion
 
     def get_object(self, queryset=None):
         return get_object_or_404(Employee, pk=self.kwargs['pk'])
 
+class EmployeeScheduleEditView(UpdateView):
+    model = EmployeeSchedule
+    form_class = EmployeeScheduleForm
+    template_name = 'employee_schedule_edit_form.html'
+    success_url = reverse_lazy('view_schedule_list')  # Redirect to the employee list page after successful edit
+
+    def get_object(self, queryset=None):
+        # Retrieve the employee object by primary key (from the URL)
+        return get_object_or_404(EmployeeSchedule, pk=self.kwargs['pk'])
+
+    def form_valid(self, form):
+        # Save the form and redirect to the success URL
+        self.object = form.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # If the form is invalid, render the same form with error messages
+        return self.render_to_response(self.get_context_data(form=form))
+    
+class EmployeeScheduleDeleteView(DeleteView):
+    model = EmployeeSchedule
+    #template_name = 'employee_schedule_confirm_delete.html'  # Optional: Confirmation template
+    success_url = reverse_lazy('view_schedule_list')  # Redirect after successful deletion
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(EmployeeSchedule, pk=self.kwargs['pk'])
 
 def camera_view(request):
     return render(request, 'face_access.html')
-
-def save_face(request):
-    print(f"Embedding File: {EMBEDDINGS_FILE}")
-    return render(request, 'face_get.html')
 
 def dashboard(request):
     return render(request, 'dashboard.html')
@@ -121,87 +146,60 @@ def add_schedule(request):
 
     return render(request, 'add_schedule.html', {'schedule_form': schedule_form})
 
+def open_camera(request):
+    return render(request, 'attendance_open_camera.html')
 
-############
-def get_embeddings():
-    print("Get Embedding function gets called properly")
-    if EMBEDDINGS_FILE.exists():
-        with open(EMBEDDINGS_FILE, 'r') as file:
-            #print(f"File as: {file}")
-            return json.load(file)
-    return []
+def create_dataset(request):
+    if request.method == "POST":
+        username = request.POST.get("username")  # Get the username from POST data
+        
+        # Validate the username
+        if not username:
+            return JsonResponse({"error": "Username is required."}, status=400)
+        
+        # Create directory for the user inside the static folder
+        directory = os.path.join(settings.BASE_DIR, 'core', 'static', 'registered_faces', username)
+        os.makedirs(directory, exist_ok=True)
 
-def cosine_distance(vec1, vec2):
-    dot_product = np.dot(vec1, vec2)
-    magnitude1 = np.linalg.norm(vec1)
-    magnitude2 = np.linalg.norm(vec2)
-    return 1 - (dot_product / (magnitude1 * magnitude2))
+        # Initialize Haar Cascade for face detection
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
+        # Initialize the webcam
+        cap = cv2.VideoCapture(0)
+        sampleNum = 0
 
-last_saved_embedding = None
-embeddings_buffer = []
-MAX_EMBEDDINGS = 5
-THRESHOLD = 0.1
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                print("Failed to capture frame")
+                break
 
-@csrf_exempt
-def save_face_embedding(request):
-    global last_saved_embedding, embeddings_buffer
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
 
-    if request.method == 'POST':
-        try:
-            # Extract data from the request
-            data = json.loads(request.body.decode('utf-8'))
-            name = data.get('name')
-            embedding = data.get('embedding')
+            if len(faces) == 0:
+                print("No faces detected")
+            
+            for (x, y, w, h) in faces:
+                sampleNum += 1
+                face = frame[y:y+h, x:x+w]
+                filename = os.path.join(directory, f"{sampleNum}.jpg")
+                cv2.imwrite(filename, face)
+                print(f"Saving image: {filename}")
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
 
-            if not name or not embedding or not isinstance(embedding, list):
-                raise BadRequest("Invalid data format.")
+                if sampleNum >= 10:  # Capture 10 images
+                    break
 
-            # Track if the current embedding is too similar to the last one
-            if last_saved_embedding is not None:
-                distance = cosine_distance(last_saved_embedding, embedding)
-                if distance < THRESHOLD:
-                    return JsonResponse({'status': 'skipped'}, status=200)  # Skip saving if similar
+            cv2.imshow("Capturing Images", frame)
 
-            # Add current embedding to the buffer
-            embeddings_buffer.append(list(embedding))  # Store embedding as list
+            # Break the loop if 'q' is pressed or sample limit is reached
+            if cv2.waitKey(1) & 0xFF == ord('q') or sampleNum >= 10:
+                break
 
-            # Check if we need to save the buffer
-            if len(embeddings_buffer) >= MAX_EMBEDDINGS:
-                # Calculate the mean embedding
-                mean_embedding = np.mean(embeddings_buffer, axis=0).tolist()
+        cap.release()
+        cv2.destroyAllWindows()
 
-                # Save the mean embedding
-                embeddings = get_embeddings()
-                embeddings.append({'name': name, 'embedding': mean_embedding})
+        return JsonResponse({"message": "Dataset created successfully!"})
 
-                # Write the updated embeddings to the file
-                with open(EMBEDDINGS_FILE, 'w') as file:
-                    json.dump(embeddings, file, indent=4)
-
-                # Clear the buffer after saving
-                embeddings_buffer = []
-                last_saved_embedding = mean_embedding  # Update last saved embedding
-
-                return JsonResponse({'status': 'success'}, status=200)
-            else:
-                return JsonResponse({'status': 'buffering'}, status=200)  # Inform that buffering is ongoing
-
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
-        except BadRequest as e:
-            return JsonResponse({'error': str(e)}, status=400)
-        except Exception as e:
-            # Log more details in case of error
-            print(f"Error: {str(e)}")
-            return JsonResponse({'error': 'An error occurred while processing the request.'}, status=400)
-
-    return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
-
-@csrf_exempt
-def get_saved_face_embeddings(request):
-    if request.method == 'GET':
-        return JsonResponse(get_embeddings(), safe=False)
-    return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
-
-
+    return render(request, "create_dataset.html")
