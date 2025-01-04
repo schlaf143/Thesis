@@ -25,15 +25,11 @@ class EmployeeHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeHTMxTable
     queryset = Employee.objects.all()
     filterset_class = EmployeeFilter
-    # paginate_by = 3
 
     def get_template_names(self):
         if self.request.htmx:
-            template_name = "view_employee_list_htmx_partial.html"
-        else:
-            template_name = "view_employee_list_htmx.html"
-
-        return template_name
+            return ["view_employee_list_htmx_partial.html"]
+        return ["view_employee_list_htmx.html"]
 
 class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeScheduleHTMxTable

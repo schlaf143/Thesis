@@ -3,18 +3,20 @@ from django.utils.html import format_html
 from .models import Employee, EmployeeSchedule
 
 class EmployeeHTMxTable(tables.Table):
-    edit = tables.Column(empty_values=(), orderable=False, verbose_name='Actions')
+    # name = tables.Column(verbose_name="Full Name", order_by=("first_name", "last_name"))
+    edit = tables.Column(empty_values=(), orderable=False, verbose_name="Actions")
 
     class Meta:
         model = Employee
         template_name = "htmx_template.html"
-        exclude = ('employee_id',"middle_name", "sex", "date_employed")
-        
+        exclude = ("employee_id", "middle_name", "sex", "date_employed")
+
     def render_edit(self, record):
         return format_html(
             '<a href="/employee/edit/{}/" class="btn btn-sm btn-warning">Edit</a>',
-            record.employee_id
+            record.employee_id,
         )
+
         
 class EmployeeScheduleHTMxTable(tables.Table):
     edit = tables.Column(empty_values=(), orderable=False, verbose_name='Actions')

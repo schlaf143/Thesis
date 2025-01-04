@@ -57,18 +57,26 @@
         {# The actual table #}
         <div class="table-container mt-2">
             <table id="{{ table.attrs.id|default:'employee-table' }}" class="{{ table.attrs.class|default:'table table-hover' }}">
-                <thead class="thead-dark position-relative fixed-top">
+                <thead class="thead-dark">
                     <tr>
                         {% for column in table.columns %}
-                            <th class="fs-6 align-middle text-start" >{{ column.header }}</th>
+                            <th class="fs-6 align-middle text-start">
+                                {% if column.orderable %}
+                                    <a href="?{{ column.order_by_query }}" hx-get="{% url 'view_employee_list' %}?{{ column.order_by_query }}" hx-target="#employee-table" hx-swap="outerHTML" class="text-decoration-none text-black">
+                                        {{ column.header }}
+                                    </a>
+                                {% else %}
+                                    {{ column.header }}
+                                {% endif %}
+                            </th>
                         {% endfor %}
                     </tr>
                 </thead>
-                <tbody class="tbody overflow-scroll">
+                <tbody>
                     {% for row in table.rows %}
                         <tr>
                             {% for cell in row %}
-                                <td class=" align-middle text-start" >{{ cell }}</td>
+                                <td class="align-middle text-start">{{ cell }}</td>
                             {% endfor %}
                         </tr>
                     {% empty %}
@@ -76,10 +84,10 @@
                             <td colspan="{{ table.columns|length }}" class="text-center">No records found.</td>
                         </tr>
                     {% endfor %}
-                </div>
+                </tbody>
             </table>
-            
         </div>
+        
         
     </div>
 
