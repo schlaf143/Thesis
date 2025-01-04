@@ -40,8 +40,6 @@ class Employee(models.Model):
     sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='department_employees')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Regular Employee', blank=False)
-
-    department = models.CharField(max_length=100, blank=False)
     contact_number = models.CharField(max_length=15, blank=False)
     date_employed = models.DateField()
     leave_credits = models.IntegerField(default=0, blank=False)
