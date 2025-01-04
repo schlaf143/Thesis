@@ -9,9 +9,10 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.core.exceptions import BadRequest
 from pathlib import Path
 import os
+from django.contrib import messages
 
 from .forms import EmployeeForm, EmployeeScheduleForm
-from .models import Employee, EmployeeSchedule, User
+from .models import Employee, EmployeeSchedule, User, Department
 from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable
 from .filters import EmployeeFilter, EmployeeScheduleFilter
 
@@ -200,4 +201,17 @@ def get_saved_face_embeddings(request):
         return JsonResponse(get_embeddings(), safe=False)
     return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
 
+def add_department(request):
+    if request.method == 'POST':
+        department_name = request.POST.get('department_name')
 
+        try:
+            # Create a new department
+            Department.objects.create(
+                department_name=department_name,
+            )
+            messages.success(request, "Department added successfully!")
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+
+        return redirect('dashboard')  # Redirect to the home page

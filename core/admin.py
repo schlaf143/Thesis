@@ -3,7 +3,7 @@ from django import forms
 from django.contrib import admin
 from django.forms.widgets import TextInput
 from django.templatetags.static import static
-from .models import Employee, EmployeeSchedule
+from .models import Employee, EmployeeSchedule, Department
 
 class EmployeeAdmin(admin.ModelAdmin):
     # Display all columns in the list view of the admin panel
@@ -79,3 +79,4 @@ class EmployeeScheduleAdmin(admin.ModelAdmin):
         }
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(EmployeeSchedule, EmployeeScheduleAdmin)
+admin.site.register(Department)

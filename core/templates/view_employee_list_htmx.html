@@ -55,7 +55,7 @@
         <hr>
 
         {# The actual table #}
-        <div class="table-container mt-2">
+        <div class="table-container mt-2 overflow-y-scroll" >
             <table id="{{ table.attrs.id|default:'employee-table' }}" class="{{ table.attrs.class|default:'table table-hover' }}">
                 <thead class="thead-dark">
                     <tr>
@@ -72,7 +72,7 @@
                         {% endfor %}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="border">
                     {% for row in table.rows %}
                         <tr>
                             {% for cell in row %}

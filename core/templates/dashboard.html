@@ -10,7 +10,57 @@
 <body>
     {% block content %}
     <div class="hello">
-        <h4>Hello world</h4>
+        <div class="row row-cols-5 flex-grow-1">
+            <!-- Branch Cards -->
+            {% for department in departments %}
+            <div class="p-2 d-flex">
+                <div class="card bg-light-subtle shadow border-1 border-dark-subtle" style="flex: 1; aspect-ratio: 1 / 1;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ department.department_name }}</h5>
+                        <hr>
+                        <p>Department Head: </p>
+                        <div class="d-flex flex-column flex-grow-1 justify-content-end">
+                            <a href="{% url 'department_detail' department.department_id %}" class="btn btn-primary align-self-end">View Info</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        
+            <!-- Add Branch Card -->
+            <div class="p-2 d-flex">
+                <div class="card bg-light-subtle shadow border-1 border-dark-subtle d-flex justify-content-center" style="flex: 1; aspect-ratio: 1 / 1;">
+                    <button type="button" class="btn btn-outline-primary flex-grow-1" style="font-size: large;" data-bs-toggle="modal" data-bs-target="#addBranchModal">
+                        ADD BRANCH
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Branch Modal -->
+        <div class="modal fade" id="addBranchModal" tabindex="-1" aria-labelledby="addBranchModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addBranchModalLabel">Add New Branch</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" action="{% url 'add_department' %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="departmentName" class="form-label">Branch Name</label>
+                                <input type="text" class="form-control" id="departmentName" name="department_name" required>
+                            </div>
+        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Add Branch</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
     {% endblock %}
 </body>

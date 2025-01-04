@@ -7,6 +7,18 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 
+
+class Department(models.Model):
+    department_id = models.AutoField(primary_key=True)
+    department_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.department_name
+
+    @property
+    def employees(self):
+        return self.department_employees.all()
+    
 class Employee(models.Model):
     SEX_CHOICES = [
         ('Male', 'Male'),
@@ -26,6 +38,7 @@ class Employee(models.Model):
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=False)
     sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='department_employees')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Regular Employee', blank=False)
 
     department = models.CharField(max_length=100, blank=False)
@@ -169,3 +182,4 @@ class EmployeeSchedule(models.Model):
     def __str__(self):
         """String representation of the schedule."""
         return f"Schedule for {self.employee}"
+
