@@ -8,6 +8,11 @@ class EmployeeForm(forms.ModelForm):
         model = Employee
         fields = '__all__'  # Include all fields from the model
         
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'    
+   
     def clean(self):
         """Remove redundant validation in the form."""
         # Simply call the model's clean method to do the validation

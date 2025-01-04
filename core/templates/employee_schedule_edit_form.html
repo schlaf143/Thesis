@@ -4,7 +4,201 @@
     <hr>
     <form method="post" action="{% url 'employee_schedule_edit' employeeschedule.id %}">
         {% csrf_token %}
-        {{ form.as_p }}
+         <!-- Employee Field -->
+         <div class="form-group">
+            <label for="id_employee">Employee:</label>
+            {{ form.employee }}
+            {% if form.employee.errors %}
+            <div class="text-danger">
+                {{ form.employee.errors.0 }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="d-flex gap-2 mt-2 mb-2 flex-column">
+
+            <!-- Monday -->
+            <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
+                <div class="align-self-center col-2">
+                    <label for="id_monday_start">Monday:</label>
+                </div>
+                <div class="d-flex gap-2 col-10">
+                    <div class="mr-2 flex-grow-1">
+                        {{ form.monday_start }}
+                        {% if form.monday_start.errors %}
+                        <div class="text-danger">
+                            {{ form.monday_start.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="align-self-center"> to </div>
+                    <div class="ml-2 flex-grow-1">
+                        {{ form.monday_end }}
+                        {% if form.monday_end.errors %}
+                        <div class="text-danger">
+                            {{ form.monday_end.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tuesday -->
+            <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
+                <div class="align-self-center col-2">
+                    <label for="id_tuesday_start">Tuesday:</label>
+                </div>
+                <div class="d-flex gap-2 col-10">
+                    <div class="mr-2 flex-grow-1">
+                        {{ form.tuesday_start }}
+                        {% if form.tuesday_start.errors %}
+                        <div class="text-danger">
+                            {{ form.tuesday_start.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="align-self-center"> to </div>
+                    <div class="ml-2 flex-grow-1">
+                        {{ form.tuesday_end }}
+                        {% if form.tuesday_end.errors %}
+                        <div class="text-danger">
+                            {{ form.tuesday_end.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wednesday -->
+            <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
+                <div class="align-self-center col-2">
+                    <label for="id_wednesday_start">Wednesday:</label>
+                </div>
+                <div class="d-flex gap-2 col-10">
+                    <div class="mr-2 flex-grow-1">
+                        {{ form.wednesday_start }}
+                        {% if form.wednesday_start.errors %}
+                        <div class="text-danger">
+                            {{ form.wednesday_start.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="align-self-center"> to </div>
+                    <div class="ml-2 flex-grow-1">
+                        {{ form.wednesday_end }}
+                        {% if form.wednesday_end.errors %}
+                        <div class="text-danger">
+                            {{ form.wednesday_end.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thursday -->
+            <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
+                <div class="align-self-center col-2">
+                    <label for="id_thursday_start">Thursday:</label>
+                </div>
+                <div class="d-flex gap-2 col-10">
+                    <div class="mr-2 flex-grow-1">
+                        {{ form.thursday_start }}
+                        {% if form.thursday_start.errors %}
+                        <div class="text-danger">
+                            {{ form.thursday_start.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="align-self-center"> to </div>
+                    <div class="ml-2 flex-grow-1">
+                        {{ form.thursday_end }}
+                        {% if form.thursday_end.errors %}
+                        <div class="text-danger">
+                            {{ form.thursday_end.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friday -->
+            <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
+                <div class="align-self-center col-2">
+                    <label for="id_friday_start">Friday:</label>
+                </div>
+                <div class="d-flex gap-2 col-10">
+                    <div class="mr-2 flex-grow-1">
+                        {{ form.friday_start }}
+                        {% if form.friday_start.errors %}
+                        <div class="text-danger">
+                            {{ form.friday_start.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="align-self-center"> to </div>
+                    <div class="ml-2 flex-grow-1">
+                        {{ form.friday_end }}
+                        {% if form.friday_end.errors %}
+                        <div class="text-danger">
+                            {{ form.friday_end.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saturday -->
+            <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
+                <div class="align-self-center col-2">
+                    <label for="id_saturday_start">Saturday:</label>
+                </div>
+                <div class="d-flex gap-2 col-10">
+                    <div class="mr-2 flex-grow-1">
+                        {{ form.saturday_start }}
+                        {% if form.saturday_start.errors %}
+                        <div class="text-danger">
+                            {{ form.saturday_start.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="align-self-center"> to </div>
+                    <div class="ml-2 flex-grow-1">
+                        {{ form.saturday_end }}
+                        {% if form.saturday_end.errors %}
+                        <div class="text-danger">
+                            {{ form.saturday_end.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sunday -->
+            <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
+                <div class="align-self-center col-2">
+                    <label for="id_sunday_start">Sunday:</label>
+                </div>
+                <div class="d-flex gap-2 col-10">
+                    <div class="mr-2 flex-grow-1">
+                        {{ form.sunday_start }}
+                        {% if form.sunday_start.errors %}
+                        <div class="text-danger">
+                            {{ form.sunday_start.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="align-self-center"> to </div>
+                    <div class="ml-2 flex-grow-1">
+                        {{ form.sunday_end }}
+                        {% if form.sunday_end.errors %}
+                        <div class="text-danger">
+                            {{ form.sunday_end.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <!-- Flexbox container for buttons -->
         <div class="d-flex gap-2">

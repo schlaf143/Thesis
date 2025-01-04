@@ -5,12 +5,7 @@
     <title>Add Schedule</title>
 </head>
 <body>
-    {% block content %}
-    <form method="POST">
-        {% csrf_token %}
-        <h3>Employee Schedule</h3>
-        <hr>
-        <!-- {% if schedule_form.non_field_errors %}
+    <!-- {% if schedule_form.non_field_errors %}
         <div class="alert alert-danger">
             <ul>
                 {% for error in schedule_form.non_field_errors %}
@@ -18,8 +13,14 @@
                 {% endfor %}
             </ul>
         </div>
-        {% endif %} -->
+    {% endif %} -->
         
+    {% block content %}
+    <form method="POST">
+        {% csrf_token %}
+        <h3>Employee Schedule</h3>
+        <hr>
+
         <div class="form-group">
             <label for="id_employee">Employee:</label>
             {{ schedule_form.employee }}
