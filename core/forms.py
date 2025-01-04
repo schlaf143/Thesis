@@ -1,5 +1,5 @@
 from django import forms
-from .models import Employee, EmployeeSchedule
+from .models import Employee, EmployeeSchedule, Department
 from django.templatetags.static import static
 from datetime import timedelta, datetime
 

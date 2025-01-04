@@ -83,7 +83,8 @@ def save_face(request):
     return render(request, 'face_get.html')
 
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    departments = Department.objects.all()  # Retrieve all departments
+    return render(request, 'dashboard.html', {'departments': departments})
 
 def add_employee(request):
     if request.method == 'POST':

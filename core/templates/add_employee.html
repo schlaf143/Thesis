@@ -113,13 +113,16 @@
     
                 <div class="form-group">
                     <label for="department" class="form-label">Department:</label>
-                    <input type="text" name="department" id="department" class="form-control" placeholder="Enter department" >
+                    <!-- Render the department field as a dropdown -->
+                    {{ employee_form.department }}
+                
                     {% if employee_form.department.errors %}
-                    <div class="text-danger">
-                        {{ employee_form.department.errors.0 }}
-                    </div>
+                        <div class="text-danger">
+                            {{ employee_form.department.errors.0 }}
+                        </div>
                     {% endif %}
                 </div>
+                
     
                 <div class="form-group">
                     <label for="date_employed" class="form-label">Date Employed:</label>
