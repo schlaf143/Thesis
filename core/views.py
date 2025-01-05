@@ -38,8 +38,6 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
     filterset_class = EmployeeScheduleFilter
     # paginate_by = 3
 
-
-
     def get_template_names(self):
         if self.request.htmx:
             template_name = "view_schedule_list_htmx_partial.html"
@@ -48,17 +46,12 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
 
         return template_name
 
-
-def delete_department(request, department_id):
-    department = get_object_or_404(Department, id=department_id)
-    
-    if request.method == "POST":
+def delete_department(request):
+    if request.method == 'POST':
+        department_id = request.POST.get('department_id')
+        department = get_object_or_404(Department, pk=department_id)
         department.delete()
-        messages.success(request, f"Department '{department.department_name}' deleted successfully.")
-        return redirect('dashboard')  # Redirect back to the dashboard or department list page
-
-    messages.error(request, "Invalid request.")
-    return redirect('dashboard')
+        return redirect('dashboard')  # Redirect to the department listing page
 
 class EmployeeEditView(UpdateView):
     model = Employee

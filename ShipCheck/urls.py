@@ -33,7 +33,7 @@ urlpatterns = [
     path('employee/edit/<int:pk>/', views.EmployeeEditView.as_view(), name='employee_edit'),
     path('employee/delete/<int:pk>/', views.EmployeeDeleteView.as_view(), name='employee_delete'),
     path('add_department/', views.add_department, name='add_department'),
-    path('delete_department/<int:department_id>/', views.delete_department, name='delete_department'),
+    path('delete-department/', views.delete_department, name='delete_department'),
     #!
     
     path('schedule/create/', views.add_schedule, name='add_schedule'), 

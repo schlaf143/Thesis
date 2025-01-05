@@ -38,7 +38,7 @@ class Employee(models.Model):
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=False)
     sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='department_employees')
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='department_employees')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Regular Employee', blank=False)
     contact_number = models.CharField(max_length=15, blank=False)
     date_employed = models.DateField()
