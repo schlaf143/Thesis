@@ -67,9 +67,69 @@ class EmployeeScheduleForm(forms.ModelForm):
         cleaned_data = super().clean()
         return cleaned_data
     
-class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)  # Add email field
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+class SignUpForm(UserCreationForm):
+    email = forms.EmailField(
+        label='', 
+        max_length=254, 
+        help_text='Required. Enter a valid email address.', 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email Address'})
+    )
+    username = forms.CharField(
+        label='', 
+        max_length=30, 
+        help_text='Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.', 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'})
+    )
+    role = forms.CharField(
+        label='', 
+        widget=forms.HiddenInput(), 
+        initial='Regular Employee'
+    )
+    is_staff = forms.BooleanField(
+        required=False, 
+        label="Is This user a Department Head?", 
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    is_superuser = forms.BooleanField(
+        required=False, 
+        label="Is This user a HR Manager?", 
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
 
     class Meta:
         model = User
-        fields = ["username", "email", "password1", "password2"]  # Customize fields
+        fields = ('username', 'email', 'role', 'password1', 'password2', 'is_staff', 'is_superuser')
+
+    def __init__(self, *args, **kwargs):
+        super(SignUpForm, self).__init__(*args, **kwargs)
+
+        self.fields['username'].widget.attrs['class'] = 'form-control'
+        self.fields['username'].widget.attrs['placeholder'] = 'Username'
+        self.fields['username'].help_text = 'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'
+
+        self.fields['email'].widget.attrs['class'] = 'form-control'
+        self.fields['email'].widget.attrs['placeholder'] = 'Email Address'
+        self.fields['email'].help_text = 'Required. Enter a valid email address.'
+
+        self.fields['role'].widget.attrs['class'] = 'form-control'
+        self.fields['role'].widget.attrs['placeholder'] = 'Role'
+
+        self.fields['password1'].widget.attrs['class'] = 'form-control'
+        self.fields['password1'].widget.attrs['placeholder'] = 'Password'
+
+        self.fields['password2'].widget.attrs['class'] = 'form-control'
+        self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_staff = self.cleaned_data.get('is_staff', False)
+        user.is_superuser = self.cleaned_data.get('is_superuser', False)
+
+        if commit:
+            user.save()
+        return user
+

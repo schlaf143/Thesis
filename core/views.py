@@ -11,7 +11,7 @@ from pathlib import Path
 import os
 from django.contrib import messages
 
-from .forms import EmployeeForm, EmployeeScheduleForm
+from .forms import EmployeeForm, EmployeeScheduleForm, SignUpForm
 from .models import Employee, EmployeeSchedule, User, Department
 from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable
 from .filters import EmployeeFilter, EmployeeScheduleFilter
@@ -82,7 +82,15 @@ class EmployeeDeleteView(DeleteView):
 
 
 def register_login(request):
-    return render(request, 'register_login.html')
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = SignUpForm()
+
+    return render(request, 'register_login.html', {'form': form})
 
 def camera_view(request):
     return render(request, 'face_access.html')
