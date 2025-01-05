@@ -2,6 +2,8 @@ from django import forms
 from .models import Employee, EmployeeSchedule, Department
 from django.templatetags.static import static
 from datetime import timedelta, datetime
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 class EmployeeForm(forms.ModelForm):
     class Meta:
@@ -64,3 +66,10 @@ class EmployeeScheduleForm(forms.ModelForm):
         # Simply call the model's clean method to do the validation
         cleaned_data = super().clean()
         return cleaned_data
+    
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)  # Add email field
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "password1", "password2"]  # Customize fields

@@ -81,6 +81,9 @@ class EmployeeDeleteView(DeleteView):
         return get_object_or_404(Employee, pk=self.kwargs['pk'])
 
 
+def register_login(request):
+    return render(request, 'register_login.html')
+
 def camera_view(request):
     return render(request, 'face_access.html')
 
