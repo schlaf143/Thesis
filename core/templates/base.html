@@ -22,6 +22,9 @@
 <body>  
     <div class="container-fluid vh-100">
         <div class="row h-100">
+
+            {% if user.is_authenticated %}
+
             <!-- Sidebar -->
             <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-2">
                 <div class="text-center mb-4">
@@ -70,7 +73,7 @@
 
                 <!-- </ul> -->
                 <div class="mt-auto">
-                    <a href="/logout" class="btn btn-danger w-100">Logout</a>
+                    <a href="{% url 'logout' %}" class="btn btn-danger w-100">Logout</a>
                 </div>
             </nav>
 
@@ -83,6 +86,38 @@
                     {% endblock %}
                 </div>
             </main>
+
+            {% else %}
+            <!-- <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-2"> -->
+                <div class="d-flex h-100 w-100 p-5 justify-content-center align-items-center flex-column gap-2">
+                    
+                    <div class="border border-1 border-dark-subtle p-4 rounded  d-flex flex-column">
+                        <h1>Login</h1>
+                        <div class="">
+                            <form action="{% url 'login' %}" method="post" class="d-flex flex-column gap-2">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="username">Username</label>
+                                    <input type="text" name="username" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input type="password" name="password" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </form>
+                    </div>
+                </div>
+                
+            <!-- </nav> -->
+            
+            
+            
+            {% endif %}
+
+            
+        </div>
+            
         </div>
     </div>
 

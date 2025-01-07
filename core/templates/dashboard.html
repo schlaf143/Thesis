@@ -9,7 +9,8 @@
 </head>
 <body>
     {% block content %}
-    <div class="hello">
+{% if user.is_authenticated %}
+    <div class="">
         <h1>Departments</h1>
         <hr>
         <div class="row row-cols-5 flex-grow-1">
@@ -128,6 +129,11 @@
 
 
     </div>
+    {% else %}
+    <div>
+        <h1>Login Required</h1>
+    </div>
+{% endif %}
     {% endblock %}
 </body>
 </html>

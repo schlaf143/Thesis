@@ -18,6 +18,7 @@ from .filters import EmployeeFilter, EmployeeScheduleFilter
 
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
+from django.contrib.auth import authenticate, login, logout
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 EMBEDDINGS_FILE = BASE_DIR / 'face_embeddings.json'
@@ -102,6 +103,22 @@ def save_face(request):
 def dashboard(request):
     departments = Department.objects.all()  # Retrieve all departments
     return render(request, 'dashboard.html', {'departments': departments})
+
+def login_user(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')  # Redirect to the dashboard after successful login
+        else:
+            messages.error(request, "Invalid username or password.")
+    return render(request, 'dashboard.html')
+
+def logout_user(request):
+    logout(request)
+    return redirect('dashboard')
 
 def add_employee(request):
     if request.method == 'POST':
@@ -233,3 +250,4 @@ def add_department(request):
             messages.error(request, f"An error occurred: {e}")
 
         return redirect('dashboard')  # Redirect to the home page
+
