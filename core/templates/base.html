@@ -23,34 +23,32 @@
     <div class="container-fluid vh-100">
         <div class="row h-100">
 
-            {% if user.is_authenticated %}
-
-            <!-- Sidebar -->
+        {% if user.is_authenticated %}
+        
+            {% if user.is_superuser %}
             <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-2">
                 <div class="text-center mb-4">
-                    <!-- <img src="{% static 'assets/logo.png' %}" alt="Logo" class="img-fluid rounded-circle mb-3" style="max-width: 80px;"> -->
-                    <h4>Workfore Monitoring</h4>
+
+                    <h4>Logged in HR</h4>
                 </div>
                 <hr>
-
-
                     <ul class="nav flex-column nav-pills">
                         <li class="nav-item">
-                          <a class="nav-link text-light" aria-current="page" href="{% url 'dashboard' %}">
+                        <a class="nav-link text-light" aria-current="page" href="{% url 'dashboard' %}">
                             Dashboard<i class='bx bx-home-alt ms-2'></i></a>
                         </li>
 
                         <li class="nav-item">
 
-                          <button class="nav-link text-light " type="button" data-bs-toggle="collapse" data-bs-target="#manageEmpCollapse" aria-expanded="false" aria-controls="manageEmpCollapse">
+                        <button class="nav-link text-light " type="button" data-bs-toggle="collapse" data-bs-target="#manageEmpCollapse" aria-expanded="false" aria-controls="manageEmpCollapse">
                             </i>Manage Employees<i class='bx bxs-down-arrow ms-2'></i></button>
                             
-                          <div class="collapse multi-collapse" id="manageEmpCollapse">
+                        <div class="collapse multi-collapse" id="manageEmpCollapse">
                             <div class="list-group  p-3">
                                 <a href="{% url 'view_employee_list' %}" class="list-group-item list-group-item-action">View Employee List</a>
                                 <a href="{% url 'register_login' %}" class="list-group-item list-group-item-action">Add Login</a>
-                              </div>
-                          </div>
+                            </div>
+                        </div>
                         </li>
                         <li class="nav-item">
                             <!-- <a class="" href="#">Link</a> -->
@@ -60,24 +58,75 @@
                                 <div class="list-group  p-3">
                                     <a href="#" class="list-group-item list-group-item-action">View Shift Schedule</a>
                                     <a href="#" class="list-group-item list-group-item-action">Set Shifts for Employee</a>
-                                  </div>
-                              </div>
-                          </li>
+                                </div>
+                            </div>
+                        </li>
 
-                          <li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link text-light" aria-current="page" href="{ % url 'dashboard' % }">
-                              Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
-                          </li>
+                            Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
+                        </li>
 
-                      </ul>
+                    </ul>
 
                 <!-- </ul> -->
                 <div class="mt-auto">
                     <a href="{% url 'logout' %}" class="btn btn-danger w-100">Logout</a>
                 </div>
             </nav>
+            {% elif user.is_staff %}
+            <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-2">
+                <div class="text-center mb-4">
+                    <h4>Logged in Dep. Head</h4>
+                </div>
 
-            <!-- Main Content -->
+                <hr>
+                    <ul class="nav flex-column nav-pills">
+                        <li class="nav-item">
+                        <a class="nav-link text-light" aria-current="page" href="{% url 'dashboard' %}">
+                            Dashboard<i class='bx bx-home-alt ms-2'></i></a>
+                        </li>
+
+
+                        <li class="nav-item">
+                            <a class="nav-link text-light" aria-current="page" href="{ % url 'dashboard' % }">
+                            Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
+                        </li>
+
+                    </ul>
+
+                <!-- </ul> -->
+                <div class="mt-auto">
+                    <a href="{% url 'logout' %}" class="btn btn-danger w-100">Logout</a>
+                </div>
+            </nav>
+            {% else %}
+            <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-2">
+                <div class="text-center mb-4">
+                    <h4>Workfore Monitoring</h4>
+                </div>
+                <hr>
+                    <ul class="nav flex-column nav-pills">
+                        <li class="nav-item">
+                        <a class="nav-link text-light" aria-current="page" href="{% url 'dashboard' %}">
+                            Dashboard<i class='bx bx-home-alt ms-2'></i></a>
+                        </li>
+
+
+                        <li class="nav-item">
+                            <a class="nav-link text-light" aria-current="page" href="{ % url 'dashboard' % }">
+                            Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
+                        </li>
+
+                    </ul>
+
+                <!-- </ul> -->
+                <div class="mt-auto">
+                    <a href="{% url 'logout' %}" class="btn btn-danger w-100">Logout</a>
+                </div>
+            </nav>          
+            {% endif%}
+
             <main class="col-12 col-md-9 col-lg-10 bg-light p-4">
 
                 <div class="bg-white p-4 rounded shadow w-100 h-100 border border-dark-subtle">
@@ -87,26 +136,60 @@
                 </div>
             </main>
 
-            {% else %}
+        {% else %}
             <!-- <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-2"> -->
-                <div class="d-flex h-100 w-100 p-5 justify-content-center align-items-center flex-column gap-2">
+                <div class="d-flex h-100 w-100 p-4 justify-content-center align-items-center flex-column gap-2 bg-dark">
                     
-                    <div class="border border-1 border-dark-subtle p-4 rounded  d-flex flex-column">
-                        <h1>Login</h1>
-                        <div class="">
-                            <form action="{% url 'login' %}" method="post" class="d-flex flex-column gap-2">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <label for="username">Username</label>
-                                    <input type="text" name="username" class="form-control" required>
+
+                    <div class="p-4 rounded d-flex flex-column gap-2 bg-body-secondary">
+                        <div>
+                            <h1>DIGIFLOW</h1>
+                        </div>
+                        <div class="d-flex border border-1 border-dark-subtle rounded p-3 flex-column gap-2">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com">
+                                <label for="floatingInput">Employee Number</label>
+                              </div>
+
+                            <button class="btn btn-primary flex-grow-1" style="font-size: 20px;">
+                                FACE IN
+                            </button>
+
+                            <button class="btn btn-primary flex-grow-1" style="font-size: 20px;">
+                                FACE OUT
+                            </button>
+
+                            
+                        </div>
+                        <hr>
+                            <button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#multiCollapseExample2" aria-expanded="false" aria-controls="multiCollapseExample2">LOG IN<i class='bx bxs-down-arrow ms-2'></i></button>
+
+                        <div class="row">
+                            <div class="col">
+                              <div class="collapse multi-collapse" id="multiCollapseExample2">
+                                <div class="">
+                                    <div>
+                                        <h1>Login</h1>
+                                                <form action="{% url 'login' %}" method="post" class="d-flex flex-column gap-2">
+                                                    {% csrf_token %}
+                                                    <div class="form-group">
+                                                        <label for="username">Username</label>
+                                                        <input type="text" name="username" class="form-control" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="password">Password</label>
+                                                        <input type="password" name="password" class="form-control" required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Login</button>
+                                                </form>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="password">Password</label>
-                                    <input type="password" name="password" class="form-control" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Login</button>
-                            </form>
-                    </div>
+                              </div>
+                            </div>
+                            
+                          </div>
+                        
+                        
                 </div>
                 
             <!-- </nav> -->
