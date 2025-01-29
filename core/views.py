@@ -1,17 +1,27 @@
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.contrib import messages
 import json
-import numpy as np
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import UpdateView, DeleteView
 from django.core.exceptions import BadRequest
 from pathlib import Path
+from imutils.video import VideoStream
+import imutils
+from django.conf import settings
+
 import os
 import cv2
-from imutils.video import VideoStream
-from django.conf import settings
+import time
+import numpy as np
+import mediapipe as mp
+from skimage.metrics import structural_similarity as ssim
+from deepface import DeepFace
+from sklearn.preprocessing import LabelEncoder
+from sklearn.svm import SVC
+import pickle
 
 from .forms import EmployeeForm, EmployeeScheduleForm
 from .models import Employee, EmployeeSchedule, User
@@ -21,8 +31,6 @@ from .filters import EmployeeFilter, EmployeeScheduleFilter
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
 
-# Path to Haarcascade file
-HAAR_CASCADE_PATH = os.path.join(settings.BASE_DIR, "haarcascades", "haarcascade_frontalface_default.xml")
 
 class EmployeeHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeHTMxTable
@@ -149,57 +157,335 @@ def add_schedule(request):
 def open_camera(request):
     return render(request, 'attendance_open_camera.html')
 
+# Face Recognition Module #
+
+# Path to Haarcascade file
+HAAR_CASCADE_PATH = os.path.join(settings.BASE_DIR, "core", "static", "haarcascades", "haarcascade_frontalface_default.xml")
+
 def create_dataset(request):
     if request.method == "POST":
-        username = request.POST.get("username")  # Get the username from POST data
+        name = request.POST.get("name")  # Get the username from POST data
+        company_id = request.POST.get('company_id')
         
-        # Validate the username
-        if not username:
-            return JsonResponse({"error": "Username is required."}, status=400)
+        # Validate the username and company_id
+        if not name or not company_id:
+            return JsonResponse({"error": "Name and Company ID is required."}, status=400)
         
         # Create directory for the user inside the static folder
-        directory = os.path.join(settings.BASE_DIR, 'core', 'static', 'registered_faces', username)
+        directory = os.path.join(settings.BASE_DIR, 'core', 'static', 'registered_faces', f"{name}_{company_id}")
         os.makedirs(directory, exist_ok=True)
 
-        # Initialize Haar Cascade for face detection
-        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        # Directory to save images
+        directory = os.path.join("core", "static", "registered_faces", f"{name}_{company_id}")
+        os.makedirs(directory, exist_ok=True)
 
-        # Initialize the webcam
-        cap = cv2.VideoCapture(0)
-        sampleNum = 0
+        # --- MediaPipe Face Detection and Landmarks ---
+    mp_face_detection = mp.solutions.face_detection
+    mp_face_mesh = mp.solutions.face_mesh
+
+    face_detection = mp_face_detection.FaceDetection(
+        model_selection=0, min_detection_confidence=0.5
+    )
+    face_mesh = mp_face_mesh.FaceMesh(
+        max_num_faces=1,
+        refine_landmarks=True,
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5
+    )
+
+    # --- Video Stream ---
+    print("[INFO] Initializing Video stream")
+    vs = VideoStream(src=1).start()
+    sampleNum = 0
+
+    previous_frame = None
+    previous_image = None
+    target_size = (128, 128) #set the target size
+
+    while True:
+        frame = vs.read()
+        frame = imutils.resize(frame, width=800)
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray_frame = cv2.GaussianBlur(gray_frame, (21, 21), 0)
+
+        if previous_frame is not None:
+            # --- Motion Detection ---
+            frame_delta = cv2.absdiff(previous_frame, gray_frame)
+            thresh = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
+            thresh = cv2.dilate(thresh, None, iterations=2)
+            motion_detected = cv2.countNonZero(thresh) > 1000  # Motion threshold
+
+            if motion_detected:
+                # --- Face Detection ---
+                results_detection = face_detection.process(frame_rgb)
+
+                if results_detection.detections:
+                    # --- Choose the Largest Face ---
+                    largest_face = None
+                    largest_area = 0
+
+                    for detection in results_detection.detections:
+                        bboxC = detection.location_data.relative_bounding_box
+                        ih, iw, _ = frame.shape
+                        x, y, w, h = int(bboxC.xmin * iw), int(bboxC.ymin * ih), int(bboxC.width * iw), int(bboxC.height * ih)
+                        area = w * h
+
+                        if area > largest_area:
+                            largest_area = area
+                            largest_face = detection
+
+                    # --- Process Only the Largest Face ---
+                    if largest_face is not None:
+                        bboxC = largest_face.location_data.relative_bounding_box
+                        ih, iw, _ = frame.shape
+                        x, y, w, h = int(bboxC.xmin * iw), int(bboxC.ymin * ih), int(bboxC.width * iw), int(bboxC.height * ih)
+
+                        # --- Expand the bounding box ---
+                        expansion_factor = 0.2  # Adjust this value to control the zoom out level
+
+                        x_expansion = int(w * expansion_factor)
+                        y_expansion = int(h * expansion_factor)
+
+                        # Make sure expanded bounding box coordinates are within frame boundaries
+                        x_new = max(0, x - x_expansion)
+                        y_new = max(0, y - y_expansion)
+                        w_new = min(iw - x_new, w + 2 * x_expansion)  # Use x_new to calculate max width
+                        h_new = min(ih - y_new, h + 2 * y_expansion)  # Use y_new to calculate max height
+
+                        # --- Face Landmarks and Alignment ---
+                        results_landmarks = face_mesh.process(frame_rgb)
+                        if results_landmarks.multi_face_landmarks:
+                            # Assume first set of landmarks is for the largest face
+                            face_landmarks = results_landmarks.multi_face_landmarks[0] 
+                            landmarks = face_landmarks.landmark
+                            left_eye_inner = landmarks[362]
+                            right_eye_inner = landmarks[263]
+                            lx, ly = int(left_eye_inner.x * iw), int(left_eye_inner.y * ih)
+                            rx, ry = int(right_eye_inner.x * iw), int(right_eye_inner.y * ih)
+                            dx = rx - lx
+                            dy = ry - ly
+                            angle = np.degrees(np.arctan2(dy, dx))
+
+                            # Calculate the center of the original bounding box
+                            center_x = x + w // 2
+                            center_y = y + h // 2
+
+                            # Perform rotation
+                            M = cv2.getRotationMatrix2D((center_x, center_y), angle, 1.0)
+                            rotated_face = cv2.warpAffine(frame, M, (frame.shape[1], frame.shape[0]))
+
+                            # Calculate new bounding box coordinates after rotation
+                            # Expand the bounding box ---
+                            expansion_factor = 0.2  # Adjust this value to control the zoom out level
+
+                            x_expansion = int(w * expansion_factor)
+                            y_expansion = int(h * expansion_factor)
+
+                            # Apply rotation to the corners of the expanded bounding box
+                            corners = np.array([
+                                [x - x_expansion, y - y_expansion],
+                                [x + w + x_expansion, y - y_expansion],
+                                [x - x_expansion, y + h + y_expansion],
+                                [x + w + x_expansion, y + h + y_expansion]
+                            ])
+                            corners_rotated = cv2.transform(corners.reshape(-1, 1, 2), M).reshape(-1, 2)
+
+                            # Find the new bounding box coordinates
+                            x_new, y_new = np.min(corners_rotated, axis=0)
+                            x_max, y_max = np.max(corners_rotated, axis=0)
+
+                            # Ensure the new bounding box coordinates are within frame boundaries
+                            x_new = max(0, int(x_new))
+                            y_new = max(0, int(y_new))
+                            w_new = min(iw - x_new, int(x_max - x_new))
+                            h_new = min(ih - y_new, int(y_max - y_new))
+
+                            # Crop the rotated face using the new bounding box
+                            rotated_face = rotated_face[y_new:y_new+h_new, x_new:x_new+w_new]
+
+                            if rotated_face is not None and rotated_face.size > 0:
+                                # --- Similarity Check (Corrected Logic) ---
+                                if previous_image is not None:
+                                    gray_rotated = cv2.cvtColor(rotated_face, cv2.COLOR_BGR2GRAY)
+                                    gray_previous = cv2.cvtColor(previous_image, cv2.COLOR_BGR2GRAY)
+
+                                    # Resize for SSIM comparison
+                                    gray_rotated = cv2.resize(gray_rotated, target_size)
+                                    gray_previous = cv2.resize(gray_previous, target_size)
+
+                                    similarity_score = ssim(gray_rotated, gray_previous)
+
+                                    if similarity_score > 0.7:  # Too similar
+                                        print(
+                                            f"Image too similar (similarity: {similarity_score:.2f}), not saving."
+                                        )
+                                    else:  # Different enough
+                                        cv2.imwrite(f'{directory}/{sampleNum}.jpg', rotated_face)
+                                        previous_image = rotated_face.copy()
+                                        sampleNum += 1
+                                        print(f"Saved image {sampleNum} (similarity: {similarity_score:.2f})")
+                                else:
+                                    cv2.imwrite(f'{directory}/{sampleNum}.jpg', rotated_face)
+                                    previous_image = rotated_face.copy()
+                                    sampleNum += 1
+
+                                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
+                                cv2.waitKey(50)
+                                time.sleep(0.1)  # Short delay
+
+        previous_frame = gray_frame.copy()
+
+        cv2.imshow("Add Images", frame)
+        cv2.waitKey(1)
+        if sampleNum > 50:
+            break
+
+    vs.stop()
+    cv2.destroyAllWindows()
+
+    return render(request, "base.html")
+
+def train_dataset(request):
+    # --- Main training directory ---
+    dataset = os.path.join(settings.BASE_DIR, 'core', 'static', 'registered_faces')
+
+    X = []  # List to store face embeddings
+    y = []  # List to store corresponding labels (person names)
+
+    # --- Iterate through each person's directory ---
+    for person_dir in os.listdir(dataset):
+        person_path = os.path.join(dataset, person_dir)
+
+        # Extract name and company ID from directory name
+        try:
+            person_name, company_id = person_dir.split("_")
+        except ValueError:
+            print(f"Skipping directory with invalid name and format: {person_dir}")
+            continue
+
+        if not os.path.isdir(person_path):
+            continue
+
+        # --- Iterate through each image in the person's directory ---
+        for imagefile in os.listdir(person_path):
+            image_path = os.path.join(person_path, imagefile)
+            image = cv2.imread(image_path)  # Load the already cropped image
+            if image is None:
+                print(f"Could not load image: {image_path}")
+                continue
+
+            # --- Feature Extraction (DeepFace) ---
+            try:
+                # Pass the already cropped image directly to DeepFace
+                embedding = DeepFace.represent(image, model_name="Facenet", enforce_detection=False)[0]['embedding']
+                X.append(embedding)
+                y.append(person_name)
+            except Exception as e:
+                print(f"Error processing {imagefile}: {e}")
+
+    # --- Label Encoding ---
+    encoder = LabelEncoder()
+    y = encoder.fit_transform(y)
+
+    # --- SVM Training ---
+    svc = SVC(kernel='linear', probability=True)
+    svc.fit(X, y)
+
+    # --- Saving the Model and Encoder ---
+    # Create a directory for saving models within your static folder
+    model_dir = os.path.join(settings.BASE_DIR, 'core', 'static', 'trained_model')
+    os.makedirs(model_dir, exist_ok=True)  # Create the directory if it doesn't exist
+
+    svc_save_path = os.path.join(model_dir, "svc.sav")
+    with open(svc_save_path, 'wb') as f:
+        pickle.dump(svc, f)
+
+    encoder_save_path = os.path.join(model_dir, "classes.npy")  # Use os.path.join and model_dir
+    np.save(encoder_save_path, encoder.classes_)
+
+    messages.success(request, f'Training Complete.')
+    print("Training Complete!")
+    return render(request, "base.html")
+
+
+# Load the trained SVM model and label encoder (global variables)
+model_dir = os.path.join(settings.BASE_DIR, 'core', 'static', 'trained_model')
+svc_load_path = os.path.join(model_dir, "svc.sav")
+encoder_load_path = os.path.join(model_dir, "classes.npy")
+
+with open(svc_load_path, 'rb') as f:
+    svc = pickle.load(f)
+
+encoder_classes = np.load(encoder_load_path)
+
+# MediaPipe face detection setup (global)
+mp_face_detection = mp.solutions.face_detection
+face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
+
+def predict_face(request):
+    if request.method == "POST":
+        vs = VideoStream(src=1).start()  # Use default camera (change src if needed)
+        time.sleep(2.0)  # Allow camera to warm up
+
+        face_detected_time = None  # Timestamp when a face is initially detected
+        delay_duration = 1.5  # Delay in seconds
 
         while True:
-            ret, frame = cap.read()
-            if not ret:
-                print("Failed to capture frame")
+            frame = vs.read()
+            if frame is None:
                 break
 
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+            frame = imutils.resize(frame, width=400)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            if len(faces) == 0:
-                print("No faces detected")
-            
-            for (x, y, w, h) in faces:
-                sampleNum += 1
-                face = frame[y:y+h, x:x+w]
-                filename = os.path.join(directory, f"{sampleNum}.jpg")
-                cv2.imwrite(filename, face)
-                print(f"Saving image: {filename}")
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+            # --- Face Detection (MediaPipe) ---
+            results = face_detection.process(frame_rgb)
 
-                if sampleNum >= 10:  # Capture 10 images
-                    break
+            if results.detections:
+                if face_detected_time is None:
+                    face_detected_time = time.time()  # Record initial detection time
 
-            cv2.imshow("Capturing Images", frame)
+                for detection in results.detections:
+                    bboxC = detection.location_data.relative_bounding_box
+                    ih, iw, _ = frame.shape
+                    x, y, w, h = int(bboxC.xmin * iw), int(bboxC.ymin * ih), int(bboxC.width * iw), int(bboxC.height * ih)
 
-            # Break the loop if 'q' is pressed or sample limit is reached
-            if cv2.waitKey(1) & 0xFF == ord('q') or sampleNum >= 10:
+                    # --- Cropping ---
+                    face_roi = frame[y:y + h, x:x + w]
+
+                    # --- Feature Extraction and Prediction (after delay) ---
+                    if time.time() - face_detected_time >= delay_duration:
+                        try:
+                            embedding = DeepFace.represent(face_roi, model_name="Facenet", enforce_detection=False, detector_backend='opencv')[0]['embedding']
+                            embedding = np.array(embedding).reshape(1, -1)
+
+                            probabilities = svc.predict_proba(embedding)[0]
+                            predicted_class_index = np.argmax(probabilities)
+                            confidence = probabilities[predicted_class_index]
+
+                            predicted_name = encoder_classes[predicted_class_index]
+
+                            # --- Draw on the Frame ---
+                            label = f"{predicted_name}: {confidence:.2f}"
+                            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                            y_label = y - 15 if y - 15 > 15 else y + 15  # Adjust label position
+                            cv2.putText(frame, label, (x, y_label), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                        except Exception as e:
+                            print(f"Error during feature extraction or prediction: {e}")
+
+            else:
+                face_detected_time = None  # Reset timestamp if no face detected
+
+            # --- Display the Frame ---
+            cv2.imshow("Real-time Face Recognition", frame)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord("q"):  # Press 'q' to quit
                 break
 
-        cap.release()
         cv2.destroyAllWindows()
+        vs.stop()
+        return JsonResponse({'message': 'Stream ended'})
 
-        return JsonResponse({"message": "Dataset created successfully!"})
-
-    return render(request, "create_dataset.html")
+    return JsonResponse({'error': 'Invalid request method'}, status=405)

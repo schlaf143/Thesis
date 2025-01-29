@@ -4,12 +4,28 @@
     <form method="POST" action="{% url 'create_dataset' %}">
         {% csrf_token %}
         <fieldset class="form-group">
+            <!-- Name -->
             <legend class="border-bottom mb-4">Enter Full Name</legend>
-            <label for="username">Name:</label>
-            <input type="text" id="username" name="username" class="form-control" required>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+            
+            <!-- Company ID -->
+            <legend class="border-bottom mb-4">Enter Company ID</legend>
+            <label for="company_id">Company ID:</label>
+            <input type="text" id="company_id" name="company_id" class="form-control" required>
+        
         </fieldset>
         <div class="form-group">
             <button class="btn btn-outline-info" type="submit">Submit</button>
+        </div>
+    </form>
+
+
+    <h2>Predict Face</h2>
+    <form method="POST" action="{% url 'predict_face' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <button class="btn btn-outline-info" type="submit">Start Prediction</button>
         </div>
     </form>
 {% endblock %}  

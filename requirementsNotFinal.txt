@@ -5,3 +5,8 @@ django-filter
 django-htmx
 crispy-bootstrap5
 django-widget-tweaks
+numpy
+deepface
+tensorflow
+tf-keras
+mediapipe

@@ -7,10 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!----======== CSS ======== -->
+    <!--======== CSS ========-->
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
-    <!----===== Boxicons CSS ===== -->
+    <link rel="stylesheet" href="{% static 'css/base_styles.css' %}">  <!-- Your custom styles here -->
+    
+    <!--===== Boxicons CSS =====-->
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     
     <!-- JS Files -->
@@ -18,122 +20,73 @@
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/flatpickr.js' %}"></script>
     <script src="{% static 'js/flatpickr_init.js' %}"></script>
+
 </head>
-<body>  
-    <div class="container-fluid vh-100">
-        <div class="row h-100">
-            <!-- Sidebar -->
-            <nav class="col-12 col-md-3 col-lg-2 bg-dark text-light d-flex flex-column p-2">
-                <div class="text-center mb-4">
-                    <!-- <img src="{% static 'assets/logo.png' %}" alt="Logo" class="img-fluid rounded-circle mb-3" style="max-width: 80px;"> -->
-                    <h4>Workfore Monitoring</h4>
+<body class="pt-5">  
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg fixed-top bg-white shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <h4 class="mb-0"><img src="{% static 'img/Malasaga Trading Corporation Logo.jpg' %}" alt="Malasaga Trading Corporation Logo" class="img-fluid" style="width: 50px; height: auto;"></h4>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{% url 'dashboard' %}">
+                            Dashboard <i class='bx bx-home-alt ms-2'></i>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageEmpDropdown" 
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage Employees <i class='bx bxs-down-arrow ms-2'></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'view_employee_list' %}">View Employee List</a></li>
+                            <li><a class="dropdown-item" href="#">Add Login</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageShftDropdown" 
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage Shifts <i class='bx bxs-down-arrow ms-2'></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">View Shift Schedule</a></li>
+                            <li><a class="dropdown-item" href="#">Another Action</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{% url 'dashboard' %}">
+                            Leave Requests <i class='bx bx-home-alt ms-2'></i>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex">
+                    <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
                 </div>
-                <hr>
-                <!-- <ul class="nav flex-column"> -->
-                    <!-- <li class="nav-item">
-                        <a href="/ems/dashboard" class="nav-link text-light d-flex align-items-center">
-                            <i class='bx bx-home-alt me-2'></i> Dashboard
-                        </a>
-                    </li> -->
+            </div>
+        </div>
+    </nav>
 
-                    <ul class="nav flex-column nav-pills">
-                        <li class="nav-item">
-                          <a class="nav-link text-light" aria-current="page" href="{% url 'dashboard' %}">
-                            Dashboard<i class='bx bx-home-alt ms-2'></i></a>
-                        </li>
-
-                        <li class="nav-item">
-
-                          <button class="nav-link text-light " type="button" data-bs-toggle="collapse" data-bs-target="#manageEmpCollapse" aria-expanded="false" aria-controls="manageEmpCollapse">
-                            </i>Manage Employees<i class='bx bxs-down-arrow ms-2'></i></button>
-                            
-                          <div class="collapse multi-collapse" id="manageEmpCollapse">
-                            <div class="list-group  p-3">
-                                <a href="{% url 'view_employee_list' %}" class="list-group-item list-group-item-action">View Employee List</a>
-                                <a href="#" class="list-group-item list-group-item-action">Add Login</a>
-                              </div>
-                          </div>
-                        </li>
-                        <li class="nav-item">
-                            <!-- <a class="" href="#">Link</a> -->
-                            <button class="nav-link text-light " type="button" data-bs-toggle="collapse" data-bs-target="#manageShftCollapse" aria-expanded="false" aria-controls="manageShftCollapse">
-                            Manage Shifts<i class='bx bxs-down-arrow ms-2'></i></button>
-                            <div class="collapse multi-collapse" id="manageShftCollapse">
-                                <div class="list-group  p-3">
-                                    <a href="#" class="list-group-item list-group-item-action">View Shift Schedule</a>
-                                    <a href="#" class="list-group-item list-group-item-action">A third link item</a>
-                                  </div>
-                              </div>
-                          </li>
-
-                          <li class="nav-item">
-                            <a class="nav-link text-light" aria-current="page" href="{ % url 'dashboard' % }">
-                              Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
-                          </li>
-                          <li class="nav-item">
-                            <a class="nav-link text-light" aria-current="page" href="{ % url 'dashboard' % }">
-                              Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
-                          </li>
-                      </ul>
-              
-                    <!--
-                    <li class="nav-item">
-                        <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
-                            <i class='bx bx-bar-chart-alt-2 me-2'></i> Time-in and Time-out
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
-                            <i class='bx bx-bar-chart-alt-2 me-2'></i> View Attendance
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
-                            <i class='bx bx-bar-chart-alt-2 me-2'></i> Schedule Employees
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
-                            <i class='bx bx-bar-chart-alt-2 me-2'></i> View Schedule
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
-                            <i class='bx bx-bar-chart-alt-2 me-2'></i> Request Leave
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
-                            <i class='bx bx-bar-chart-alt-2 me-2'></i> View Leave Requests
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/ems/assignwork" class="nav-link text-light d-flex align-items-center">
-                            <i class='bx bx-bar-chart-alt-2 me-2'></i> Manage Employee Information
-                        </a>
-                    </li> -->
-                    
-                    <!-- Add more links as needed -->
-                <!-- </ul> -->
-                <div class="mt-auto">
-                    <a href="/logout" class="btn btn-danger w-100">Logout</a>
-                </div>
-            </nav>
-
-            <!-- Main Content -->
-            <main class="col-12 col-md-9 col-lg-10 bg-light p-4">
-<!--                 <div class="bg-secondary text-light rounded p-3 mb-3">
-                    <h1 class="text-center">Welcome to Employee Management</h1>
-                </div> -->
-                <div class="bg-white p-4 rounded shadow w-100 h-100 border border-dark-subtle">
-                    {% block content %}
-                    <!-- Dynamic content here -->
-                    {% endblock %}
-                </div>
-            </main>
+    <!-- Main Content -->
+    <div class="container-fluid mt-5">
+        <div class="p-4 rounded shadow border border-dark-subtle">
+            {% block content %}
+            <!-- Dynamic content here -->
+            {% endblock %}
         </div>
     </div>
-
-
 </body>
+
 </html>

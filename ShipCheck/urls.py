@@ -42,10 +42,12 @@ urlpatterns = [
     
     #! Attendance module
     path('attendance/camera/', views.open_camera, name='open_camera'),
+    path('atteendance/camera/predict', views.predict_face, name='predict_face'),
     #path('attendance/time-in/', views.attendance_time_in, name='attendance_time_in'),
 
     #!! Face Recognition Dataset
     path('attendance/camera/register_faces/', views.create_dataset, name='create_dataset'),
+    path('attendance/camera/train_dataset/', views.train_dataset, name='train_dataset'),
 ]
 
 # Serve static files in development
