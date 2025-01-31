@@ -1,234 +1,172 @@
-<!DOCTYPE html>
-{% extends 'base.html' %}
-<html lang="en">
-<head>
-    <title>Add Schedule</title>
-</head>
-<body>
-    <!-- {% if schedule_form.non_field_errors %}
-        <div class="alert alert-danger">
-            <ul>
-                {% for error in schedule_form.non_field_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px;">
+    <!-- Header Section -->
+    <div class="bg-orange p-4 rounded-top" style="background-color: #e2a25a;">
+        <div class="d-flex align-items-center">
+            <h3 class="text-white mb-0 flex-grow-1">Add Employee Schedule</h3>
+            <a class="btn btn-white text-orange" href="{% url 'view_schedule_list' %}" style="border: 1px solid #e2a25a;">
+                <i class='bx bx-arrow-back'></i> Back to List
+            </a>
         </div>
-    {% endif %} -->
-        
-    {% block content %}
-    <form method="POST">
-        {% csrf_token %}
-        <h3>Employee Schedule</h3>
-        <hr>
+    </div>
 
-        <div class="form-group">
-            <label for="id_employee">Employee:</label>
-            {{ schedule_form.employee }}
-            {% if schedule_form.employee.errors %}
-            <div class="text-danger">
-                {{ schedule_form.employee.errors.0 }}
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="d-flex gap-2 mt-2 mb-2 flex-column">
-        
-        <!-- Monday -->
-        <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
-            <div class="align-self-center col-2">
-                <label for="id_monday_start">Monday</label>
-            </div>
+    <!-- Form Section -->
+    <div class="bg-white p-4 rounded-bottom shadow">
+        <form method="POST" class="row g-4">
+            {% csrf_token %}
             
-            <div class="d-flex gap-2 col-10">
-                <div class="mr-2 flex-grow-1">
-                    {{ schedule_form.monday_start }}
-                    {% if schedule_form.monday_start.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.monday_start.errors.0 }}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="align-self-center"> to </div>
-                <div class="ml-2 flex-grow-1">
-                    {{ schedule_form.monday_end }}
-                    {% if schedule_form.monday_end.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.monday_end.errors.0 }}
+            <!-- Employee Selection -->
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="id_employee" class="form-label fw-bold">Employee</label>
+                    {{ schedule_form.employee }}
+                    {% if schedule_form.employee.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ schedule_form.employee.errors.0 }}
                     </div>
                     {% endif %}
                 </div>
             </div>
-        </div>
 
-        <!-- Tuesday -->
-        <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
-            <div class="align-self-center  col-2">
-                <label for="id_tuesday_start">Tuesday:</label>
-            </div>
-            
-            <div class="d-flex gap-2 col-10">
-                <div class="mr-2 flex-grow-1">
-                    {{ schedule_form.tuesday_start }}
-                    {% if schedule_form.tuesday_start.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.tuesday_start.errors.0 }}
+            <!-- Schedule Days -->
+            <div class="col-12">
+                <div class="d-flex flex-column gap-3">
+                    <!-- Monday -->
+                    <div class="schedule-day border p-3 rounded">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="form-label fw-bold col-2 mb-0">Monday</label>
+                            <div class="d-flex flex-grow-1 gap-2 align-items-center">
+                                {{ schedule_form.monday_start }}
+                                <span class="text-muted">to</span>
+                                {{ schedule_form.monday_end }}
+                            </div>
+                        </div>
+                        {% if schedule_form.monday_start.errors or schedule_form.monday_end.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ schedule_form.monday_start.errors.0|default:schedule_form.monday_end.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-                <div class="align-self-center"> to </div>
-                <div class="ml-2 flex-grow-1">
-                    {{ schedule_form.tuesday_end }}
-                    {% if schedule_form.tuesday_end.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.tuesday_end.errors.0 }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
 
-        <!-- wednesday -->
-        <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
-            <div class="align-self-center col-2">
-                <label for="id_wednesday_start">wednesday:</label>
-            </div>
-            
-            <div class="d-flex gap-2 col-10">
-                <div class="mr-2 flex-grow-1">
-                    {{ schedule_form.wednesday_start }}
-                    {% if schedule_form.wednesday_start.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.wednesday_start.errors.0 }}
+                    <!-- Tuesday -->
+                    <div class="schedule-day border p-3 rounded">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="form-label fw-bold col-2 mb-0">Tuesday</label>
+                            <div class="d-flex flex-grow-1 gap-2 align-items-center">
+                                {{ schedule_form.tuesday_start }}
+                                <span class="text-muted">to</span>
+                                {{ schedule_form.tuesday_end }}
+                            </div>
+                        </div>
+                        {% if schedule_form.tuesday_start.errors or schedule_form.tuesday_end.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ schedule_form.tuesday_start.errors.0|default:schedule_form.tuesday_end.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-                <div class="align-self-center"> to </div>
-                <div class="ml-2 flex-grow-1">
-                    {{ schedule_form.wednesday_end }}
-                    {% if schedule_form.wednesday_end.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.wednesday_end.errors.0 }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
 
-        <!-- Thursday -->
-        <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
-            <div class="align-self-center col-2">
-                <label for="id_thursday_start">thursday:</label>
-            </div>
-            
-            <div class="d-flex gap-2 col-10">
-                <div class="mr-2 flex-grow-1">
-                    {{ schedule_form.thursday_start }}
-                    {% if schedule_form.thursday_start.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.thursday_start.errors.0 }}
+                    <!-- Wednesday -->
+                    <div class="schedule-day border p-3 rounded">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="form-label fw-bold col-2 mb-0">Wednesday</label>
+                            <div class="d-flex flex-grow-1 gap-2 align-items-center">
+                                {{ schedule_form.wednesday_start }}
+                                <span class="text-muted">to</span>
+                                {{ schedule_form.wednesday_end }}
+                            </div>
+                        </div>
+                        {% if schedule_form.wednesday_start.errors or schedule_form.wednesday_end.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ schedule_form.wednesday_start.errors.0|default:schedule_form.wednesday_end.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-                <div class="align-self-center"> to </div>
-                <div class="ml-2 flex-grow-1">
-                    {{ schedule_form.thursday_end }}
-                    {% if schedule_form.thursday_end.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.thursday_end.errors.0 }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
 
-        <!-- Friday -->
-        <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
-            <div class="align-self-center col-2">
-                <label for="id_friday_start">friday:</label>
-            </div>
-            
-            <div class="d-flex gap-2 col-10">
-                <div class="mr-2 flex-grow-1">
-                    {{ schedule_form.friday_start }}
-                    {% if schedule_form.friday_start.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.friday_start.errors.0 }}
+                    <!-- Thursday -->
+                    <div class="schedule-day border p-3 rounded">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="form-label fw-bold col-2 mb-0">Thursday</label>
+                            <div class="d-flex flex-grow-1 gap-2 align-items-center">
+                                {{ schedule_form.thursday_start }}
+                                <span class="text-muted">to</span>
+                                {{ schedule_form.thursday_end }}
+                            </div>
+                        </div>
+                        {% if schedule_form.thursday_start.errors or schedule_form.thursday_end.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ schedule_form.thursday_start.errors.0|default:schedule_form.thursday_end.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-                <div class="align-self-center"> to </div>
-                <div class="ml-2 flex-grow-1">
-                    {{ schedule_form.friday_end }}
-                    {% if schedule_form.friday_end.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.friday_end.errors.0 }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
 
-        <!-- Saturday -->
-        <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
-            <div class="align-self-center col-2">
-                <label for="id_saturday_start">saturday:</label>
-            </div>
-            
-            <div class="d-flex gap-2 col-10">
-                <div class="mr-2 flex-grow-1">
-                    {{ schedule_form.saturday_start }}
-                    {% if schedule_form.saturday_start.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.saturday_start.errors.0 }}
+                    <!-- Friday -->
+                    <div class="schedule-day border p-3 rounded">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="form-label fw-bold col-2 mb-0">Friday</label>
+                            <div class="d-flex flex-grow-1 gap-2 align-items-center">
+                                {{ schedule_form.friday_start }}
+                                <span class="text-muted">to</span>
+                                {{ schedule_form.friday_end }}
+                            </div>
+                        </div>
+                        {% if schedule_form.friday_start.errors or schedule_form.friday_end.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ schedule_form.friday_start.errors.0|default:schedule_form.friday_end.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-                <div class="align-self-center"> to </div>
-                <div class="ml-2 flex-grow-1">
-                    {{ schedule_form.saturday_end }}
-                    {% if schedule_form.saturday_end.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.saturday_end.errors.0 }}
+
+                    <!-- Saturday -->
+                    <div class="schedule-day border p-3 rounded">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="form-label fw-bold col-2 mb-0">Saturday</label>
+                            <div class="d-flex flex-grow-1 gap-2 align-items-center">
+                                {{ schedule_form.saturday_start }}
+                                <span class="text-muted">to</span>
+                                {{ schedule_form.saturday_end }}
+                            </div>
+                        </div>
+                        {% if schedule_form.saturday_start.errors or schedule_form.saturday_end.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ schedule_form.saturday_start.errors.0|default:schedule_form.saturday_end.errors.0 }}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
+
+                    <!-- Sunday -->
+                    <div class="schedule-day border p-3 rounded">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="form-label fw-bold col-2 mb-0">Sunday</label>
+                            <div class="d-flex flex-grow-1 gap-2 align-items-center">
+                                {{ schedule_form.sunday_start }}
+                                <span class="text-muted">to</span>
+                                {{ schedule_form.sunday_end }}
+                            </div>
+                        </div>
+                        {% if schedule_form.sunday_start.errors or schedule_form.sunday_end.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ schedule_form.sunday_start.errors.0|default:schedule_form.sunday_end.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Sunday -->
-        <div class="form-group d-flex border border-1 border-dark-subtle p-3 rounded">
-            <div class="align-self-center col-2">
-                <label for="id_sunday_start">sunday:</label>
-            </div>
-            
-            <div class="d-flex gap-2 col-10">
-                <div class="mr-2 flex-grow-1">
-                    {{ schedule_form.sunday_start }}
-                    {% if schedule_form.sunday_start.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.sunday_start.errors.0 }}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="align-self-center"> to </div>
-                <div class="ml-2 flex-grow-1">
-                    {{ schedule_form.sunday_end }}
-                    {% if schedule_form.sunday_end.errors %}
-                    <div class="text-danger">
-                        {{ schedule_form.sunday_end.errors.0 }}
-                    </div>
-                    {% endif %}
+            <!-- Form Footer -->
+            <div class="col-12">
+                <div class="d-flex justify-content-end gap-3 mt-4">
+                    <a class="btn btn-lg btn-outline-orange" href="{% url 'view_schedule_list' %}" 
+                       style="border-color: #e2a25a; color: #e2a25a;">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-lg btn-orange text-white" 
+                            style="background-color: #e2a25a;">
+                        <i class='bx bx-save'></i> Save Schedule
+                    </button>
                 </div>
             </div>
-        </div>
-
-        </div>
-
-
-        <div class="form-group">
-            <button type="submit" class="btn btn-success" >Save</button>
-        </div>
-    </form>
-    {% endblock %}
-</body>
-</html>
+        </form>
+    </div>
+</div>
+{% endblock %}
