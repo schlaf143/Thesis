@@ -80,11 +80,13 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="container-fluid mt-5">
-        <div class="p-4 rounded shadow border border-dark-subtle">
-            {% block content %}
-            <!-- Dynamic content here -->
-            {% endblock %}
+    <div class="container-fluid d-flex flex-column p-0">  <!-- Full viewport container -->
+        <div class="container-fluid mt-5 d-flex flex-column p-0">  <!-- Content wrapper -->
+            <div class="container-fluid d-flex flex-column p-4">
+                {% block content %}
+                
+                {% endblock %}
+            </div>
         </div>
     </div>
 </body>

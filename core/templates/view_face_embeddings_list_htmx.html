@@ -6,7 +6,7 @@
 
 {% block content %}
     {% block main %}
-    <div id="employee-list-container" class="d-flex flex-column h-100">
+    <div id="face-embeddings-list-container" class="d-flex flex-column h-100">
         <!-- Top Section -->
         <div class="p-4 rounded-top" style="background-color: #e2a25a;">
             <h1 class="text-white text-uppercase mb-4">Employee Table</h1>
@@ -40,7 +40,7 @@
                     </button>
                 </div>
                 <div class="ms-auto">
-                    <a class="btn btn-success" href="{% url 'add_employee' %}">Add Employee</a>
+                    <a class="btn btn-success" href="{% url 'register_face' %}">Register Face Embeddings</a>
                 </div>
             </div>
         </div>
@@ -49,6 +49,7 @@
             {% render_table table %}
         </div>
     </div>
+    
     <script>
         document.getElementById('clear-btn').addEventListener('click', function() {
             // Clear the search inputs

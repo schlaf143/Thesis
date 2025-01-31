@@ -57,6 +57,7 @@ class EmployeeScheduleAdminForm(forms.ModelForm):
 
     sunday_start = time_widget
     sunday_end = time_widget
+    
 class EmployeeScheduleAdmin(admin.ModelAdmin):
     form = EmployeeScheduleAdminForm
 

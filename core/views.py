@@ -23,10 +23,10 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 import pickle
 
-from .forms import EmployeeForm, EmployeeScheduleForm
+from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm
 from .models import Employee, EmployeeSchedule, User
-from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable
-from .filters import EmployeeFilter, EmployeeScheduleFilter
+from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable, EmployeeFaceEmbeddingsHTMxTable
+from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddingsFilter
 
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
@@ -96,7 +96,12 @@ class EmployeeScheduleEditView(UpdateView):
 
     def get_object(self, queryset=None):
         # Retrieve the employee object by primary key (from the URL)
-        return get_object_or_404(EmployeeSchedule, pk=self.kwargs['pk'])
+        return get_object_or_404(EmployeeSchedule, employee=self.kwargs['pk'])
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # The context will automatically include the form and the employee
+        return context
 
     def form_valid(self, form):
         # Save the form and redirect to the success URL
@@ -109,11 +114,18 @@ class EmployeeScheduleEditView(UpdateView):
     
 class EmployeeScheduleDeleteView(DeleteView):
     model = EmployeeSchedule
-    #template_name = 'employee_schedule_confirm_delete.html'  # Optional: Confirmation template
-    success_url = reverse_lazy('view_schedule_list')  # Redirect after successful deletion
+    success_url = reverse_lazy('view_schedule_list')
 
     def get_object(self, queryset=None):
-        return get_object_or_404(EmployeeSchedule, pk=self.kwargs['pk'])
+        """
+        Get the schedule using the employee ID from the URL
+        The URL pattern should capture this as 'pk' (employee ID)
+        """
+        # Get the employee ID from URL parameters
+        employee_id = self.kwargs['pk']
+        
+        # Return the schedule associated with this employee
+        return get_object_or_404(EmployeeSchedule, employee__employee_id=employee_id)
 
 def camera_view(request):
     return render(request, 'face_access.html')
@@ -154,32 +166,77 @@ def add_schedule(request):
 
     return render(request, 'add_schedule.html', {'schedule_form': schedule_form})
 
-def open_camera(request):
-    return render(request, 'attendance_open_camera.html')
+
+def view_employee_information(request, pk):
+    # Retrieve the employee based on the company ID
+    employee = get_object_or_404(Employee, employee_id=pk)
+
+    # Retrieve the employee's schedule
+    try:
+        schedule = EmployeeSchedule.objects.get(employee=employee)
+        schedule_data = {
+            "Monday": {"start": schedule.monday_start, "end": schedule.monday_end},
+            "Tuesday": {"start": schedule.tuesday_start, "end": schedule.tuesday_end},
+            "Wednesday": {"start": schedule.wednesday_start, "end": schedule.wednesday_end},
+            "Thursday": {"start": schedule.thursday_start, "end": schedule.thursday_end},
+            "Friday": {"start": schedule.friday_start, "end": schedule.friday_end},
+            "Saturday": {"start": schedule.saturday_start, "end": schedule.saturday_end},
+            "Sunday": {"start": schedule.sunday_start, "end": schedule.sunday_end},
+        }
+    except EmployeeSchedule.DoesNotExist:
+        # If no schedule exists, set schedule_data to None or an empty dictionary
+        schedule_data = None
+        
+    context = {
+        'employee': employee,
+        'schedule': schedule_data
+    }
+    print(context)
+    return render(request, 'view_employee_information.html', context)
+
+
+class EmployeeFaceEmbeddingsHTMxTableView(SingleTableMixin, FilterView):
+    table_class = EmployeeFaceEmbeddingsHTMxTable
+    queryset = Employee.objects.all()
+    filterset_class = EmployeeFaceEmbeddingsFilter
+    paginate_by = 2
+
+    def get_template_names(self):
+        if self.request.htmx:
+            template_name = "view_face_embeddings_list_htmx_partial.html"
+        else:
+            template_name = "view_face_embeddings_list_htmx.html"
+
+        return template_name
+    
+def add_face_embeddings(request):
+    if request.method == 'POST':
+        form = FaceEmbeddingsForm(request.POST)
+        if form.is_valid():
+            employee = form.cleaned_data['employee']
+            # Create directory path using all name components
+            middle = f"{employee.middle_name}" if employee.middle_name else ""
+            name = f"{employee.first_name} {middle} {employee.last_name}"
+            company_id = employee.company_id
+            print(f"Names: {name} and Company ID: {company_id}")
+            create_dataset(name, company_id)
+            return redirect('view_face_embeddings_list')
+    else:
+        form = FaceEmbeddingsForm()
+
+    return render(request, 'add_face_embeddings.html', {'form': form})
 
 # Face Recognition Module #
 
 # Path to Haarcascade file
 HAAR_CASCADE_PATH = os.path.join(settings.BASE_DIR, "core", "static", "haarcascades", "haarcascade_frontalface_default.xml")
 
-def create_dataset(request):
-    if request.method == "POST":
-        name = request.POST.get("name")  # Get the username from POST data
-        company_id = request.POST.get('company_id')
-        
-        # Validate the username and company_id
-        if not name or not company_id:
-            return JsonResponse({"error": "Name and Company ID is required."}, status=400)
-        
-        # Create directory for the user inside the static folder
-        directory = os.path.join(settings.BASE_DIR, 'core', 'static', 'registered_faces', f"{name}_{company_id}")
-        os.makedirs(directory, exist_ok=True)
+def create_dataset(name, company_id):
+    # Create directory for the user inside the static folder
+    directory = os.path.join(settings.BASE_DIR, 'core', 'static', 'registered_faces', f"{name}_{company_id}")
+    os.makedirs(directory, exist_ok=True)
 
-        # Directory to save images
-        directory = os.path.join("core", "static", "registered_faces", f"{name}_{company_id}")
-        os.makedirs(directory, exist_ok=True)
-
-        # --- MediaPipe Face Detection and Landmarks ---
+    # --- MediaPipe Face Detection and Landmarks ---
     mp_face_detection = mp.solutions.face_detection
     mp_face_mesh = mp.solutions.face_mesh
 
@@ -195,7 +252,8 @@ def create_dataset(request):
 
     # --- Video Stream ---
     print("[INFO] Initializing Video stream")
-    vs = VideoStream(src=1).start()
+    #0 for laptop webcam, 1 for external (ONLY ME)
+    vs = VideoStream(src=0).start()
     sampleNum = 0
 
     previous_frame = None
@@ -336,15 +394,14 @@ def create_dataset(request):
 
         previous_frame = gray_frame.copy()
 
-        cv2.imshow("Add Images", frame)
-        cv2.waitKey(1)
-        if sampleNum > 50:
+        cv2.imshow("Register Face Embeddings (Press 'q' to cancel)", frame)
+        
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q') or sampleNum > 50:
             break
 
     vs.stop()
     cv2.destroyAllWindows()
-
-    return render(request, "base.html")
 
 def train_dataset(request):
     # --- Main training directory ---

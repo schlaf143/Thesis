@@ -29,24 +29,26 @@ urlpatterns = [
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 
     path('employee/register/', views.add_employee, name='add_employee'),
-    path('employee/', views.EmployeeHTMxTableView.as_view(), name='employee_htmx'),       
+    path('employee/view/<int:pk>/', views.view_employee_information, name='employee_information'),
     path('employee/edit/<int:pk>/', views.EmployeeEditView.as_view(), name='employee_edit'),
     path('employee/delete/<int:pk>/', views.EmployeeDeleteView.as_view(), name='employee_delete'),
+    
     #!
     
     #! CRUD operations for employee schedules | HR Side
     path('schedule/create/', views.add_schedule, name='add_schedule'), 
     path('schedule/view/', views.EmployeeScheduleHTMxTableView.as_view(), name='view_schedule_list'),
     path('schedule/edit/<int:pk>/', views.EmployeeScheduleEditView.as_view(), name='employee_schedule_edit'),
-    path('employee/delete/<int:pk>/', views.EmployeeScheduleDeleteView.as_view(), name='employee_schedule_delete'),
+    path('schedule/delete/<int:pk>/', views.EmployeeScheduleDeleteView.as_view(), name='employee_schedule_delete'),
     
     #! Attendance module
-    path('attendance/camera/', views.open_camera, name='open_camera'),
-    path('atteendance/camera/predict', views.predict_face, name='predict_face'),
+    #path('attendance/camera/', views.open_camera, name='open_camera'),
+    path('attendance/camera/predict', views.predict_face, name='predict_face'),
     #path('attendance/time-in/', views.attendance_time_in, name='attendance_time_in'),
 
-    #!! Face Recognition Dataset
-    path('attendance/camera/register_faces/', views.create_dataset, name='create_dataset'),
+    #!! Face Recognition Dataset and Training
+    path('face_embeddings/view/', views.EmployeeFaceEmbeddingsHTMxTableView.as_view(), name='view_face_embeddings_list'),
+    path('face_embeddings/register_face/', views.add_face_embeddings, name='register_face'),
     path('attendance/camera/train_dataset/', views.train_dataset, name='train_dataset'),
 ]
 

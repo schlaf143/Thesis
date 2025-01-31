@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px;">
+    <!-- Header Section -->
+    <div class="bg-orange p-4 rounded-top" style="background-color: #e2a25a;">
+        <div class="d-flex align-items-center">
+            <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Employee Information</h3>
+            <a class="btn btn-white text-orange" href="{% url 'view_employee_list' %}" style="border: 1px solid #e2a25a;">
+                <i class='bx bx-arrow-back'></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="bg-white p-4 rounded shadow">
+        <!-- Employee Details Card -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Left Column -->
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold text-orange">Company ID</label>
+                                <p class="mb-0">{{ employee.company_id }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold text-orange">Name</label>
+                                <p class="mb-0">
+                                    {{ employee.first_name }}
+                                    {% if employee.middle_name %}{{ employee.middle_name }}{% endif %}
+                                    {{ employee.last_name }}
+                                </p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold text-orange">Sex</label>
+                                <p class="mb-0">{{ employee.sex }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold text-orange">Leave Credits</label>
+                                <p class="mb-0">{{ employee.leave_credits }}</p>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold text-orange">Department</label>
+                                <p class="mb-0">{{ employee.department }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold text-orange">Role</label>
+                                <p class="mb-0">{{ employee.role }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold text-orange">Contact</label>
+                                <p class="mb-0">{{ employee.contact_number }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold text-orange">Date Employed</label>
+                                <p class="mb-0">{{ employee.date_employed|date:"M d, Y" }}</p>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'employee_edit' employee.employee_id %}" class="btn btn-outline-orange btn-sm">
+                                    <i class='bx bx-edit me-2'></i> Edit Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Schedule Section -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header bg-orange text-white">
+                <h5 class="mb-0 text-uppercase">Work Schedule</h5>
+            </div>
+            <div class="card-body">
+                {% if schedule %}
+                <!-- Container for the days -->
+                <div class="d-flex justify-content-between px-3 py-2">
+                    {% for day, times in schedule.items %}
+                    <div class="flex-grow-1 mx-1">
+                        <div class="border rounded h-100">
+                            <div class="bg-light p-2 border-bottom">
+                                <h6 class="mb-0 text-orange text-center">{{ day }}</h6>
+                            </div>
+                            <div class="p-2 d-flex justify-content-between align-items-center">
+                                <div class="text-center flex-grow-1">
+                                    <small class="text-muted d-block">Start</small>
+                                    <span class="fw-bold">{{ times.start|default:"Off" }}</span>
+                                </div>
+                            </div>
+                            <div class="p-2 d-flex justify-content-between align-items-center">
+                                <div class="text-center flex-grow-1">
+                                    <small class="text-muted d-block">End</small>
+                                    <span class="fw-bold">{{ times.end|default:"Off" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex justify-content-end">
+                    <a href="{% url 'employee_schedule_edit' employee.employee_id %}" class="btn btn-outline-orange btn-sm">
+                        <i class='bx bx-edit me-2'></i> Edit Schedule
+                    </a>
+                </div>
+                {% else %}
+                <!-- No schedule available -->
+                <div class="text-center p-4">
+                    <p class="fw-bold text-muted">No Schedule Available for this Employee</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'employee_edit' employee.employee_id %}" class="btn btn-outline-orange btn-sm">
+                <i class='bx bx-edit me-2'></i> Open DTR
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-orange { color: #e2a25a; }
+    .bg-orange { background-color: #e2a25a; }
+    .btn-orange { 
+        background-color: #e2a25a; 
+        border-color: #e2a25a;
+        color: white;
+    }
+    .btn-outline-orange {
+        border-color: #e2a25a;
+        color: #e2a25a;
+    }
+    .btn-outline-orange:hover {
+        background-color: #e2a25a;
+        color: white;
+    }
+</style>
+{% endblock %}

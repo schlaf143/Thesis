@@ -60,9 +60,27 @@ class EmployeeScheduleForm(forms.ModelForm):
         'sunday_start': time_widget,
         'sunday_end': time_widget,
         }
-
+    def __init__(self, *args, **kwargs):
+        super(EmployeeScheduleForm, self).__init__(*args, **kwargs)
+        
+        # If the form is being used for editing (i.e., there is an instance), disable the employee field
+        if self.instance and self.instance.pk:
+            self.fields['employee'].disabled = True  # Disable the employee field
+            self.fields['employee'].initial = self.instance.employee_id  # Pre-select the employee from the instance
+        else:
+            # If creating a new schedule, allow the user to select an employee
+            self.fields['employee'].queryset = Employee.objects.all()  # Populate the employee field with all employees
+    
     def clean(self):
         """Remove redundant validation in the form."""
         # Simply call the model's clean method to do the validation
         cleaned_data = super().clean()
         return cleaned_data
+
+    
+class FaceEmbeddingsForm(forms.Form):
+    employee = forms.ModelChoiceField(
+        queryset=Employee.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Select Employee"
+    )
