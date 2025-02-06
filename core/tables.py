@@ -53,7 +53,7 @@ class EmployeeHTMxTable(tables.Table):
         )
         
 class EmployeeScheduleHTMxTable(tables.Table):
-    # Combined time columns
+    full_name = tables.Column(accessor='employee', orderable=True, verbose_name='FULL NAME')
     monday = tables.Column(verbose_name='Monday', accessor='monday_start')
     tuesday = tables.Column(verbose_name='Tuesday', accessor='tuesday_start')
     wednesday = tables.Column(verbose_name='Wednesday', accessor='wednesday_start')
@@ -61,7 +61,6 @@ class EmployeeScheduleHTMxTable(tables.Table):
     friday = tables.Column(verbose_name='Friday', accessor='friday_start')
     saturday = tables.Column(verbose_name='Saturday', accessor='saturday_start')
     sunday = tables.Column(verbose_name='Sunday', accessor='sunday_start')
-    
     edit = tables.Column(empty_values=(), orderable=True, verbose_name='Actions')
     employee_department = tables.Column(accessor='employee.department', verbose_name='Department')
     employee_company_id = tables.Column(accessor='employee.company_id', verbose_name='Company ID')
@@ -78,7 +77,7 @@ class EmployeeScheduleHTMxTable(tables.Table):
                   'saturday_start', 'saturday_end',
                   'sunday_start', 'sunday_end')
         fields = (
-            'employee', 
+            'full_name',
             'employee_company_id',
             'employee_department',
             'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
@@ -131,6 +130,14 @@ class EmployeeScheduleHTMxTable(tables.Table):
             record.employee_id
         )
 
+    def render_full_name(self, record):
+        middle = f"{record.employee.middle_name}" if record.employee.middle_name else ""
+        return format_html(
+            '<span class="employee-name">{} {} {}</span>',
+            record.employee.first_name,
+            middle,
+            record.employee.last_name
+        )
 #record.employee_id -> employee
 #record.id -> schedule
 #this is where the url takes the primary key and passese it
@@ -197,9 +204,9 @@ class EmployeeFaceEmbeddingsHTMxTable(tables.Table):
         return "-"
 
     def render_full_name(self, record):
-        middle = f" {record.middle_name}" if record.middle_name else ""
+        middle = f"{record.middle_name}" if record.middle_name else ""
         return format_html(
-            '<span class="employee-name">{}{} {}</span>',
+            '<span class="employee-name">{} {} {}</span>',
             record.first_name,
             middle,
             record.last_name
