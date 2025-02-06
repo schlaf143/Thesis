@@ -16,6 +16,17 @@
         <form method="POST" class="row g-4">
             {% csrf_token %}
             
+            {% if schedule_form.non_field_errors %}
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    {% for error in schedule_form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        
+
             <!-- Employee Selection -->
             <div class="col-12">
                 <div class="form-group">
@@ -44,7 +55,8 @@
                         </div>
                         {% if schedule_form.monday_start.errors or schedule_form.monday_end.errors %}
                         <div class="text-danger small mt-2">
-                            {{ schedule_form.monday_start.errors.0|default:schedule_form.monday_end.errors.0 }}
+                            {{ schedule_form.monday_start.errors.0 }}
+                            {{ schedule_form.monday_end.errors.0 }}
                         </div>
                         {% endif %}
                     </div>
@@ -61,7 +73,8 @@
                         </div>
                         {% if schedule_form.tuesday_start.errors or schedule_form.tuesday_end.errors %}
                         <div class="text-danger small mt-2">
-                            {{ schedule_form.tuesday_start.errors.0|default:schedule_form.tuesday_end.errors.0 }}
+                            {{ schedule_form.tuesday_start.errors.0 }}
+                            {{ schedule_form.tuesday_end.errors.0 }}
                         </div>
                         {% endif %}
                     </div>
@@ -78,7 +91,8 @@
                         </div>
                         {% if schedule_form.wednesday_start.errors or schedule_form.wednesday_end.errors %}
                         <div class="text-danger small mt-2">
-                            {{ schedule_form.wednesday_start.errors.0|default:schedule_form.wednesday_end.errors.0 }}
+                            {{ schedule_form.wednesday_start.errors.0 }}
+                            {{ schedule_form.wednesday_end.errors.0 }}
                         </div>
                         {% endif %}
                     </div>
@@ -95,7 +109,8 @@
                         </div>
                         {% if schedule_form.thursday_start.errors or schedule_form.thursday_end.errors %}
                         <div class="text-danger small mt-2">
-                            {{ schedule_form.thursday_start.errors.0|default:schedule_form.thursday_end.errors.0 }}
+                            {{ schedule_form.thursday_start.errors.0 }}
+                            {{ schedule_form.thursday_end.errors.0 }}
                         </div>
                         {% endif %}
                     </div>
@@ -112,7 +127,8 @@
                         </div>
                         {% if schedule_form.friday_start.errors or schedule_form.friday_end.errors %}
                         <div class="text-danger small mt-2">
-                            {{ schedule_form.friday_start.errors.0|default:schedule_form.friday_end.errors.0 }}
+                            {{ schedule_form.friday_start.errors.0 }}
+                            {{ schedule_form.friday_end.errors.0 }}
                         </div>
                         {% endif %}
                     </div>
@@ -129,7 +145,8 @@
                         </div>
                         {% if schedule_form.saturday_start.errors or schedule_form.saturday_end.errors %}
                         <div class="text-danger small mt-2">
-                            {{ schedule_form.saturday_start.errors.0|default:schedule_form.saturday_end.errors.0 }}
+                            {{ schedule_form.saturday_start.errors.0 }}
+                            {{ schedule_form.saturday_end.errors.0 }}
                         </div>
                         {% endif %}
                     </div>
@@ -146,7 +163,8 @@
                         </div>
                         {% if schedule_form.sunday_start.errors or schedule_form.sunday_end.errors %}
                         <div class="text-danger small mt-2">
-                            {{ schedule_form.sunday_start.errors.0|default:schedule_form.sunday_end.errors.0 }}
+                            {{ schedule_form.sunday_start.errors.0 }}
+                            {{ schedule_form.sunday_end.errors.0 }}
                         </div>
                         {% endif %}
                     </div>

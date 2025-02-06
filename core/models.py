@@ -60,7 +60,7 @@ class Employee(models.Model):
             raise ValidationError("Leave credits cannot be negative.")
         
     def __str__(self):
-        return f"{self.first_name} {self.middle_name if self.middle_name else ''} {self.last_name}"
+        return f"{self.company_id} - {self.first_name} {self.middle_name if self.middle_name else ''} {self.last_name}"
 
 
 class EmployeeSchedule(models.Model):
