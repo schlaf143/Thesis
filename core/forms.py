@@ -1,5 +1,6 @@
 from django import forms
 from .models import Employee, EmployeeSchedule
+from django.core.exceptions import ValidationError
 from django.templatetags.static import static
 from datetime import timedelta, datetime
 
@@ -12,10 +13,18 @@ class EmployeeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'    
-   
+
+    def clean_company_id(self):
+        company_id = self.cleaned_data.get('company_id')
+        if company_id:
+            # Check if another employee has the same company_id
+            existing_employee = Employee.objects.filter(company_id=company_id).exclude(pk=self.instance.pk).first()
+            if existing_employee:
+                raise ValidationError("An employee with this Company ID already exists. Please use a unique Company ID.")
+        return company_id
+
     def clean(self):
         """Remove redundant validation in the form."""
-        # Simply call the model's clean method to do the validation
         cleaned_data = super().clean()
         return cleaned_data
     

@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from datetime import timedelta, datetime
 
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.db import models
 
 class Employee(models.Model):
@@ -20,8 +19,8 @@ class Employee(models.Model):
         ('Administrator', 'Administrator'),
     ]
 
-    employee_id = models.AutoField(primary_key=True)  # Auto-incrementing primary key
-    company_id = models.CharField(max_length=20, blank=False)  # Changed to CharField
+    employee_id = models.AutoField(primary_key=True)  
+    company_id = models.CharField(max_length=20, blank=False, unique=True)
     first_name = models.CharField(max_length=100, blank=False)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=False)
@@ -37,10 +36,10 @@ class Employee(models.Model):
     user_account = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='employee')
 
     class Meta:
-        ordering = ['last_name', 'first_name']  # Default ordering
+        ordering = ['last_name', 'first_name']  
         verbose_name = 'Employee'
         verbose_name_plural = 'Employees'
-        db_table = 'employee_table'  # Custom database table name
+        db_table = 'employee_table' 
         constraints = [
             models.CheckConstraint(
                 check=models.Q(leave_credits__gte=0),
