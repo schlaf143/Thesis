@@ -10,3 +10,6 @@ deepface
 tensorflow
 tf-keras
 mediapipe
+scikit-image
+scikit-learn
+django-cors-headers
