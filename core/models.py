@@ -3,16 +3,32 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from datetime import timedelta, datetime
 
-class Department(models.Model):
-    name = models.CharField(max_length=100, unique=True, default="Unassigned")
 
-    # Add a reverse relationship to Employee
-    def get_employees(self):
-        return self.employees.all()  # Allows easy retrieval of employees in this department
+class Department(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    # Many-to-Many: Multiple employees can be leave/shift respondents, restricted to employees in the department
+    leave_respondents = models.ManyToManyField(
+        'Employee',
+        related_name='leave_departments',
+        blank=True,
+        limit_choices_to={'department__isnull': False}
+    )
+    shift_respondents = models.ManyToManyField(
+        'Employee',
+        related_name='shift_departments',
+        blank=True,
+        limit_choices_to={'department__isnull': False}
+    )
 
     def __str__(self):
         return self.name
 
+    def get_leave_respondents(self):
+        return ", ".join([str(emp) for emp in self.leave_respondents.all()]) if self.leave_respondents.exists() else "Unassigned"
+
+    def get_shift_respondents(self):
+        return ", ".join([str(emp) for emp in self.shift_respondents.all()]) if self.shift_respondents.exists() else "Unassigned"
 
 
 class Employee(models.Model):
@@ -28,7 +44,7 @@ class Employee(models.Model):
         ('Administrator', 'Administrator'),
     ]
 
-    employee_id = models.AutoField(primary_key=True)  
+    employee_id = models.AutoField(primary_key=True)
     company_id = models.CharField(max_length=20, blank=False, unique=True)
     first_name = models.CharField(max_length=100, blank=False)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
@@ -36,13 +52,20 @@ class Employee(models.Model):
     sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Regular Employee', blank=False)
 
-    # Change ManyToManyField to ForeignKey (One-to-Many relationship)
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="employees")
+    # Changed to ForeignKey to allow only one department per employee
+    department = models.ForeignKey(
+        Department,
+        related_name="employees",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     contact_number = models.CharField(max_length=15, blank=False)
     date_employed = models.DateField()
     leave_credits = models.IntegerField(default=0, blank=False)
 
+    # Foreign key linking the employee to a user account
     user_account = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='employee')
 
     class Meta:
@@ -56,7 +79,18 @@ class Employee(models.Model):
                 name='positive_leave_credits',
             ),
         ]
-    
+
+    def clean(self):
+        # Validate contact number (must contain only digits and be at least 10 digits)
+        if not self.contact_number.isdigit():
+            raise ValidationError("Contact number must only contain digits.")
+        if len(self.contact_number) < 10:
+            raise ValidationError("Contact number must be at least 10 digits long.")
+
+        # Validate leave credits (cannot be negative)
+        if self.leave_credits < 0:
+            raise ValidationError("Leave credits cannot be negative.")
+
     def __str__(self):
         return f"{self.company_id} - {self.first_name} {self.middle_name if self.middle_name else ''} {self.last_name}"
 

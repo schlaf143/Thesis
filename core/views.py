@@ -153,8 +153,15 @@ def add_employee(request):
     else:
         employee_form = EmployeeForm()
 
+    # Fetch users who are not yet linked to an employee
     users = User.objects.exclude(employee__isnull=False)  # Assuming 'employee' is the related name for the User-Employee relationship
-    return render(request, 'add_employee.html', {'employee_form': employee_form, 'users': users})
+    departments = Department.objects.all()  # Fetch all departments
+
+    return render(request, 'add_employee.html', {
+        'employee_form': employee_form,
+        'users': users,
+        'departments': departments  # Pass departments to the template
+    })
 
 def add_schedule(request):
     if request.method == 'POST':

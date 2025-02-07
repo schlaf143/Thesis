@@ -139,15 +139,19 @@
                         <!-- Department -->
                         <div class="form-group">
                             <label for="department" class="form-label fw-bold">Department</label>
-                            <input type="text" name="department" id="department" 
-                                   class="form-control form-control-lg" 
-                                   placeholder="Enter department">
+                            <select name="department" id="department" class="form-select form-select-lg">
+                                <option value="" disabled selected>Select a Department</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.name }}</option>
+                                {% endfor %}
+                            </select>
                             {% if employee_form.department.errors %}
                             <div class="text-danger small mt-1">
                                 {{ employee_form.department.errors.0 }}
                             </div>
                             {% endif %}
                         </div>
+                        
 
                         <!-- Date Employed -->
                         <div class="form-group">
@@ -176,7 +180,7 @@
                         </div>
 
                         <!-- User Select -->
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="user-select" class="form-label fw-bold">Linked Login Credentials</label>
                             <select name="user" id="user-select" class="form-select form-select-lg">
                                 <option value="" disabled selected>Select a User</option>
@@ -184,7 +188,7 @@
                                     <option value="{{ user.id }}">{{ user.username }}</option>
                                 {% endfor %}
                             </select>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 

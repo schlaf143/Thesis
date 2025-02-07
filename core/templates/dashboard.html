@@ -9,39 +9,51 @@
 </head>
 <body>
     {% block content %}
-    <div class="d-flex">
+    <div class="row row-cols-3">
         {% for department in departments %}
-            <div class="d-flex flex-column border border-dark-subtle p-3 m-3 rounded shadow">
-                <h3>{{ department.name }}</h3>
-                <hr>
-                <h5>Shift Respondents:</h5>
-                {% if department.shift_respondents.exists %}
-                    <ul>
-                        {% for respondent in department.shift_respondents.all %}
-                            <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No shift respondents assigned.</p>
-                {% endif %}
+            <div class="p-2 d-flex">
+                <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow flex-grow-1">
+                    <h3>{{ department.name }}</h3>
+                    <hr>
+                    <div class="d-flex flex-grow-1 gap-3">
+                        <div class="flex-grow-1 border border-dark-subtle rounded p-2">
+                            <h5>Shift Respondents:</h5>
+                            {% if department.shift_respondents.exists %}
+                                <ul>
+                                    {% for respondent in department.shift_respondents.all %}
+                                        <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                            <ul>
 
-                <h5>Leave Respondents:</h5>
-                {% if department.leave_respondents.exists %}
-                    <ul>
-                        {% for respondent in department.leave_respondents.all %}
-                            <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <ul>
+                                <li>unassigned</li>
 
-                            <li>unassigned</li>
+                        </ul>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 border border-dark-subtle rounded p-2">
+                            <h5>Leave Respondents:</h5>
+                            {% if department.leave_respondents.exists %}
+                                <ul>
+                                    {% for respondent in department.leave_respondents.all %}
+                                        <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <ul>
 
-                    </ul>
-                {% endif %}
-                <button class="btn btn-primary">
-                    view
-                </button>
+                                        <li>unassigned</li>
+
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary align-self-start px-5 mt-3">
+                        view
+                    </button>
+                </div>
             </div>
         {% endfor %}
     </div>
