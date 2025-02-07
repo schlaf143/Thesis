@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from datetime import timedelta, datetime
+from django.utils import timezone
+from django.core.validators import MaxValueValidator
+import pytz
 
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True, default="Unassigned")
@@ -143,22 +146,6 @@ class EmployeeSchedule(models.Model):
 
     def __str__(self):
         return f"Schedule for {self.employee}"
-
-
-# models.py (updated)
-from django.db import models
-from django.utils import timezone
-from django.core.validators import MaxValueValidator
-from datetime import datetime, timedelta
-import pytz
-
-class Employee(models.Model):
-    # ... existing fields ...
-    grace_period_minutes = models.PositiveIntegerField(
-        default=15,
-        validators=[MaxValueValidator(15)],  # Hard cap at 15 minutes
-        help_text="Allowed late arrival (0-15 minutes)"
-    )
 
 class Attendance(models.Model):
     STATUS_CHOICES = [
