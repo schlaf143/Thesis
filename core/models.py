@@ -259,3 +259,4 @@ class Attendance(models.Model):
             self.status = 'Late'
         else:
             self.status = 'On-Time'
+            
