@@ -143,3 +143,98 @@ class EmployeeSchedule(models.Model):
 
     def __str__(self):
         return f"Schedule for {self.employee}"
+
+
+# models.py (updated)
+from django.db import models
+from django.utils import timezone
+from django.core.validators import MaxValueValidator
+from datetime import datetime, timedelta
+import pytz
+
+class Employee(models.Model):
+    # ... existing fields ...
+    grace_period_minutes = models.PositiveIntegerField(
+        default=15,
+        validators=[MaxValueValidator(15)],  # Hard cap at 15 minutes
+        help_text="Allowed late arrival (0-15 minutes)"
+    )
+
+class Attendance(models.Model):
+    STATUS_CHOICES = [
+        ('On-Time', 'On-Time'),
+        ('Late', 'Late'),
+        ('Absent', 'Absent'),
+        ('Rest Day', 'Rest Day'),
+    ]
+
+    employee = models.ForeignKey('Employee', on_delete=models.CASCADE)
+    date = models.DateField()
+    time_in = models.DateTimeField(null=True, blank=True)  # Auto-convert to Manila time
+    time_out = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Absent')
+    
+    # Historical schedule snapshot
+    scheduled_start = models.TimeField()  
+    scheduled_end = models.TimeField()
+    is_rest_day = models.BooleanField()
+    
+    # Tracking
+    late_minutes = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ['employee', 'date']
+
+    def save(self, *args, **kwargs):
+        # Always use Manila timezone
+        manila_tz = pytz.timezone('Asia/Manila')
+        
+        # Capture schedule snapshot
+        self._capture_schedule(manila_tz)
+        
+        # Calculate status
+        if not self.is_rest_day and self.time_in:
+            self._calculate_lateness(manila_tz)
+        
+        super().save(*args, **kwargs)
+
+    def _capture_schedule(self, tz):
+        """Creates an Immutable/Unchangeable record of the employee's schedule for that day
+        Example: Employee A has a schedule in monday of 8:00 A.M. to 5:00 P.M.
+        This method will copy that schedule for the day so even if that employee's schedule
+        changes, there will be historical records of what their schedule for that day of the week is."""
+        try:
+            schedule = self.employee.employeeschedule
+            day_of_week = self.date.strftime('%A').lower()
+            self.scheduled_start = getattr(schedule, f"{day_of_week}_start")
+            self.scheduled_end = getattr(schedule, f"{day_of_week}_end")
+            self.is_rest_day = not (self.scheduled_start and self.scheduled_end)
+        except EmployeeSchedule.DoesNotExist:
+            self.is_rest_day = True
+
+    def _calculate_lateness(self, tz):
+        #convert time_in to Manila Time
+        manila_time_in = self.time_in.astimezone(tz)
+        
+        #build scheduled datetime with midnight shift handling
+        base_date = self.date
+        scheduled_start_dt = tz.localize(datetime.combine(base_date, self.scheduled_start))
+        
+        #handle end time next day if needed
+        if self.scheduled_end < self.scheduled_start:
+            scheduled_end_dt = tz.localize(
+                datetime.combine(base_date + timedelta(days=1), self.scheduled_end)
+            )
+        else:
+            scheduled_end_dt = tz.localize(datetime.combine(base_date, self.scheduled_end))
+
+        #compute for lateness
+        grace_cutoff = scheduled_start_dt + timedelta(
+            minutes=self.employee.grace_period_minutes
+        )
+        
+        if manila_time_in > grace_cutoff:
+            self.late_minutes = (manila_time_in - scheduled_start_dt).seconds // 60
+            self.status = 'Late'
+        else:
+            self.status = 'On-Time'
