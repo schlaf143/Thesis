@@ -30,6 +30,8 @@ from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddi
 
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
+from .models import Department
+
 
 
 class EmployeeHTMxTableView(SingleTableMixin, FilterView):
@@ -131,7 +133,9 @@ def camera_view(request):
     return render(request, 'face_access.html')
 
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    departments = Department.objects.prefetch_related('shift_respondents', 'leave_respondents').all()
+    return render(request, 'dashboard.html', {'departments': departments})
+
 
 def add_employee(request):
     if request.method == 'POST':

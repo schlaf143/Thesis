@@ -9,8 +9,41 @@
 </head>
 <body>
     {% block content %}
-    <div class="hello">
-        <h4>Hello world</h4>
+    <div class="d-flex">
+        {% for department in departments %}
+            <div class="d-flex flex-column border border-dark-subtle p-3 m-3 rounded shadow">
+                <h3>{{ department.name }}</h3>
+                <hr>
+                <h5>Shift Respondents:</h5>
+                {% if department.shift_respondents.exists %}
+                    <ul>
+                        {% for respondent in department.shift_respondents.all %}
+                            <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No shift respondents assigned.</p>
+                {% endif %}
+
+                <h5>Leave Respondents:</h5>
+                {% if department.leave_respondents.exists %}
+                    <ul>
+                        {% for respondent in department.leave_respondents.all %}
+                            <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <ul>
+
+                            <li>unassigned</li>
+
+                    </ul>
+                {% endif %}
+                <button class="btn btn-primary">
+                    view
+                </button>
+            </div>
+        {% endfor %}
     </div>
     {% endblock %}
 </body>
