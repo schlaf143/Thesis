@@ -9,7 +9,8 @@
 </head>
 <body>
     {% block content %}
-    <div class="row row-cols-3">
+    
+    <div class="row row-cols-2 px-5">
         {% for department in departments %}
             <div class="p-2 d-flex">
                 <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow flex-grow-1">
@@ -50,12 +51,16 @@
                         </div>
                     </div>
                     
-                    <button class="btn btn-primary align-self-start px-5 mt-3">
+                    <a class="btn btn-primary align-self-end px-5 mt-3">
                         view
-                    </button>
+                    </a>
                 </div>
             </div>
         {% endfor %}
+        <div class="p-2 d-flex gap-2">
+            <div class="border border-dark-subtle flex-grow-1 rounded shadow"></div>
+            <div class="border border-dark-subtle flex-grow-1 rounded shadow"></div>
+        </div>
     </div>
     {% endblock %}
 </body>

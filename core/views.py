@@ -141,26 +141,43 @@ def add_employee(request):
     if request.method == 'POST':
         employee_form = EmployeeForm(request.POST)
         if employee_form.is_valid():
-            # Save the form and associate the selected user account with the employee
+            # Save the form without committing to modify before saving
             employee = employee_form.save(commit=False)
-            user_id = request.POST.get('user')  # Retrieve the selected user ID
-            if user_id:
-                employee.linked_account = User.objects.get(id=user_id)
+
+            # Extract first name, last name, and company ID from the form data
+            first_name = employee_form.cleaned_data.get('first_name')
+            last_name = employee_form.cleaned_data.get('last_name')
+            company_id = employee_form.cleaned_data.get('company_id')  # Ensure company_id exists in Employee model
+
+            # Generate username as "first name + last name"
+            username = f"{first_name.lower()}{last_name.lower()}".replace(" ", "")
+
+            # Create a new User automatically
+            user = User.objects.create_user(
+                username=username,
+                password=str(company_id),  # Use company ID as password
+                first_name=first_name,
+                last_name=last_name
+            )
+
+            # Link the newly created user to the employee
+            employee.linked_account = user
             employee.save()
-            return redirect('view_employee_list')  # Redirect to a list or detail view
+
+            return redirect('view_employee_list')  # Redirect to employee list
         else:
             print(employee_form.errors)
     else:
         employee_form = EmployeeForm()
 
     # Fetch users who are not yet linked to an employee
-    users = User.objects.exclude(employee__isnull=False)  # Assuming 'employee' is the related name for the User-Employee relationship
-    departments = Department.objects.all()  # Fetch all departments
+    users = User.objects.exclude(employee__isnull=False)
+    departments = Department.objects.all()
 
     return render(request, 'add_employee.html', {
         'employee_form': employee_form,
         'users': users,
-        'departments': departments  # Pass departments to the template
+        'departments': departments
     })
 
 def add_schedule(request):

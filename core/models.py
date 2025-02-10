@@ -44,7 +44,9 @@ class Employee(models.Model):
     ROLE_CHOICES = [
         ('Regular Employee', 'Regular Employee'),
         ('Department Head', 'Department Head'),
-        ('Administrator', 'Administrator'),
+        ('Admin(HR)', 'Admin(HR)'),
+        ('Supervisor', 'Supervisor'),
+        ('President', 'President')
     ]
 
     employee_id = models.AutoField(primary_key=True)
