@@ -141,36 +141,31 @@ def add_employee(request):
     if request.method == 'POST':
         employee_form = EmployeeForm(request.POST)
         if employee_form.is_valid():
-            # Save the form without committing to modify before saving
-            employee = employee_form.save(commit=False)
 
-            # Extract first name, last name, and company ID from the form data
+            employee = employee_form.save(commit=False)
             first_name = employee_form.cleaned_data.get('first_name')
             last_name = employee_form.cleaned_data.get('last_name')
-            company_id = employee_form.cleaned_data.get('company_id')  # Ensure company_id exists in Employee model
+            company_id = employee_form.cleaned_data.get('company_id')
 
-            # Generate username as "first name + last name"
             username = f"{first_name.lower()}{last_name.lower()}".replace(" ", "")
 
-            # Create a new User automatically
             user = User.objects.create_user(
                 username=username,
-                password=str(company_id),  # Use company ID as password
+                password=str(company_id), 
                 first_name=first_name,
                 last_name=last_name
             )
 
-            # Link the newly created user to the employee
             employee.linked_account = user
             employee.save()
 
-            return redirect('view_employee_list')  # Redirect to employee list
+            return redirect('view_employee_list') 
         else:
             print(employee_form.errors)
     else:
         employee_form = EmployeeForm()
 
-    # Fetch users who are not yet linked to an employee
+
     users = User.objects.exclude(employee__isnull=False)
     departments = Department.objects.all()
 
@@ -196,7 +191,6 @@ def add_schedule(request):
 
 
 def view_employee_information(request, pk):
-    # Retrieve the employee based on the company ID
     employee = get_object_or_404(Employee, employee_id=pk)
 
     # Retrieve the employee's schedule

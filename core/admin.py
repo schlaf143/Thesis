@@ -54,6 +54,7 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 class EmployeeScheduleAdminForm(forms.ModelForm):
     time_widget = forms.TimeField(
+        
         required=False,
         widget=TextInput(attrs={'class': 'flatpickr', 'data-enableTime': 'true', 'data-noCalendar': 'true', 'data-dateFormat': 'h:i K'})
     )
