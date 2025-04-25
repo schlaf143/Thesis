@@ -20,11 +20,13 @@ from django.urls import path
 from core import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('camera/', views.camera_view, name='camera'),
     path('', views.dashboard, name='dashboard'),
+    path('login/', views.custom_login_view, name='login'),
     
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 

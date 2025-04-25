@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +9,7 @@
     <!--======== CSS ========-->
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base_styles.css' %}">  <!-- Your custom styles here -->
+    <link rel="stylesheet" href="{% static 'css/base_styles.css' %}">
     
     <!--===== Boxicons CSS =====-->
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
@@ -20,14 +19,17 @@
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/flatpickr.js' %}"></script>
     <script src="{% static 'js/flatpickr_init.js' %}"></script>
-
 </head>
 <body class="pt-5">  
+
+{% if user.is_authenticated %}
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg fixed-top bg-white shadow">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <h4 class="mb-0"><img src="{% static 'img/Malasaga Trading Corporation Logo.jpg' %}" alt="Malasaga Trading Corporation Logo" class="img-fluid" style="width: 50px; height: auto;"></h4>
+                <h4 class="mb-0">
+                    <img src="{% static 'img/Malasaga Trading Corporation Logo.jpg' %}" alt="Malasaga Trading Corporation Logo" class="img-fluid" style="width: 50px; height: auto;">
+                </h4>
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
@@ -38,14 +40,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link py-1" href="{% url 'dashboard' %}">
-                            Dashboard <i class='bx bx-home-alt ms-2'></i>
-                        </a>
+                        <a class="nav-link py-1" href="{% url 'dashboard' %}">Dashboard <i class='bx bx-home-alt ms-2'></i></a>
                     </li>
-
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageEmpDropdown" 
-                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageEmpDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Manage Employees <i class='bx bxs-down-arrow ms-2'></i>
                         </a>
                         <ul class="dropdown-menu">
@@ -53,10 +51,8 @@
                             <li><a class="dropdown-item" href="#">Add Login</a></li>
                         </ul>
                     </li>
-
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageShftDropdown" 
-                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageShftDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Manage Shifts <i class='bx bxs-down-arrow ms-2'></i>
                         </a>
                         <ul class="dropdown-menu">
@@ -64,31 +60,56 @@
                             <li><a class="dropdown-item" href="#">Another Action</a></li>
                         </ul>
                     </li>
-
                     <li class="nav-item">
-                        <a class="nav-link py-1" href="{% url 'dashboard' %}">
-                            Leave Requests <i class='bx bx-home-alt ms-2'></i>
-                        </a>
+                        <a class="nav-link py-1" href="{% url 'dashboard' %}">Leave Requests <i class='bx bx-home-alt ms-2'></i></a>
                     </li>
                 </ul>
 
                 <div class="d-flex">
-                    <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+                    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <div class="container-fluid d-flex flex-column p-0">  <!-- Full viewport container -->
-        <div class="container-fluid mt-5 d-flex flex-column p-0">  <!-- Content wrapper -->
+    <div class="container-fluid d-flex flex-column p-0">
+        <div class="container-fluid mt-5 d-flex flex-column p-0">
             <div class="container-fluid d-flex flex-column p-4">
                 {% block content %}
-                
                 {% endblock %}
             </div>
         </div>
     </div>
-</body>
 
+    {% else %}
+    <!-- Unauthenticated Login Form -->
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="card p-4 shadow" style="min-width: 300px; max-width: 400px;">
+            <h4 class="mb-3 text-center">Login</h4>
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Invalid username or password.
+                    </div>
+                {% endif %}
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Username</label>
+                    <input type="text" name="username" autofocus required id="id_username" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="id_password" class="form-label">Password</label>
+                    <input type="password" name="password" required id="id_password" class="form-control">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Log In</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+
+</body>
 </html>
