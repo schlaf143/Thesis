@@ -27,6 +27,7 @@ urlpatterns = [
     path('camera/', views.camera_view, name='camera'),
     path('', views.dashboard, name='dashboard'),
     path('login/', views.custom_login_view, name='login'),
+    path('logout/', views.custom_logout_view, name='logout'),
     
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 
