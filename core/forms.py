@@ -6,15 +6,14 @@ from django.templatetags.static import static
 from datetime import timedelta, datetime
 
 class RespondentSelectionForm(forms.ModelForm):
-    # Define the fields outside of Meta to ensure they are properly included
     shift_respondents = forms.ModelMultipleChoiceField(
-        queryset=Employee.objects.all(),
+        queryset=Employee.objects.none(),  # Set default to none
         widget=forms.CheckboxSelectMultiple,
         required=False,
         label="Select Shift Respondents"
     )
     leave_respondents = forms.ModelMultipleChoiceField(
-        queryset=Employee.objects.all(),
+        queryset=Employee.objects.none(),  # Set default to none
         widget=forms.CheckboxSelectMultiple,
         required=False,
         label="Select Leave Respondents"
@@ -22,7 +21,21 @@ class RespondentSelectionForm(forms.ModelForm):
 
     class Meta:
         model = Department
-        fields = []  # Leave the fields empty since we are handling the fields manually
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        department = kwargs.pop('department', None)
+        super().__init__(*args, **kwargs)
+
+        if department:
+            # Only include employees assigned to the same department
+            employees_in_dept = Employee.objects.filter(department=department)
+            self.fields['shift_respondents'].queryset = employees_in_dept
+            self.fields['leave_respondents'].queryset = employees_in_dept
+
+            # Pre-fill with existing selections
+            self.fields['shift_respondents'].initial = department.shift_respondents.all()
+            self.fields['leave_respondents'].initial = department.leave_respondents.all()
 
 class DepartmentCreateForm(forms.ModelForm):
     class Meta:

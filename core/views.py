@@ -37,22 +37,21 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
-def department_respondents_view(request, pk):
-    department = get_object_or_404(Department, pk=pk)
-    
+def department_respondents_view(request, department_id):
+    department = get_object_or_404(Department, id=department_id)
+
     if request.method == 'POST':
-        form = RespondentSelectionForm(request.POST)
+        form = RespondentSelectionForm(request.POST, department=department)
         if form.is_valid():
             department.shift_respondents.set(form.cleaned_data['shift_respondents'])
             department.leave_respondents.set(form.cleaned_data['leave_respondents'])
-            department.save()
-            return redirect('view_department_list')  # Replace with your department list view name
+            return redirect('view_department_list')  # or your actual redirect
     else:
-        form = RespondentSelectionForm()
+        form = RespondentSelectionForm(department=department)
 
     return render(request, 'department_respondents.html', {
-        'department': department,
         'form': form,
+        'department': department
     })
 
 def submit_leave_request(request):

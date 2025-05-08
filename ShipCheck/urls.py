@@ -29,7 +29,7 @@ urlpatterns = [
     path('login/', views.custom_login_view, name='login'),
     path('logout/', views.custom_logout_view, name='logout'),
     path('submit-leave/', views.submit_leave_request, name='submit_leave_request'),
-    path('department/<int:pk>/respondents/', views.department_respondents_view, name='department_respondents'),
+    path('department/<int:department_id>/respondents/', views.department_respondents_view, name='department_respondents'),
     
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 

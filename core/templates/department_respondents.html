@@ -4,42 +4,51 @@
 <div class="container mt-5">
     <h3 class="mb-4">Assign Respondents to {{ department.name }}</h3>
 
-    <form method="post">
+    <form method="post" class="p-4 border rounded shadow-sm">
         {% csrf_token %}
 
-        <div class="mb-4">
+        <div class="mb-4 p-3 border rounded">
             <h5 class="form-label">Shift Respondents</h5>
-            <div class="form-check">
+
+            {% if form.fields.shift_respondents.queryset.exists %}
                 {% for checkbox in form.shift_respondents %}
                     <div class="form-check">
                         {{ checkbox.tag }}
                         <label class="form-check-label">{{ checkbox.choice_label }}</label>
                     </div>
                 {% endfor %}
-            </div>
+            {% else %}
+                <p class="text-muted fst-italic">No available employees in this department.</p>
+            {% endif %}
+
             {% if form.shift_respondents.errors %}
                 <div class="text-danger small">{{ form.shift_respondents.errors }}</div>
             {% endif %}
         </div>
 
-        <div class="mb-4">
+        <div class="mb-4 p-3 border rounded">
             <h5 class="form-label">Leave Respondents</h5>
-            <div class="form-check">
+
+            {% if form.fields.leave_respondents.queryset.exists %}
                 {% for checkbox in form.leave_respondents %}
                     <div class="form-check">
                         {{ checkbox.tag }}
                         <label class="form-check-label">{{ checkbox.choice_label }}</label>
                     </div>
                 {% endfor %}
-            </div>
+            {% else %}
+                <p class="text-muted fst-italic">No available employees in this department.</p>
+            {% endif %}
+
             {% if form.leave_respondents.errors %}
                 <div class="text-danger small">{{ form.leave_respondents.errors }}</div>
             {% endif %}
         </div>
 
-        <button type="submit" class="btn btn-success">Save Respondents</button>
-        <a href="{% url 'view_department_list' %}" class="btn btn-secondary ms-2">Back to Departments</a>
+        <div class="d-flex">
+            <button type="submit" class="btn btn-success">Save Respondents</button>
+            <a href="{% url 'view_department_list' %}" class="btn btn-secondary ms-2">Back to Departments</a>
+        </div>
     </form>
 </div>
 {% endblock %}
-
