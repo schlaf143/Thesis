@@ -10,7 +10,6 @@ import pytz
 class Department(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
-    # Many-to-Many: Multiple employees can be leave/shift respondents, restricted to employees in the department
     leave_respondents = models.ManyToManyField(
         'Employee',
         related_name='leave_departments',
@@ -57,7 +56,6 @@ class Employee(models.Model):
     sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Regular Employee', blank=False)
 
-    # Changed to ForeignKey to allow only one department per employee
     department = models.ForeignKey(
         Department,
         related_name="employees",
@@ -70,7 +68,6 @@ class Employee(models.Model):
     date_employed = models.DateField()
     leave_credits = models.IntegerField(default=0, blank=False)
 
-    # Foreign key linking the employee to a user account
     user_account = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='employee')
 
     class Meta:
@@ -86,13 +83,11 @@ class Employee(models.Model):
         ]
 
     def clean(self):
-        # Validate contact number (must contain only digits and be at least 10 digits)
         if not self.contact_number.isdigit():
             raise ValidationError("Contact number must only contain digits.")
         if len(self.contact_number) < 10:
             raise ValidationError("Contact number must be at least 10 digits long.")
 
-        # Validate leave credits (cannot be negative)
         if self.leave_credits < 0:
             raise ValidationError("Leave credits cannot be negative.")
 

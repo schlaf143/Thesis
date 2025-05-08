@@ -31,6 +31,7 @@ urlpatterns = [
     
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 
+    path('employee/view_dep/', views.view_departments, name='view_department_list'), 
     path('employee/register/', views.add_employee, name='add_employee'),
     path('employee/view/<int:pk>/', views.view_employee_information, name='employee_information'),
     path('employee/edit/<int:pk>/', views.EmployeeEditView.as_view(), name='employee_edit'),

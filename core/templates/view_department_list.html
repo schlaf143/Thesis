@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+    <div class="row row-cols-2 px-5">
+        
+        {% for department in departments %}
+            <div class="p-2 d-flex">
+                <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow flex-grow-1">
+                    <h3>{{ department.name }}</h3>
+                    <hr>
+                    <div class="d-flex flex-grow-1 gap-3">
+                        <div class="flex-grow-1 border border-dark-subtle rounded p-2">
+                            <h5>Shift Respondents:</h5>
+                            {% if department.shift_respondents.exists %}
+                                <ul>
+                                    {% for respondent in department.shift_respondents.all %}
+                                        <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                            <ul>
+
+                                <li>unassigned</li>
+
+                        </ul>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 border border-dark-subtle rounded p-2">
+                            <h5>Leave Respondents:</h5>
+                            {% if department.leave_respondents.exists %}
+                                <ul>
+                                    {% for respondent in department.leave_respondents.all %}
+                                        <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <ul>
+
+                                        <li>unassigned</li>
+
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <a class="btn btn-primary align-self-end px-5 mt-3">
+                        view
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="p-2 d-flex gap-2">
+            <div class="border border-dark-subtle flex-grow-1 rounded shadow"></div>
+            <div class="border border-dark-subtle flex-grow-1 rounded shadow"></div>
+        </div>
+    </div>
+{% endblock %}

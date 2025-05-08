@@ -158,9 +158,40 @@ def camera_view(request):
     return render(request, 'face_access.html')
 
 def dashboard(request):
+    if request.user.is_authenticated:
+        try:
+            employee = request.user.employee  # from related_name='employee'
+            print("First Name:", employee.first_name)
+            print("Last Name:", employee.last_name)
+            print("Company ID:", employee.company_id)
+        except Employee.DoesNotExist:
+            print("No linked employee record.")
+
+        try:
+            employee = request.user.employee  # from related_name='employee'
+            
+            leave_depts = employee.leave_departments.all()
+            shift_depts = employee.shift_departments.all()
+
+            print("Leave Respondent for Departments:")
+            for dept in leave_depts:
+                print(f"- {dept.name}")
+
+            print("Shift Respondent for Departments:")
+            for dept in shift_depts:
+                print(f"- {dept.name}")
+
+        except Employee.DoesNotExist:
+            print("No employee record linked to this user.")
+    
+    
     departments = Department.objects.prefetch_related('shift_respondents', 'leave_respondents').all()
     return render(request, 'dashboard.html', {'departments': departments})
 
+def view_departments(request):    
+    
+    departments = Department.objects.prefetch_related('shift_respondents', 'leave_respondents').all()
+    return render(request, 'view_department_list.html', {'departments': departments})
 
 def add_employee(request):
     if request.method == 'POST':
@@ -181,7 +212,7 @@ def add_employee(request):
                 last_name=last_name
             )
 
-            employee.linked_account = user
+            employee.user_account = user
             employee.save()
 
             return redirect('view_employee_list') 

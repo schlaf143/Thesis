@@ -9,8 +9,11 @@ class EmployeeForm(forms.ModelForm):
         model = Employee
         fields = '__all__'  # Include all fields from the model
         
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.instance and self.instance.user_account:
+            self.fields['user_account'].disabled = True  # Make it uneditable
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'    
 
