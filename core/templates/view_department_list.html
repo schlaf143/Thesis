@@ -45,15 +45,31 @@
                         </div>
                     </div>
                     
-                    <a class="btn btn-primary align-self-end px-5 mt-3">
-                        view
+                    <a href="{% url 'department_respondents' department.pk %}" class="btn btn-primary align-self-end px-5 mt-3">
+                        View Respondents
                     </a>
+                    
                 </div>
             </div>
         {% endfor %}
+
         <div class="p-2 d-flex gap-2">
-            <div class="border border-dark-subtle flex-grow-1 rounded shadow"></div>
-            <div class="border border-dark-subtle flex-grow-1 rounded shadow"></div>
+            <div class="border border-dark-subtle flex-grow-1 rounded shadow p-3">
+                <h4>Add Department</h4>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="mb-3">
+                        {{ form.name.label_tag }}
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-success px-4">Add</button>
+                </form>
+            </div>
         </div>
+
     </div>
 {% endblock %}

@@ -1,8 +1,49 @@
 from django import forms
-from .models import Employee, EmployeeSchedule
+from .models import Employee, EmployeeSchedule, Department
+from .models import LeaveRequest
 from django.core.exceptions import ValidationError
 from django.templatetags.static import static
 from datetime import timedelta, datetime
+
+class RespondentSelectionForm(forms.ModelForm):
+    # Define the fields outside of Meta to ensure they are properly included
+    shift_respondents = forms.ModelMultipleChoiceField(
+        queryset=Employee.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Select Shift Respondents"
+    )
+    leave_respondents = forms.ModelMultipleChoiceField(
+        queryset=Employee.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Select Leave Respondents"
+    )
+
+    class Meta:
+        model = Department
+        fields = []  # Leave the fields empty since we are handling the fields manually
+
+class DepartmentCreateForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter department name'
+            })
+        }
+
+class LeaveRequestForm(forms.ModelForm):
+    class Meta:
+        model = LeaveRequest
+        fields = ['start_of_leave', 'end_of_leave', 'reason_for_leave', 'leave_type']
+        widgets = {
+            'start_of_leave': forms.DateInput(attrs={'type': 'date'}),
+            'end_of_leave': forms.DateInput(attrs={'type': 'date'}),
+            'reason_for_leave': forms.Textarea(attrs={'rows': 3}),
+        }
 
 class EmployeeForm(forms.ModelForm):
     class Meta:

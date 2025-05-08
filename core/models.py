@@ -3,9 +3,51 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from datetime import timedelta, datetime
 from django.utils import timezone
+from django.db.models import Max
 from django.core.validators import MaxValueValidator
 import pytz
 
+
+class LeaveRequest(models.Model):
+    class LeaveType(models.TextChoices):
+        SICK = 'SICK', 'Sick Leave'
+        MATERNITY = 'MATERNITY', 'Maternity Leave'
+        PATERNITY = 'PATERNITY', 'Paternity Leave'
+        VACATION = 'VACATION', 'Vacation Leave'
+
+    class ApprovalStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        APPROVED = 'APPROVED', 'Approved'
+        REJECTED = 'REJECTED', 'Rejected'
+
+    employee = models.ForeignKey('Employee', on_delete=models.CASCADE, related_name='leave_requests')
+    leave_number = models.PositiveIntegerField(unique=True, editable=False)
+    start_of_leave = models.DateField()
+    end_of_leave = models.DateField()
+    reason_for_leave = models.TextField()
+    leave_type = models.CharField(max_length=20, choices=LeaveType.choices)
+
+    department_approval = models.CharField(max_length=10, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
+    hr_approval = models.CharField(max_length=10, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
+    president_approval = models.CharField(max_length=10, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
+    status = models.CharField(max_length=10, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Auto-generate leave number
+        if not self.leave_number:
+            max_leave_number = LeaveRequest.objects.aggregate(Max('leave_number'))['leave_number__max'] or 0
+            self.leave_number = max_leave_number + 1
+
+        # Optionally: Validate that start date is before end date
+        if self.start_of_leave > self.end_of_leave:
+            raise ValidationError("Start of leave must be before end of leave.")
+        
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Leave {self.leave_number} - {self.employee}"
 
 class Department(models.Model):
     name = models.CharField(max_length=255, unique=True)

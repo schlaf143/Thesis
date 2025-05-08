@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4">Assign Respondents to {{ department.name }}</h3>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-4">
+            <h5 class="form-label">Shift Respondents</h5>
+            <div class="form-check">
+                {% for checkbox in form.shift_respondents %}
+                    <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label">{{ checkbox.choice_label }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.shift_respondents.errors %}
+                <div class="text-danger small">{{ form.shift_respondents.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <h5 class="form-label">Leave Respondents</h5>
+            <div class="form-check">
+                {% for checkbox in form.leave_respondents %}
+                    <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label">{{ checkbox.choice_label }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.leave_respondents.errors %}
+                <div class="text-danger small">{{ form.leave_respondents.errors }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-success">Save Respondents</button>
+        <a href="{% url 'view_department_list' %}" class="btn btn-secondary ms-2">Back to Departments</a>
+    </form>
+</div>
+{% endblock %}
+

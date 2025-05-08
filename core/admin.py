@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.forms.widgets import TextInput
 from django.templatetags.static import static
-from .models import Employee, EmployeeSchedule, Department
+from .models import Employee, EmployeeSchedule, Department, LeaveRequest
 
 
 class EmployeeAdmin(admin.ModelAdmin):
@@ -86,6 +86,12 @@ class EmployeeScheduleAdmin(admin.ModelAdmin):
         js = (static('js/flatpickr.js'), static('js/flatpickr_init.js'))
         css = {'all': (static('css/flatpickr.min.css'),)}
 
+@admin.register(LeaveRequest)
+class LeaveRequestAdmin(admin.ModelAdmin):
+    list_display = ('leave_number', 'employee', 'leave_type', 'start_of_leave', 'end_of_leave', 'status')
+    list_filter = ('leave_type', 'status', 'department_approval', 'hr_approval', 'president_approval')
+    search_fields = ('employee__first_name', 'employee__last_name', 'leave_number')
+    ordering = ('-created_at',)
 
 # Register models
 admin.site.register(Employee, EmployeeAdmin)

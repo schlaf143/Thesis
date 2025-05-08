@@ -46,8 +46,8 @@
                     </li>
                     {% if user.is_authenticated and user.employee.department.name == "Human Resources" %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageEmpDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Manage Employees <i class='bx bxs-down-arrow ms-2'></i>
+                        <a class="nav-link  py-1" href="#" id="manageEmpDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Management <i class='bx bxs-down-arrow ms-2'></i>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'view_employee_list' %}">View Employee List</a></li>
@@ -57,14 +57,14 @@
                     {% endif %}
 
                     {% if user.is_authenticated and user.employee.shift_departments.exists or user.employee.department.name == "Human Resources" %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageShftDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="#" id="manageShftDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Manage Shifts <i class='bx bxs-down-arrow ms-2'></i>
                         </a>
-                        <ul class="dropdown-menu">
+                        {% comment %} <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">View Shift Schedule</a></li>
                             <li><a class="dropdown-item" href="#">Another Action</a></li>
-                        </ul>
+                        </ul> {% endcomment %}
                     </li>
                     {% endif %}
                     {% if user.is_authenticated and user.employee.leave_departments.exists or user.employee.department.name == "Human Resources" %}
@@ -76,7 +76,7 @@
                     {% endif %}
 
                     <li class="nav-item">
-                        <a class="nav-link py-1" href="">Request Leave<i class='bx bx-home-alt ms-2'></i></a>
+                        <a class="nav-link py-1" href="{% url 'submit_leave_request' %}">Request Leave<i class='bx bx-home-alt ms-2'></i></a>
                     </li>
                 </ul>
 

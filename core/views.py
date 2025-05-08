@@ -23,8 +23,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 import pickle
 
-from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm
-from .models import Employee, EmployeeSchedule, User
+from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm
+from .models import Employee, EmployeeSchedule, User, LeaveRequest
 from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable, EmployeeFaceEmbeddingsHTMxTable
 from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddingsFilter
 
@@ -36,6 +36,36 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
+
+def department_respondents_view(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+    
+    if request.method == 'POST':
+        form = RespondentSelectionForm(request.POST)
+        if form.is_valid():
+            department.shift_respondents.set(form.cleaned_data['shift_respondents'])
+            department.leave_respondents.set(form.cleaned_data['leave_respondents'])
+            department.save()
+            return redirect('view_department_list')  # Replace with your department list view name
+    else:
+        form = RespondentSelectionForm()
+
+    return render(request, 'department_respondents.html', {
+        'department': department,
+        'form': form,
+    })
+
+def submit_leave_request(request):
+    if request.method == 'POST':
+        form = LeaveRequestForm(request.POST)
+        if form.is_valid():
+            leave_request = form.save(commit=False)
+            leave_request.employee = request.user.employee  # Assuming user is linked to Employee
+            leave_request.save()
+            return redirect('dashboard')  # Redirect to a success page or list
+    else:
+        form = LeaveRequestForm()
+    return render(request, 'leave_request_form.html', {'form': form})
 
 def custom_login_view(request):
     if request.user.is_authenticated:
@@ -189,9 +219,19 @@ def dashboard(request):
     return render(request, 'dashboard.html', {'departments': departments})
 
 def view_departments(request):    
-    
-    departments = Department.objects.prefetch_related('shift_respondents', 'leave_respondents').all()
-    return render(request, 'view_department_list.html', {'departments': departments})
+    if request.method == 'POST':
+        form = DepartmentCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('view_department_list')  # Replace with your actual URL name
+    else:
+        form = DepartmentCreateForm()
+
+    departments = Department.objects.all()
+    return render(request, 'view_department_list.html', {
+        'form': form,
+        'departments': departments
+    })
 
 def add_employee(request):
     if request.method == 'POST':
