@@ -72,9 +72,9 @@
         
                     <li class="nav-item">
                         {% if user.employee.department.name == "Human Resources" %}
-                        <a class="nav-link py-1" href="{% url 'dashboard' %}">Leave Requests General <i class='bx bx-home-alt ms-2'></i></a>
+                        <a class="nav-link py-1" href="{% url 'gen_leave' %}">Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
                         {% else %}
-                        <a class="nav-link py-1" href="{% url 'dashboard' %}">Leave Requests Specific<i class='bx bx-home-alt ms-2'></i></a>
+                        <a class="nav-link py-1" href="{% url 'dept_leave' %}">Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
                         {% endif %}
                     </li>
                     {% endif %}

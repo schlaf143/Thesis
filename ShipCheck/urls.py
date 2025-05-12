@@ -26,6 +26,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('camera/', views.camera_view, name='camera'),
     path('', views.dashboard, name='dashboard'),
+    path('dept_leave/', views.dept_leave, name='dept_leave'),
+    path('gen_leave/', views.gen_leave, name='gen_leave'),
     path('login/', views.custom_login_view, name='login'),
     path('logout/', views.custom_logout_view, name='logout'),
     path('submit-leave/', views.submit_leave_request, name='submit_leave_request'),

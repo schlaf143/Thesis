@@ -217,6 +217,13 @@ def dashboard(request):
     departments = Department.objects.prefetch_related('shift_respondents', 'leave_respondents').all()
     return render(request, 'dashboard.html', {'departments': departments})
 
+def dept_leave(request):
+    return render(request, 'leave_response_specific.html')
+
+def gen_leave(request):
+    leave_requests = LeaveRequest.objects.select_related('employee').order_by('-created_at')
+    return render(request, 'leave_response_general.html', {'leave_requests': leave_requests})
+
 def view_departments(request):    
     if request.method == 'POST':
         form = DepartmentCreateForm(request.POST)
