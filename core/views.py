@@ -256,7 +256,17 @@ def dept_leave(request):
     return render(request, 'leave_response_specific.html')
 
 def gen_leave(request):
-    leave_requests = LeaveRequest.objects.select_related('employee').order_by('-created_at')
+    user = request.user
+    role = user.employee.role
+    department = user.employee.department
+
+    if role == "President" or department.name == "Human Resources":
+        # Show all leave requests
+        leave_requests = LeaveRequest.objects.select_related('employee').order_by('-created_at')
+    else:
+        # Show only leave requests from the user's department
+        leave_requests = LeaveRequest.objects.select_related('employee').filter(employee__department=department).order_by('-created_at')
+
     return render(request, 'leave_response_general.html', {'leave_requests': leave_requests})
 
 def delete_department(request, pk):
