@@ -38,6 +38,15 @@ from django.shortcuts import render, redirect
 from django import forms
 from django.contrib import messages
 
+
+
+
+def my_leave_requests(request):
+    leave_requests = LeaveRequest.objects.filter(employee=request.user.employee).order_by('-created_at')
+    return render(request, 'my_leave_requests.html', {
+        'leave_requests': leave_requests
+    })
+
 def department_respondents_view(request, department_id):
     department = get_object_or_404(Department, id=department_id)
 

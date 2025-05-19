@@ -33,6 +33,7 @@ urlpatterns = [
     path('departments/<int:pk>/delete/', views.delete_department, name='delete_department'),
     path('submit-leave/', views.submit_leave_request, name='submit_leave_request'),
     path('leave/respond/<int:pk>/', views.respond_leave_request, name='respond_leave_request'),
+    path("my-leave-requests/", views.my_leave_requests, name="my_leave_requests"),
     path('department/<int:department_id>/respondents/', views.department_respondents_view, name='department_respondents'),
     
     #! CRUD operations for employees | HR side

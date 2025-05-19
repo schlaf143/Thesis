@@ -3,6 +3,8 @@
 
 {% block content %}
 <div class="container mt-5">
+        
+
     <div class="card shadow rounded-4">
         <div class="card-header bg-primary text-white rounded-top-4">
             <h4 class="mb-0">Submit Leave Request</h4>
@@ -31,9 +33,13 @@
                 {% endfor %}
                 <div class="text-end">
                     <button type="submit" class="btn btn-success px-4">Submit</button>
+                    <a href="{% url 'my_leave_requests' %}" class="btn btn-outline-primary px-4">View My Leave Requests</a>
                 </div>
             </form>
+            
         </div>
+        
     </div>
+
 </div>
 {% endblock %}
