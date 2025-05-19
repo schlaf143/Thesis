@@ -56,6 +56,7 @@
         <div class="p-2 d-flex gap-2">
             <div class="border border-dark-subtle flex-grow-1 rounded shadow p-3">
                 <h4>Add Department</h4>
+                
                 <form method="post" novalidate>
                     {% csrf_token %}
                     {{ form.non_field_errors }}

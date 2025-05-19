@@ -30,7 +30,9 @@ urlpatterns = [
     path('gen_leave/', views.gen_leave, name='gen_leave'),
     path('login/', views.custom_login_view, name='login'),
     path('logout/', views.custom_logout_view, name='logout'),
+    path('departments/<int:pk>/delete/', views.delete_department, name='delete_department'),
     path('submit-leave/', views.submit_leave_request, name='submit_leave_request'),
+    path('leave/respond/<int:pk>/', views.respond_leave_request, name='respond_leave_request'),
     path('department/<int:department_id>/respondents/', views.department_respondents_view, name='department_respondents'),
     
     #! CRUD operations for employees | HR side

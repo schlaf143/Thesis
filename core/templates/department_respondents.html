@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h3 class="mb-4">Assign Respondents to {{ department.name }}</h3>
-
+    <h3 class="mb-4">{{ department.name }} Department</h3>
+    
     <form method="post" class="p-4 border rounded shadow-sm">
         {% csrf_token %}
 
@@ -45,10 +45,21 @@
             {% endif %}
         </div>
 
-        <div class="d-flex">
+        <div class="d-flex flex-wrap gap-2">
             <button type="submit" class="btn btn-success">Save Respondents</button>
-            <a href="{% url 'view_department_list' %}" class="btn btn-secondary ms-2">Back to Departments</a>
+            <a href="{% url 'view_department_list' %}" class="btn btn-secondary">Back to Departments</a>
+            {% if department.name != "Human Resources" %}
+                <a href="{% url 'delete_department' department.id %}" 
+                class="btn btn-danger ms-auto"
+                onclick="return confirm('Are you sure you want to delete this department?');">
+                Delete Department
+                </a>
+            {% endif %}
+
         </div>
     </form>
+    
+    
+
 </div>
 {% endblock %}

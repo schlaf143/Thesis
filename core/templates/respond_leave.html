@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4">
+            <h4 class="mb-0">Respond to Leave Request #{{ leave.leave_number }}</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Employee:</strong> {{ leave.employee }}</p>
+            <p><strong>Leave Type:</strong> {{ leave.get_leave_type_display }}</p>
+            <p><strong>Dates:</strong> {{ leave.start_of_leave }} to {{ leave.end_of_leave }}</p>
+            <p><strong>Reason:</strong> {{ leave.reason_for_leave }}</p>
+
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4">Submit Response</button>
+                    <a href="{% url 'view_leave_requests' %}" class="btn btn-secondary ms-2">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

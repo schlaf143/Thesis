@@ -35,6 +35,7 @@ from .models import Department
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
+from django import forms
 from django.contrib import messages
 
 def department_respondents_view(request, department_id):
@@ -116,6 +117,29 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
 
         return template_name
 
+class LeaveResponseForm(forms.ModelForm):
+    class Meta:
+        model = LeaveRequest
+        fields = ['department_approval', 'hr_approval', 'president_approval', 'status']
+        widgets = {
+            'department_approval': forms.Select(attrs={'class': 'form-select'}),
+            'hr_approval': forms.Select(attrs={'class': 'form-select'}),
+            'president_approval': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+def respond_leave_request(request, pk):
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+    form = LeaveResponseForm(instance=leave)
+
+    if request.method == 'POST':
+        form = LeaveResponseForm(request.POST, instance=leave)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Leave request updated.')
+            return redirect('view_leave_requests')  # change to your actual leave list URL name
+
+    return render(request, 'respond_leave.html', {'form': form, 'leave': leave})
 
 class EmployeeEditView(UpdateView):
     model = Employee
@@ -223,6 +247,12 @@ def dept_leave(request):
 def gen_leave(request):
     leave_requests = LeaveRequest.objects.select_related('employee').order_by('-created_at')
     return render(request, 'leave_response_general.html', {'leave_requests': leave_requests})
+
+def delete_department(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+    department.delete()
+    messages.success(request, "Department deleted successfully.")
+    return redirect('view_department_list')
 
 def view_departments(request):    
     if request.method == 'POST':
