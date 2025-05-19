@@ -61,7 +61,8 @@ class LeaveRequestForm(forms.ModelForm):
 class LeaveResponseForm(forms.ModelForm):
     class Meta:
         model = LeaveRequest
-        fields = ['department_approval', 'hr_approval', 'president_approval', 'status']
+        exclude = ['status', 'employee', 'leave_number', 'created_at'] 
+        fields = ['department_approval', 'hr_approval', 'president_approval']
         widgets = {
             'department_approval': forms.Select(attrs={'class': 'form-select'}),
             'hr_approval': forms.Select(attrs={'class': 'form-select'}),

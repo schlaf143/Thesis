@@ -16,9 +16,9 @@ class LeaveRequest(models.Model):
         VACATION = 'VACATION', 'Vacation Leave'
 
     class ApprovalStatus(models.TextChoices):
-        PENDING = 'PENDING', 'Pending'
-        APPROVED = 'APPROVED', 'Approved'
-        REJECTED = 'REJECTED', 'Rejected'
+        PENDING = 'PENDING', 'PENDING'
+        APPROVED = 'APPROVED', 'APPROVED'
+        REJECTED = 'REJECTED', 'REJECTED'
 
     employee = models.ForeignKey('Employee', on_delete=models.CASCADE, related_name='leave_requests')
     leave_number = models.PositiveIntegerField(unique=True, editable=False)

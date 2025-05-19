@@ -119,16 +119,29 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
 
 def respond_leave_request(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
-    form = LeaveResponseForm(instance=leave)
 
     if request.method == 'POST':
         form = LeaveResponseForm(request.POST, instance=leave)
         if form.is_valid():
-            form.save()
+            leave = form.save(commit=False)
+
+            if leave.department_approval == 'REJECTED':
+                leave.status = 'DENIED'
+            elif (leave.department_approval == 'APPROVED' and
+                  leave.hr_approval == 'APPROVED' and
+                  leave.president_approval == 'APPROVED'):
+                leave.status = 'APPROVED'
+            else:
+                leave.status = 'PENDING'  # still waiting on full approval
+
+            leave.save()
             messages.success(request, 'Leave request updated.')
             return redirect('gen_leave')
+    else:
+        form = LeaveResponseForm(instance=leave)
 
     return render(request, 'respond_leave.html', {'form': form, 'leave': leave})
+
 
 class EmployeeEditView(UpdateView):
     model = Employee

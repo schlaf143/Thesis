@@ -17,12 +17,46 @@
 
             <form method="post" novalidate>
                 {% csrf_token %}
+
+                <!-- Department Approval -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="{{ form.department_approval.id_for_label }}">Department Approval</label>
+                    {% if user.employee.leave_departments.exists %}
+                        {% render_field form.department_approval class="form-control" %}
+                    {% else %}
+                        {% render_field form.department_approval class="form-control" disabled="disabled" %}
+                        <input type="hidden" name="{{ form.department_approval.name }}" value="{{ form.department_approval.value }}">
+                    {% endif %}
+                </div>
+
+                <!-- HR Approval -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="{{ form.hr_approval.id_for_label }}">HR Approval</label>
+                    {% if user.employee.department.name == "Human Resources" %}
+                        {% render_field form.hr_approval class="form-control" %}
+                    {% else %}
+                        {% render_field form.hr_approval class="form-control" disabled="disabled" %}
+                        <input type="hidden" name="{{ form.hr_approval.name }}" value="{{ form.hr_approval.value }}">
+                    {% endif %}
+                </div>
+
+                <!-- President Approval -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="{{ form.president_approval.id_for_label }}">President Approval</label>
+                    {% if user.employee.role == "President" %}
+                        {% render_field form.president_approval class="form-control" %}
+                    {% else %}
+                        {% render_field form.president_approval class="form-control" disabled="disabled" %}
+                        <input type="hidden" name="{{ form.president_approval.name }}" value="{{ form.president_approval.value }}">
+                    {% endif %}
+                </div>
+
                 <!-- Remarks or any other fields -->
                 {% for field in form %}
-                    {% if field.name != "status" %}
+                    {% if field.name not in "department_approval hr_approval president_approval" %}
                         <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
-                            {{ field|add_class:"form-control" }}
+                            <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% render_field field class="form-control" %}
                             {% if field.errors %}
                                 <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
                             {% endif %}
