@@ -58,6 +58,17 @@ class LeaveRequestForm(forms.ModelForm):
             'reason_for_leave': forms.Textarea(attrs={'rows': 3}),
         }
 
+class LeaveResponseForm(forms.ModelForm):
+    class Meta:
+        model = LeaveRequest
+        fields = ['department_approval', 'hr_approval', 'president_approval', 'status']
+        widgets = {
+            'department_approval': forms.Select(attrs={'class': 'form-select'}),
+            'hr_approval': forms.Select(attrs={'class': 'form-select'}),
+            'president_approval': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee

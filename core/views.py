@@ -23,7 +23,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 import pickle
 
-from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm
+from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm, LeaveResponseForm
 from .models import Employee, EmployeeSchedule, User, LeaveRequest
 from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable, EmployeeFaceEmbeddingsHTMxTable
 from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddingsFilter
@@ -117,17 +117,6 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
 
         return template_name
 
-class LeaveResponseForm(forms.ModelForm):
-    class Meta:
-        model = LeaveRequest
-        fields = ['department_approval', 'hr_approval', 'president_approval', 'status']
-        widgets = {
-            'department_approval': forms.Select(attrs={'class': 'form-select'}),
-            'hr_approval': forms.Select(attrs={'class': 'form-select'}),
-            'president_approval': forms.Select(attrs={'class': 'form-select'}),
-            'status': forms.Select(attrs={'class': 'form-select'}),
-        }
-
 def respond_leave_request(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
     form = LeaveResponseForm(instance=leave)
@@ -137,7 +126,7 @@ def respond_leave_request(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Leave request updated.')
-            return redirect('view_leave_requests')  # change to your actual leave list URL name
+            return redirect('gen_leave')
 
     return render(request, 'respond_leave.html', {'form': form, 'leave': leave})
 
