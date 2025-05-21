@@ -10,6 +10,9 @@
             <h4 class="mb-0">Submit Leave Request</h4>
         </div>
         <div class="card-body">
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <span><strong>Remaining Leave Credits:</strong> {{ leave_credits }}</span>
+            </div>
             <form method="post" novalidate>
                 {% csrf_token %}
                 {% for field in form %}
