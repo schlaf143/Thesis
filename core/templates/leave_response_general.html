@@ -39,10 +39,17 @@
                                     <td>{{ leave.status }}</td>
                                     <td>{{ leave.created_at|date:"M d, Y" }}</td>
                                     <td>
-                                        <a href="{% url 'respond_leave_request' leave.id %}" class="btn btn-sm btn-outline-primary">
-                                            Respond
-                                        </a>
+                                        {% if leave.deduction_applied %}
+                                            <button class="btn btn-sm btn-outline-secondary" disabled>
+                                                Finalized
+                                            </button>
+                                        {% else %}
+                                            <a href="{% url 'respond_leave_request' leave.id %}" class="btn btn-sm btn-outline-primary">
+                                                Respond
+                                            </a>
+                                        {% endif %}
                                     </td>
+
                                 </tr>
                             {% endfor %}
                         </tbody>

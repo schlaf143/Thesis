@@ -28,6 +28,7 @@ class LeaveRequest(models.Model):
     leave_type = models.CharField(max_length=20, choices=LeaveType.choices)
     remarks = models.TextField(blank=True, null=True)
     leave_credit_deduction = models.PositiveIntegerField(default=0)
+    deduction_applied = models.BooleanField(default=False)
 
     department_approval = models.CharField(max_length=10, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
     hr_approval = models.CharField(max_length=10, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)

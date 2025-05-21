@@ -53,17 +53,19 @@
                 </div>
 
                 <!-- Remarks or any other fields -->
-                {% for field in form %}
-                    {% if field.name not in "department_approval hr_approval president_approval" %}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {% render_field field class="form-control" %}
-                            {% if field.errors %}
-                                <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
+                    {% for field in form %}
+                        {% if field.name != 'department_approval' and field.name != 'hr_approval' and field.name != 'president_approval' %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {% render_field field class="form-control" %}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+
 
                 <div class="text-end mt-4">
                     <button type="submit" class="btn btn-success px-4">Submit Response</button>

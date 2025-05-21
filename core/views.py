@@ -147,26 +147,38 @@ def count_leave_days_excluding_sundays(start_date, end_date):
 def respond_leave_request(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
 
+    # Count leave days excluding Sundays
     leave_days = count_leave_days_excluding_sundays(leave.start_of_leave, leave.end_of_leave)
+
+    # If leave is already finalized, prevent editing
+    if leave.status == 'APPROVED' and leave.deduction_applied:
+        messages.info(request, "This leave request has already been finalized.")
+        return redirect('gen_leave')
 
     if request.method == 'POST':
         form = LeaveResponseForm(request.POST, instance=leave)
         if form.is_valid():
             leave = form.save(commit=False)
 
-            # Automatically approve HR if deduction > 0
+            # Automatically approve HR if deduction > 0 and user is from HR
             if request.user.employee.department.name == "Human Resources":
                 if leave.leave_credit_deduction and leave.leave_credit_deduction > 0:
                     leave.hr_approval = 'APPROVED'
                 else:
                     leave.hr_approval = 'PENDING'
 
-            # Status logic
+            # Determine overall status
             if leave.department_approval == 'REJECTED':
                 leave.status = 'DENIED'
             elif (leave.department_approval == 'APPROVED' and
                   leave.hr_approval == 'APPROVED' and
                   leave.president_approval == 'APPROVED'):
+                # Apply deduction only once
+                if leave.leave_credit_deduction and not leave.deduction_applied:
+                    leave.employee.leave_credits -= leave.leave_credit_deduction
+                    leave.employee.save()
+                    leave.deduction_applied = True
+
                 leave.status = 'APPROVED'
             else:
                 leave.status = 'PENDING'
