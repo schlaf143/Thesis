@@ -12,14 +12,13 @@ class EmployeeHTMxTable(tables.Table):
     class Meta:
         model = Employee
         template_name = "htmx_template.html"
-        exclude = ('employee_id', "sex", "date_employed", "first_name", "middle_name", "last_name")
+        exclude = ('employee_id', "sex", "date_employed", "first_name", "middle_name", "last_name",'leave_credits',)
         fields = (
             'company_id',
             'full_name',  # New combined column
             'role',
             'department',
             'contact_number',
-            'leave_credits',
             'user_account',
             'view',
         )

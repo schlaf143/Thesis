@@ -170,10 +170,10 @@
 
                         <!-- Leave Credits -->
                         <div class="form-group">
-                            <label for="leave_credits" class="form-label fw-bold">Leave Credits</label>
+                            <label for="leave_credits" class="form-label fw-bold">SL Credits</label>
                             <input type="number" name="leave_credits" id="leave_credits" 
                                    class="form-control form-control-lg" 
-                                   placeholder="Enter leave credits">
+                                   placeholder="Enter SL credits">
                             {% if employee_form.leave_credits.errors %}
                             <div class="text-danger small mt-1">
                                 {{ employee_form.leave_credits.errors.0 }}
@@ -181,16 +181,18 @@
                             {% endif %}
                         </div>
 
-                        <!-- User Select -->
-                        <!-- <div class="form-group">
-                            <label for="user-select" class="form-label fw-bold">Linked Login Credentials</label>
-                            <select name="user" id="user-select" class="form-select form-select-lg">
-                                <option value="" disabled selected>Select a User</option>
-                                {% for user in users %}
-                                    <option value="{{ user.id }}">{{ user.username }}</option>
-                                {% endfor %}
-                            </select>
-                        </div> -->
+                        <!-- Leave Credits -->
+                        <div class="form-group">
+                            <label for="leave_credits2" class="form-label fw-bold">VL Credits</label>
+                            <input type="number" name="leave_credits2" id="leave_credits2" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="Enter VL credits">
+                            {% if employee_form.leave_credits.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ employee_form.leave_credits.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 

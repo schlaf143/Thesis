@@ -14,6 +14,7 @@ class LeaveRequest(models.Model):
         MATERNITY = 'MATERNITY', 'Maternity Leave'
         PATERNITY = 'PATERNITY', 'Paternity Leave'
         VACATION = 'VACATION', 'Vacation Leave'
+        EMERGENCY = 'EMERGENCY', 'Emergency Leave'
 
     class ApprovalStatus(models.TextChoices):
         PENDING = 'PENDING', 'PENDING'
@@ -112,6 +113,7 @@ class Employee(models.Model):
     contact_number = models.CharField(max_length=15, blank=False)
     date_employed = models.DateField()
     leave_credits = models.IntegerField(default=0, blank=False)
+    leave_credits2 = models.IntegerField(default=0, blank=False)
 
     user_account = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='employee')
 

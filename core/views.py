@@ -38,6 +38,7 @@ from django.shortcuts import render, redirect
 from django import forms
 from django.contrib import messages
 from datetime import timedelta
+from django.utils import timezone
 
 
 
@@ -68,6 +69,7 @@ def department_respondents_view(request, department_id):
 def submit_leave_request(request):
     employee = request.user.employee
     leave_credits = employee.leave_credits
+    leave_credits2 = employee.leave_credits2
 
     if request.method == 'POST':
         form = LeaveRequestForm(request.POST)
@@ -81,8 +83,9 @@ def submit_leave_request(request):
 
     context = {
         'form': form,
-        'leave_credits': leave_credits
-    }
+        'leave_credits': leave_credits,
+        'leave_credits2': leave_credits2,
+                }
     return render(request, 'leave_request_form.html', context)
 
 def custom_login_view(request):
@@ -175,9 +178,15 @@ def respond_leave_request(request, pk):
                   leave.president_approval == 'APPROVED'):
                 # Apply deduction only once
                 if leave.leave_credit_deduction and not leave.deduction_applied:
-                    leave.employee.leave_credits -= leave.leave_credit_deduction
+                    print(f"Leave type: {leave.leave_type}")
+                    if leave.leave_type in ['VACATION', 'EMERGENCY']:
+
+                        leave.employee.leave_credits2 -= leave.leave_credit_deduction
+                    else:
+                        leave.employee.leave_credits -= leave.leave_credit_deduction
                     leave.employee.save()
                     leave.deduction_applied = True
+
 
                 leave.status = 'APPROVED'
             else:
@@ -272,12 +281,7 @@ def dashboard(request):
             print("First Name:", employee.first_name)
             print("Last Name:", employee.last_name)
             print("Company ID:", employee.company_id)
-        except Employee.DoesNotExist:
-            print("No linked employee record.")
 
-        try:
-            employee = request.user.employee  # from related_name='employee'
-            
             leave_depts = employee.leave_departments.all()
             shift_depts = employee.shift_departments.all()
 
@@ -290,11 +294,25 @@ def dashboard(request):
                 print(f"- {dept.name}")
 
         except Employee.DoesNotExist:
-            print("No employee record linked to this user.")
-    
-    
+            employee = None
+            print("No linked employee record.")
+    else:
+        employee = None
+
+    # Get recent leave requests for the logged-in employee (limit to last 5)
+    recent_leaves = LeaveRequest.objects.filter(employee=employee).order_by('-created_at')[:5] if employee else []
+
     departments = Department.objects.prefetch_related('shift_respondents', 'leave_respondents').all()
-    return render(request, 'dashboard.html', {'departments': departments})
+    today = timezone.now()
+
+    context = {
+        'departments': departments,
+        'employee': employee,
+        'recent_leaves': recent_leaves,
+        'today': today,
+    }
+
+    return render(request, 'dashboard.html', context)
 
 def dept_leave(request):
     return render(request, 'leave_response_specific.html')

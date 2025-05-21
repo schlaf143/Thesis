@@ -8,7 +8,7 @@ from .models import Employee, EmployeeSchedule, Department, LeaveRequest
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = (
         'employee_id', 'company_id', 'first_name', 'middle_name', 'last_name',
-        'sex', 'role', 'get_department', 'contact_number', 'date_employed', 'leave_credits', 'user_account'
+        'sex', 'role', 'get_department', 'contact_number', 'date_employed', 'leave_credits' , 'leave_credits2', 'user_account'
     )
     list_filter = ('role', 'sex', 'department', 'date_employed')
     search_fields = ('first_name', 'last_name', 'company_id', 'employee_id')
@@ -16,7 +16,7 @@ class EmployeeAdmin(admin.ModelAdmin):
 
     fields = (
         'employee_id', 'company_id', 'first_name', 'middle_name', 'last_name',
-        'sex', 'role', 'department', 'contact_number', 'date_employed', 'leave_credits'
+        'sex', 'role', 'department', 'contact_number', 'date_employed', 'leave_credits', 'leave_credits2'
     )
 
     readonly_fields = ('employee_id',)

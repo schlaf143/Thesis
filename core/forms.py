@@ -73,7 +73,7 @@ class LeaveResponseForm(forms.ModelForm):
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
-        fields = '__all__'  # Include all fields from the model
+        fields = '__all__' 
         
         
     def __init__(self, *args, **kwargs):
