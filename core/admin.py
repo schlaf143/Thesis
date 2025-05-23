@@ -88,7 +88,7 @@ class EmployeeScheduleAdmin(admin.ModelAdmin):
 
 @admin.register(LeaveRequest)
 class LeaveRequestAdmin(admin.ModelAdmin):
-    list_display = ('leave_number', 'employee', 'leave_type', 'start_of_leave', 'end_of_leave', 'status')
+    list_display = ('leave_number', 'employee', 'leave_type', 'leave_dates', 'status')
     list_filter = ('leave_type', 'status', 'department_approval', 'hr_approval', 'president_approval')
     search_fields = ('employee__first_name', 'employee__last_name', 'leave_number')
     ordering = ('-created_at',)

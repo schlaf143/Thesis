@@ -11,6 +11,8 @@ from pathlib import Path
 from imutils.video import VideoStream
 import imutils
 from django.conf import settings
+from datetime import datetime
+
 
 import os
 import cv2
@@ -72,7 +74,17 @@ def submit_leave_request(request):
     leave_credits2 = employee.leave_credits2
 
     if request.method == 'POST':
-        form = LeaveRequestForm(request.POST)
+        post_data = request.POST.copy()
+        
+        # Parse JSON string from the leave_dates hidden input
+        try:
+            leave_dates_str = post_data.get('leave_dates', '[]')
+            leave_dates_list = json.loads(leave_dates_str)
+            post_data['leave_dates'] = leave_dates_list  # assign parsed list to cleaned data
+        except json.JSONDecodeError:
+            post_data['leave_dates'] = []
+
+        form = LeaveRequestForm(post_data)
         if form.is_valid():
             leave_request = form.save(commit=False)
             leave_request.employee = employee
@@ -85,8 +97,9 @@ def submit_leave_request(request):
         'form': form,
         'leave_credits': leave_credits,
         'leave_credits2': leave_credits2,
-                }
+    }
     return render(request, 'leave_request_form.html', context)
+
 
 def custom_login_view(request):
     if request.user.is_authenticated:
@@ -138,20 +151,14 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
 
         return template_name
 
-def count_leave_days_excluding_sundays(start_date, end_date):
-    day_count = 0
-    current_date = start_date
-    while current_date <= end_date:
-        if current_date.weekday() != 6:  # 6 = Sunday
-            day_count += 1
-        current_date += timedelta(days=1)
-    return day_count
 
 def respond_leave_request(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
-
+    print(leave.leave_dates)
+    print(leave.leave_dates[0])
+    print(leave.leave_dates[-1])
     # Count leave days excluding Sundays
-    leave_days = count_leave_days_excluding_sundays(leave.start_of_leave, leave.end_of_leave)
+    leave_days = len(leave.leave_dates)
 
     # If leave is already finalized, prevent editing
     if leave.status == 'APPROVED' and leave.deduction_applied:

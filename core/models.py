@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models import Max
 from django.core.validators import MaxValueValidator
 import pytz
+from django.db.models import JSONField
 
 
 class LeaveRequest(models.Model):
@@ -23,8 +24,8 @@ class LeaveRequest(models.Model):
 
     employee = models.ForeignKey('Employee', on_delete=models.CASCADE, related_name='leave_requests')
     leave_number = models.PositiveIntegerField(unique=True, editable=False)
-    start_of_leave = models.DateField()
-    end_of_leave = models.DateField()
+
+    leave_dates = JSONField(default=list, blank=True, null=True)
     reason_for_leave = models.TextField()
     leave_type = models.CharField(max_length=20, choices=LeaveType.choices)
     remarks = models.TextField(blank=True, null=True)
@@ -44,10 +45,6 @@ class LeaveRequest(models.Model):
             max_leave_number = LeaveRequest.objects.aggregate(Max('leave_number'))['leave_number__max'] or 0
             self.leave_number = max_leave_number + 1
 
-        # Optionally: Validate that start date is before end date
-        if self.start_of_leave > self.end_of_leave:
-            raise ValidationError("Start of leave must be before end of leave.")
-        
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -51,12 +51,12 @@ class DepartmentCreateForm(forms.ModelForm):
 class LeaveRequestForm(forms.ModelForm):
     class Meta:
         model = LeaveRequest
-        fields = ['start_of_leave', 'end_of_leave', 'reason_for_leave', 'leave_type']
+        fields = ['leave_dates', 'reason_for_leave', 'leave_type']
         widgets = {
-            'start_of_leave': forms.DateInput(attrs={'type': 'date'}),
-            'end_of_leave': forms.DateInput(attrs={'type': 'date'}),
+            'leave_dates': forms.HiddenInput(),  # Important!
             'reason_for_leave': forms.Textarea(attrs={'rows': 3}),
         }
+
 
 class LeaveResponseForm(forms.ModelForm):
     class Meta:
