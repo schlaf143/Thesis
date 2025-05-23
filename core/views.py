@@ -33,6 +33,7 @@ from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddi
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
 from .models import Department
+from datetime import date
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -365,12 +366,45 @@ def add_employee(request):
         if employee_form.is_valid():
 
             employee = employee_form.save(commit=False)
+
             first_name = employee_form.cleaned_data.get('first_name')
             last_name = employee_form.cleaned_data.get('last_name')
             company_id = employee_form.cleaned_data.get('company_id')
+            date_hired = employee_form.cleaned_data.get('date_employed')
+            print("date today")
+            print(date.today())
+            print(date_hired)
+            # Calculate number of days since hired
+            days_since_hired = (date.today() - date_hired).days
+            print(days_since_hired)
+            # Assign leave credits based on days since hired
+            if 365 <= days_since_hired <= 730:
+                employee.leave_credits = 2
+                employee.leave_credits2 = 3
+            elif 731 <= days_since_hired <= 1095:
+                employee.leave_credits = 3
+                employee.leave_credits2 = 3
+            elif 1096 <= days_since_hired <= 1460:
+                employee.leave_credits = 4
+                employee.leave_credits2 = 4
+            elif 1461 <= days_since_hired <= 1825:
+                employee.leave_credits = 5
+                employee.leave_credits2 = 5
+            elif 1826 <= days_since_hired <= 2190:
+                employee.leave_credits = 6
+                employee.leave_credits2 = 6
+            elif 2191 <= days_since_hired <= 2555:
+                employee.leave_credits = 7
+                employee.leave_credits2 = 7
+            elif days_since_hired > 2555:
+                employee.leave_credits = 8
+                employee.leave_credits2 = 7
+            else:
+                employee.leave_credits = 0
+                employee.leave_credits2 = 0
 
+            # Create a user account
             username = f"{first_name.lower()}{last_name.lower()}".replace(" ", "")
-
             user = User.objects.create_user(
                 username=username,
                 password=str(company_id), 
@@ -381,12 +415,11 @@ def add_employee(request):
             employee.user_account = user
             employee.save()
 
-            return redirect('view_employee_list') 
+            return redirect('view_employee_list')
         else:
             print(employee_form.errors)
     else:
         employee_form = EmployeeForm()
-
 
     users = User.objects.exclude(employee__isnull=False)
     departments = Department.objects.all()
