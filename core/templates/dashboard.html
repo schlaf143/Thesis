@@ -71,7 +71,8 @@
                                     <tr>
                                         <td>{{ leave.created_at }}</td>
                                         <td>{{ leave.leave_type }}</td>
-                                        {% comment %} <td>{{ leave.start_of_leave }} to {{ leave.end_of_leave }}</td> {% endcomment %}
+                                        <td>{{ leave.leave_dates }}</td>
+
                                         <td>
                                             <span class="badge 
                                                 {% if leave.status == 'APPROVED' %}bg-success

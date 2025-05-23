@@ -4,6 +4,13 @@ from .models import LeaveRequest
 from django.core.exceptions import ValidationError
 from django.templatetags.static import static
 from datetime import timedelta, datetime
+from .models import Employee
+
+class ShiftBulkCreateForm(forms.Form):
+    employee = forms.ModelChoiceField(queryset=Employee.objects.all(), label="Employee")
+    dates = forms.CharField(widget=forms.TextInput(attrs={'id': 'multi-date-picker'}), label="Select Dates")
+    shift_start = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), label="Shift Start")
+    shift_end = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), label="Shift End")
 
 class RespondentSelectionForm(forms.ModelForm):
     shift_respondents = forms.ModelMultipleChoiceField(

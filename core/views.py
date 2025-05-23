@@ -26,7 +26,7 @@ from sklearn.svm import SVC
 import pickle
 
 from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm, LeaveResponseForm
-from .models import Employee, EmployeeSchedule, User, LeaveRequest
+from .models import Employee, EmployeeSchedule, User, LeaveRequest, Shift
 from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable, EmployeeFaceEmbeddingsHTMxTable
 from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddingsFilter
 
@@ -42,9 +42,53 @@ from django import forms
 from django.contrib import messages
 from datetime import timedelta
 from django.utils import timezone
+from .forms import ShiftBulkCreateForm
 
 
+def create_bulk_shifts(request):
+    disabled_dates = []  # Default to empty list
 
+    if request.method == 'POST':
+        form = ShiftBulkCreateForm(request.POST)
+        if form.is_valid():
+            employee = form.cleaned_data['employee']
+            shift_start = form.cleaned_data['shift_start']
+            shift_end = form.cleaned_data['shift_end']
+            date_list = request.POST.get('dates').split(',')
+
+            existing_dates = []
+            created_dates = []
+
+            for date_str in date_list:
+                shift_date = datetime.strptime(date_str.strip(), '%Y-%m-%d').date()
+                if Shift.objects.filter(employee=employee, shift_date=shift_date).exists():
+                    existing_dates.append(str(shift_date))
+                else:
+                    Shift.objects.create(
+                        employee=employee,
+                        department=employee.department,
+                        shift_date=shift_date,
+                        shift_start=shift_start,
+                        shift_end=shift_end
+                    )
+                    created_dates.append(str(shift_date))
+
+            # Get updated disabled dates for next form display
+            disabled_dates = Shift.objects.filter(employee=employee).values_list('shift_date', flat=True)
+            disabled_dates = [d.strftime('%Y-%m-%d') for d in disabled_dates]
+
+            if existing_dates:
+                messages.warning(request, f"Shifts already exist for these dates and were skipped: {', '.join(existing_dates)}.")
+            if created_dates:
+                messages.success(request, f"Shifts created for these dates: {', '.join(created_dates)}.")
+            return redirect('view_schedule_list')
+    else:
+        form = ShiftBulkCreateForm()
+
+    return render(request, 'create_bulk_shifts.html', {
+        'form': form,
+        'disabled_dates': disabled_dates,
+    })
 
 def my_leave_requests(request):
     leave_requests = LeaveRequest.objects.filter(employee=request.user.employee).order_by('-created_at')

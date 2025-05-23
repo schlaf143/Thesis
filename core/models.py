@@ -8,6 +8,29 @@ from django.core.validators import MaxValueValidator
 import pytz
 from django.db.models import JSONField
 
+class Shift(models.Model):
+    employee = models.ForeignKey(
+        'Employee',
+        on_delete=models.CASCADE,
+        related_name='shifts'
+    )
+    department = models.ForeignKey(
+        'Department',
+        on_delete=models.CASCADE,
+        related_name='shifts'
+    )
+    shift_date = models.DateField(default=timezone.now)
+    shift_start = models.TimeField()
+    shift_end = models.TimeField()
+
+    class Meta:
+        verbose_name = 'Shift'
+        verbose_name_plural = 'Shifts'
+        db_table = 'shift_table'
+        ordering = ['shift_date', 'shift_start']
+
+    def __str__(self):
+        return f"{self.employee} - {self.shift_date} ({self.shift_start} to {self.shift_end})"
 
 class LeaveRequest(models.Model):
     class LeaveType(models.TextChoices):

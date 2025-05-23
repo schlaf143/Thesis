@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.forms.widgets import TextInput
 from django.templatetags.static import static
-from .models import Employee, EmployeeSchedule, Department, LeaveRequest
+from .models import Employee, EmployeeSchedule, Department, LeaveRequest, Shift
 
 
 class EmployeeAdmin(admin.ModelAdmin):
@@ -92,6 +92,12 @@ class LeaveRequestAdmin(admin.ModelAdmin):
     list_filter = ('leave_type', 'status', 'department_approval', 'hr_approval', 'president_approval')
     search_fields = ('employee__first_name', 'employee__last_name', 'leave_number')
     ordering = ('-created_at',)
+
+@admin.register(Shift)
+class ShiftAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'department', 'shift_date', 'shift_start', 'shift_end')
+    list_filter = ('department', 'shift_date')
+    search_fields = ('employee__first_name', 'employee__last_name', 'department__name')
 
 # Register models
 admin.site.register(Employee, EmployeeAdmin)
