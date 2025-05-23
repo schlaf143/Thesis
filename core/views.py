@@ -491,28 +491,20 @@ def add_schedule(request):
 
 def view_employee_information(request, pk):
     employee = get_object_or_404(Employee, employee_id=pk)
+    shifts = Shift.objects.filter(employee=employee).order_by('shift_date', 'shift_start')
 
-    # Retrieve the employee's schedule
-    try:
-        schedule = EmployeeSchedule.objects.get(employee=employee)
-        schedule_data = {
-            "Monday": {"start": schedule.monday_start, "end": schedule.monday_end},
-            "Tuesday": {"start": schedule.tuesday_start, "end": schedule.tuesday_end},
-            "Wednesday": {"start": schedule.wednesday_start, "end": schedule.wednesday_end},
-            "Thursday": {"start": schedule.thursday_start, "end": schedule.thursday_end},
-            "Friday": {"start": schedule.friday_start, "end": schedule.friday_end},
-            "Saturday": {"start": schedule.saturday_start, "end": schedule.saturday_end},
-            "Sunday": {"start": schedule.sunday_start, "end": schedule.sunday_end},
-        }
-    except EmployeeSchedule.DoesNotExist:
-        # If no schedule exists, set schedule_data to None or an empty dictionary
-        schedule_data = None
-        
+    today = date.today()
+    start_of_week = today - timedelta(days=today.weekday())  # Monday
+    end_of_week = start_of_week + timedelta(days=6)          # Sunday
+
     context = {
         'employee': employee,
-        'schedule': schedule_data
+        'shifts': shifts,
+        'today': today,
+        'start_of_week': start_of_week,
+        'end_of_week': end_of_week,
     }
-    print(context)
+
     return render(request, 'view_employee_information.html', context)
 
 

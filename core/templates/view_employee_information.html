@@ -82,44 +82,41 @@
                 <h5 class="mb-0 text-uppercase">Work Schedule</h5>
             </div>
             <div class="card-body">
-                {% if schedule %}
-                <!-- Container for the days -->
-                <div class="d-flex justify-content-between px-3 py-2">
-                    {% for day, times in schedule.items %}
-                    <div class="flex-grow-1 mx-1">
-                        <div class="border rounded h-100">
-                            <div class="bg-light p-2 border-bottom">
-                                <h6 class="mb-0 text-orange text-center">{{ day }}</h6>
-                            </div>
-                            <div class="p-2 d-flex justify-content-between align-items-center">
-                                <div class="text-center flex-grow-1">
-                                    <small class="text-muted d-block">Start</small>
-                                    <span class="fw-bold">{{ times.start|default:"Off" }}</span>
-                                </div>
-                            </div>
-                            <div class="p-2 d-flex justify-content-between align-items-center">
-                                <div class="text-center flex-grow-1">
-                                    <small class="text-muted d-block">End</small>
-                                    <span class="fw-bold">{{ times.end|default:"Off" }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="d-flex justify-content-end">
-                    <a href="{% url 'employee_schedule_edit' employee.employee_id %}" class="btn btn-outline-orange btn-sm">
-                        <i class='bx bx-edit me-2'></i> Edit Schedule
-                    </a>
-                </div>
-                {% else %}
-                <!-- No schedule available -->
-                <div class="text-center p-4">
-                    <p class="fw-bold text-muted">No Schedule Available for this Employee</p>
-                </div>
-                {% endif %}
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th> <!-- New Column -->
+                            <th>Shift Start</th>
+                            <th>Shift End</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shift in shifts %}
+                        <tr
+                            {% if shift.shift_date == today %}
+                                class="table-success"
+                            {% elif shift.shift_date >= start_of_week and shift.shift_date <= end_of_week %}
+                                class="table-warning"
+                            {% endif %}
+                        >
+                            <td>
+                                {{ shift.shift_date }}
+                                {% if shift.shift_date == today %}
+                                    <span class="badge bg-success ms-2">Today</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ shift.shift_date|date:"l" }}</td> <!-- Displays day of week like "Monday" -->
+                            <td>{{ shift.shift_start }}</td>
+                            <td>{{ shift.shift_end }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
             </div>
         </div>
+
 
 
         <div class="d-flex justify-content-center">
