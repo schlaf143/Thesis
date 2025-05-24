@@ -80,8 +80,8 @@ class LeaveResponseForm(forms.ModelForm):
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
-        #exclude = ['leave_credits', 'leave_credits2'] 
-        fields = ['company_id','first_name','middle_name','last_name','sex','role','department','contact_number', 'date_employed', 'user_account', 'leave_credits', 'leave_credits2'] 
+        exclude = ['leave_credits', 'leave_credits2'] 
+        fields = ['company_id','first_name','middle_name','last_name','sex','role','department','contact_number', 'date_employed', 'user_account',] 
         
         
     def __init__(self, *args, **kwargs):

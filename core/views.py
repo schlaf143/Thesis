@@ -172,7 +172,7 @@ class EmployeeHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeHTMxTable
     queryset = Employee.objects.all()
     filterset_class = EmployeeFilter
-    paginate_by = 2
+    paginate_by = 10
 
     def get_template_names(self):
         if self.request.htmx:
@@ -186,7 +186,7 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeScheduleHTMxTable
     queryset = EmployeeSchedule.objects.all()
     filterset_class = EmployeeScheduleFilter
-    paginate_by = 2
+    paginate_by = 10
 
     def get_template_names(self):
         if self.request.htmx:
