@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='employee',
-            constraint=models.CheckConstraint(condition=models.Q(('leave_credits__gte', 0)), name='positive_leave_credits'),
+            constraint=models.CheckConstraint(check=models.Q(('leave_credits__gte', 0)), name='positive_leave_credits'),
         ),
         migrations.AlterUniqueTogether(
             name='attendance',
