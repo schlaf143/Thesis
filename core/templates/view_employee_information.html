@@ -113,7 +113,7 @@
 
                             <td>
                                 {% if shift.shift_date > today %}
-                                    <p>{{ shift.id }}</p>
+
                                     <a href="{% url 'edit_shift' shift.id %}" class="btn btn-sm btn-warning me-1">Edit Shift</a>
                                 {% else %}
                                     <button class="btn btn-sm  me-1" disabled>Edit Shift</button>
