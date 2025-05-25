@@ -21,8 +21,8 @@
                                 <th>#</th>
                                 <th>Employee</th>
                                 <th>Leave Type</th>
-                                <th>Start</th>
-                                <th>End</th>
+                                {% comment %} <th>Start</th>
+                                <th>End</th> {% endcomment %}
                                 <th>Status</th>
                                 <th>Requested</th>
                                 <th>Action</th>
@@ -34,8 +34,8 @@
                                     <td>{{ leave.leave_number }}</td>
                                     <td>{{ leave.employee }}</td>
                                     <td>{{ leave.get_leave_type_display }}</td>
-                                    <td>{{ leave.start_of_leave }}</td>
-                                    <td>{{ leave.end_of_leave }}</td>
+                                    {% comment %} <td>{{ leave.start_of_leave }}</td>
+                                    <td>{{ leave.end_of_leave }}</td> {% endcomment %}
                                     <td>{{ leave.status }}</td>
                                     <td>{{ leave.created_at|date:"M d, Y" }}</td>
                                     <td>

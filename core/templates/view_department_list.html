@@ -3,60 +3,55 @@
 
 {% block content %}
 
-    <div class="row row-cols-2 px-5">
-        
+<div class="container px-3">
+    <div class="row g-4">
+
         {% for department in departments %}
-            <div class="p-2 d-flex">
-                <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow flex-grow-1">
+            <div class="col-12 col-md-6">
+                <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow h-100">
                     <h3>{{ department.name }}</h3>
                     <hr>
-                    <div class="d-flex flex-grow-1 gap-3">
-                        <div class="flex-grow-1 border border-dark-subtle rounded p-2">
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="flex-fill border border-dark-subtle rounded p-2">
                             <h5>Shift Respondents:</h5>
                             {% if department.shift_respondents.exists %}
-                                <ul>
+                                <ul class="mb-0">
                                     {% for respondent in department.shift_respondents.all %}
                                         <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                            <ul>
-
-                                <li>unassigned</li>
-
-                        </ul>
+                                <ul class="mb-0">
+                                    <li>unassigned</li>
+                                </ul>
                             {% endif %}
                         </div>
-                        <div class="flex-grow-1 border border-dark-subtle rounded p-2">
+                        <div class="flex-fill border border-dark-subtle rounded p-2">
                             <h5>Leave Respondents:</h5>
                             {% if department.leave_respondents.exists %}
-                                <ul>
+                                <ul class="mb-0">
                                     {% for respondent in department.leave_respondents.all %}
                                         <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                <ul>
-
-                                        <li>unassigned</li>
-
+                                <ul class="mb-0">
+                                    <li>unassigned</li>
                                 </ul>
                             {% endif %}
                         </div>
                     </div>
-                    
-                    <a href="{% url 'department_respondents' department.id %}" class="btn btn-primary align-self-end px-5 mt-3">
+                    <a href="{% url 'department_respondents' department.id %}" class="btn btn-primary align-self-end mt-3 w-100">
                         View Respondents
                     </a>
-                    
                 </div>
             </div>
         {% endfor %}
 
-        <div class="p-2 d-flex gap-2">
-            <div class="border border-dark-subtle flex-grow-1 rounded shadow p-3">
+        <!-- Add Department Form -->
+        <div class="col-12">
+            <div class="border border-dark-subtle rounded shadow p-3">
                 <h4>Add Department</h4>
-                
                 <form method="post" novalidate>
                     {% csrf_token %}
                     {{ form.non_field_errors }}
@@ -73,4 +68,6 @@
         </div>
 
     </div>
+</div>
+
 {% endblock %}
