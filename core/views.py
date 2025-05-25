@@ -45,9 +45,9 @@ from django.utils import timezone
 from .forms import ShiftBulkCreateForm
 
 
-def create_bulk_shifts(request):
-    disabled_dates = []  # Default to empty list
+from django.db.models import Q
 
+def create_bulk_shifts(request):
     if request.method == 'POST':
         form = ShiftBulkCreateForm(request.POST)
         if form.is_valid():
@@ -56,39 +56,41 @@ def create_bulk_shifts(request):
             shift_end = form.cleaned_data['shift_end']
             date_list = request.POST.get('dates').split(',')
 
-            existing_dates = []
+            overwritten_dates = []
             created_dates = []
 
             for date_str in date_list:
                 shift_date = datetime.strptime(date_str.strip(), '%Y-%m-%d').date()
-                if Shift.objects.filter(employee=employee, shift_date=shift_date).exists():
-                    existing_dates.append(str(shift_date))
-                else:
-                    Shift.objects.create(
-                        employee=employee,
-                        department=employee.department,
-                        shift_date=shift_date,
-                        shift_start=shift_start,
-                        shift_end=shift_end
-                    )
+
+                obj, created = Shift.objects.update_or_create(
+                    employee=employee,
+                    shift_date=shift_date,
+                    defaults={
+                        'department': employee.department,
+                        'shift_start': shift_start,
+                        'shift_end': shift_end,
+                    }
+                )
+
+                if created:
                     created_dates.append(str(shift_date))
+                else:
+                    overwritten_dates.append(str(shift_date))
 
-            # Get updated disabled dates for next form display
-            disabled_dates = Shift.objects.filter(employee=employee).values_list('shift_date', flat=True)
-            disabled_dates = [d.strftime('%Y-%m-%d') for d in disabled_dates]
-
-            if existing_dates:
-                messages.warning(request, f"Shifts already exist for these dates and were skipped: {', '.join(existing_dates)}.")
             if created_dates:
-                messages.success(request, f"Shifts created for these dates: {', '.join(created_dates)}.")
+                messages.success(request, f"Shifts created for: {', '.join(created_dates)}.")
+            if overwritten_dates:
+                messages.info(request, f"Shifts updated for: {', '.join(overwritten_dates)}.")
+
             return redirect('view_schedule_list')
     else:
         form = ShiftBulkCreateForm()
 
     return render(request, 'create_bulk_shifts.html', {
         'form': form,
-        'disabled_dates': disabled_dates,
+        'disabled_dates': [],  # Now unused, but you can remove this from your template too
     })
+
 
 def my_leave_requests(request):
     leave_requests = LeaveRequest.objects.filter(employee=request.user.employee).order_by('-created_at')
@@ -343,7 +345,7 @@ def camera_view(request):
 def dashboard(request):
     if request.user.is_authenticated:
         try:
-            employee = request.user.employee  # from related_name='employee'
+            employee = request.user.employee
             print("First Name:", employee.first_name)
             print("Last Name:", employee.last_name)
             print("Company ID:", employee.company_id)
@@ -365,17 +367,44 @@ def dashboard(request):
     else:
         employee = None
 
-    # Get recent leave requests for the logged-in employee (limit to last 5)
-    recent_leaves = LeaveRequest.objects.filter(employee=employee).order_by('-created_at')[:5] if employee else []
+    today = timezone.now().date()
+    start_of_week = today - timedelta(days=today.weekday())  # Monday
+    end_of_week = start_of_week + timedelta(days=6)
 
+    week_days = []
+
+    if employee:
+        shifts_this_week = Shift.objects.filter(
+            employee=employee,
+            shift_date__range=[start_of_week, end_of_week]
+        ).values('shift_date', 'shift_start', 'shift_end')
+
+        # Map shift by date for easy lookup
+        shifts_map = {shift['shift_date']: shift for shift in shifts_this_week}
+    else:
+        shifts_map = {}
+
+    for i in range(7):
+        day = start_of_week + timedelta(days=i)
+        shift_info = shifts_map.get(day)
+
+        week_days.append({
+            'label': day.strftime('%A'),
+            'date': day.strftime('%Y-%m-%d'),
+            'is_today': day == today,
+            'shift_start': shift_info['shift_start'] if shift_info else None,
+            'shift_end': shift_info['shift_end'] if shift_info else None,
+        })
+
+    recent_leaves = LeaveRequest.objects.filter(employee=employee).order_by('-created_at')[:5] if employee else []
     departments = Department.objects.prefetch_related('shift_respondents', 'leave_respondents').all()
-    today = timezone.now()
 
     context = {
         'departments': departments,
         'employee': employee,
         'recent_leaves': recent_leaves,
         'today': today,
+        'week_days': week_days,
     }
 
     return render(request, 'dashboard.html', context)

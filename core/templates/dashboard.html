@@ -92,15 +92,37 @@
             </div>
         </div>
 
-        <!-- Announcements (Optional Placeholder) -->
+        <!-- Weekly Overview -->
         <div class="row">
-            <div class="col-md-12">
-                <div class="p-3 border rounded shadow-sm bg-white">
-                    <h5>Announcements</h5>
-                    <p class="text-muted">No announcements at this time.</p>
-                </div>
+    <div class="col-12">
+        <div class="p-3 border rounded shadow-sm bg-white">
+            <h5 class="mb-3">This Week's Schedule</h5>
+            <div class="row g-3">
+                {% for day in week_days %}
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <div class="card h-100 {% if day.is_today %}bg-primary text-white{% else %}bg-light{% endif %}">
+                            <div class="card-body p-2 text-center">
+                                <h6 class="card-title mb-1">{{ day.label }}</h6>
+                                <p class="card-text mb-1"><small>{{ day.date }}</small></p>
+                                {% if day.shift_start and day.shift_end %}
+                                    <p class="card-text mb-0">
+                                        <small>{{ day.shift_start }} - {{ day.shift_end }}</small>
+                                    </p>
+                                {% else %}
+                                    <p class="card-text mb-0">
+                                        <small class="text-muted {% if day.is_today %}text-white-50{% endif %}">No shift</small>
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
+    </div>
+</div>
+
+
     </div>
     {% endblock %}
 </body>
