@@ -45,6 +45,10 @@ from django.utils import timezone
 from .forms import ShiftBulkCreateForm
 from django.db.models import Value, CharField
 from django.db.models.functions import Concat
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
 
 
