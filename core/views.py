@@ -13,7 +13,6 @@ import imutils
 from django.conf import settings
 from datetime import datetime
 
-
 import os
 import cv2
 import time
@@ -24,9 +23,10 @@ from skimage.metrics import structural_similarity as ssim
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 import pickle
+import pytz
 
 from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm, LeaveResponseForm
-from .models import Employee, EmployeeSchedule, User, LeaveRequest, Shift
+from .models import Employee, EmployeeSchedule, User, LeaveRequest, Shift, Attendance
 from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable, EmployeeFaceEmbeddingsHTMxTable
 from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddingsFilter
 
@@ -43,6 +43,9 @@ from django.contrib import messages
 from datetime import timedelta
 from django.utils import timezone
 from .forms import ShiftBulkCreateForm
+from django.db.models import Value, CharField
+from django.db.models.functions import Concat
+
 
 
 from django.db.models import Q
@@ -238,7 +241,7 @@ def respond_leave_request(request, pk):
                 else:
                     leave.hr_approval = 'PENDING'
 
-            # Determine overall status
+            #  overall status
             if leave.department_approval == 'REJECTED':
                 leave.status = 'DENIED'
             elif (leave.department_approval == 'APPROVED' and
@@ -846,20 +849,26 @@ def load_trained_model():
 
 def predict_face(request):
     from deepface import DeepFace
-    #Call Model
+    # Call Model
     load_trained_model()
     svc, encoder_classes = _loaded_model
     # MediaPipe face detection setup (global)
     mp_face_detection = mp.solutions.face_detection
     face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
     if request.method == "POST":
-        vs = VideoStream(src=0).start()  # Use default camera "0" (change src if needed)
-        time.sleep(2.0)  # Allow camera to warm up
+        vs = VideoStream(src=0).start()
+        time.sleep(1.0)
 
-        face_detected_time = None  # Timestamp when a face is initially detected
-        delay_duration = 1.5  # Delay in seconds
-        #Call Model
+        recognized_employee = None
+        attendance_recorded = False
+        face_detected_time = None
+        delay_duration = 1.5
+
         model = get_face_model()
+
+        # Flag to break the entire while loop after recording attendance
+        exit_loop = False
+
         while True:
             frame = vs.read()
             if frame is None:
@@ -867,22 +876,19 @@ def predict_face(request):
 
             frame = imutils.resize(frame, width=720)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-            # --- Face Detection (MediaPipe) ---
             results = face_detection.process(frame_rgb)
+
             if results.detections:
                 if face_detected_time is None:
-                    face_detected_time = time.time()  # Record initial detection time
+                    face_detected_time = time.time()
 
                 for detection in results.detections:
                     bboxC = detection.location_data.relative_bounding_box
                     ih, iw, _ = frame.shape
                     x, y, w, h = int(bboxC.xmin * iw), int(bboxC.ymin * ih), int(bboxC.width * iw), int(bboxC.height * ih)
 
-                    # --- Cropping ---
                     face_roi = frame[y:y + h, x:x + w]
 
-                    # --- Feature Extraction and Prediction (after delay) ---
                     if time.time() - face_detected_time >= delay_duration:
                         try:
                             embedding = DeepFace.represent(face_roi, model_name="SFace", enforce_detection=False, detector_backend='opencv')[0]['embedding']
@@ -890,15 +896,71 @@ def predict_face(request):
 
                             probabilities = svc.predict_proba(embedding)[0]
                             predicted_class_index = np.argmax(probabilities)
-                            confidence_threshold = 0.7 #Adjust when needed
+                            confidence_threshold = 0.7
 
                             confidence = probabilities[predicted_class_index]
                             if confidence >= confidence_threshold:
                                 predicted_name = encoder_classes[predicted_class_index]
+                                print(predicted_name)
+                                try:
+                                    employee = (
+                                        Employee.objects.annotate(
+                                            full_name=Concat(
+                                                'first_name', Value(' '),
+                                                'middle_name', Value(' '),
+                                                'last_name',
+                                                output_field=CharField()
+                                            )
+                                        )
+                                        .filter(full_name__iexact=predicted_name.strip())
+                                        .first()
+                                    )
+                                    print(employee)
+                                except Employee.DoesNotExist:
+                                    break
+
+                                now = datetime.now()
+
+                                attendance = Attendance.objects.filter(employee=employee, date=now.date()).first()
+
+                                #Check if employee has a shift scheduled today
+                                try:
+                                    shift = Shift.objects.get(employee=employee, shift_date=now.date())
+                                except Shift.DoesNotExist:
+                                    print(f"No shift found for {employee} on {now.date()}. Skipping attendance recording.")
+                                    label = "No scheduled shift"
+                                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                                    y_label = y - 15 if y - 15 > 15 else y + 15
+                                    cv2.putText(frame, label, (x, y_label), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                                    continue  # Skip this iteration of the loop
+
+
+                                if attendance:
+                                    if not attendance.time_out:
+                                        attendance.time_out = now
+                                        attendance.save()
+                                        print("Time-out recorded.")
+                                        attendance_recorded = True
+                                        exit_loop = True
+                                        break
+                                    else:
+                                        print("Time-out already recorded.")
+                                        exit_loop = True
+                                        break
+                                else:
+                                    Attendance.objects.create(
+                                        employee=employee,
+                                        date=now.date(),
+                                        time_in=now
+                                    )
+                                    print("Time-in recorded.")
+                                    attendance_recorded = True
+                                    exit_loop = True
+                                    break
                             else:
                                 predicted_name = "Unknown"
 
-                            label = f"{predicted_name}: {confidence:.2f}" if predicted_name != "Unknown" else "Unknown"
+                            #label = f"{predicted_name}: {confidence:.2f}" if predicted_name != "Unknown" else "Unknown"
                             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                             y_label = y - 15 if y - 15 > 15 else y + 15
                             cv2.putText(frame, label, (x, y_label), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -907,16 +969,17 @@ def predict_face(request):
                             print(f"Error during feature extraction or prediction: {e}")
 
             else:
-                face_detected_time = None  # Reset timestamp if no face detected
+                face_detected_time = None
 
-            # --- Display the Frame ---
             cv2.imshow("Real-time Face Recognition", frame)
             key = cv2.waitKey(1) & 0xFF
-            if key == ord("q"):  # Press 'q' to quit
+            if key == ord("q") or exit_loop:
                 break
 
         cv2.destroyAllWindows()
         vs.stop()
-        return render(request, "attendance_open_camera.html")
+
+        # Redirect or render your attendance page after exiting loop
+        return redirect("camera")
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)

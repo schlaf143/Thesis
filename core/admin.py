@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.forms.widgets import TextInput
 from django.templatetags.static import static
-from .models import Employee, EmployeeSchedule, Department, LeaveRequest, Shift
+from .models import Employee, EmployeeSchedule, Department, LeaveRequest, Shift, Attendance
 
 
 class EmployeeAdmin(admin.ModelAdmin):
@@ -99,6 +99,18 @@ class ShiftAdmin(admin.ModelAdmin):
     list_filter = ('department', 'shift_date')
     search_fields = ('employee__first_name', 'employee__last_name', 'department__name')
 
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'date', 'time_in', 'time_out', 'arrival_status', 'departure_status', 'shift')
+    list_filter = ('arrival_status', 'departure_status', 'date', 'employee__department')
+    search_fields = ('employee__first_name', 'employee__last_name', 'employee__employee_id')
+    #readonly_fields = ('status', 'shift')  # Optional: Make these non-editable in admin
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('employee', 'shift')  # Optimizes query for performance
+    
 # Register models
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(EmployeeSchedule, EmployeeScheduleAdmin)
