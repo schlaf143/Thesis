@@ -188,8 +188,8 @@ class EmployeeFaceEmbeddingsHTMxTable(tables.Table):
         embed_dir = self.get_embedding_directory(record)
         
         if os.path.exists(embed_dir) and len(os.listdir(embed_dir)) > 0:
-            return format_html('<span class="text-success">Exists</span>')
-        return format_html('<span class="text-danger">None</span>')
+            return format_html('<span class="text-success">Active</span>')
+        return format_html('<span class="text-danger">Inactive</span>')
 
     def render_edit(self, record):
         """Only show edit button if embeddings exist"""

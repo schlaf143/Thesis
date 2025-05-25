@@ -61,7 +61,7 @@ urlpatterns = [
     #!! Face Recognition Dataset and Training
     path('face_embeddings/view/', views.EmployeeFaceEmbeddingsHTMxTableView.as_view(), name='view_face_embeddings_list'),
     path('face_embeddings/register_face/', views.add_face_embeddings, name='register_face'),
-    path('attendance/camera/train_dataset/', views.train_dataset, name='train_dataset'),
+    path('face_embeddings/train_dataset/', views.train_dataset, name='train_dataset'),
 ]
 
 # Serve static files in development

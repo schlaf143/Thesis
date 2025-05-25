@@ -196,6 +196,20 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
 
         return template_name
 
+class EmployeeFaceEmbeddingsHTMxTableView(SingleTableMixin, FilterView):
+    table_class = EmployeeFaceEmbeddingsHTMxTable
+    queryset = Employee.objects.all()
+    filterset_class = EmployeeFaceEmbeddingsFilter
+    paginate_by = 10
+
+    def get_template_names(self):
+        if self.request.htmx:
+            template_name = "view_face_embeddings_list_htmx_partial.html"
+        else:
+            template_name = "view_face_embeddings_list_htmx.html"
+
+        return template_name
+    
 
 def respond_leave_request(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
@@ -324,7 +338,7 @@ class EmployeeScheduleDeleteView(DeleteView):
         return get_object_or_404(EmployeeSchedule, employee__employee_id=employee_id)
 
 def camera_view(request):
-    return render(request, 'face_access.html')
+    return render(request, 'attendance_open_camera.html')
 
 def dashboard(request):
     if request.user.is_authenticated:
@@ -508,20 +522,6 @@ def view_employee_information(request, pk):
     return render(request, 'view_employee_information.html', context)
 
 
-class EmployeeFaceEmbeddingsHTMxTableView(SingleTableMixin, FilterView):
-    table_class = EmployeeFaceEmbeddingsHTMxTable
-    queryset = Employee.objects.all()
-    filterset_class = EmployeeFaceEmbeddingsFilter
-    paginate_by = 2
-
-    def get_template_names(self):
-        if self.request.htmx:
-            template_name = "view_face_embeddings_list_htmx_partial.html"
-        else:
-            template_name = "view_face_embeddings_list_htmx.html"
-
-        return template_name
-    
 def add_face_embeddings(request):
     if request.method == 'POST':
         form = FaceEmbeddingsForm(request.POST)
@@ -761,7 +761,7 @@ def train_dataset(request):
                 continue
 
             try:
-                embedding = DeepFace.represent(image, model=model, enforce_detection=False)[0]['embedding']
+                embedding = DeepFace.represent(image, model_name="SFace", enforce_detection=False)[0]['embedding']
                 X.append(embedding)
                 y.append(person_name)
             except Exception as e:
@@ -807,7 +807,13 @@ def load_trained_model():
         encoder_classes = np.load(encoder_load_path)
         _loaded_model = (svc, encoder_classes)
 
+"""
+"SFace" (good balance)
 
+"VGG-Face" (lightweight)
+
+"OpenFace" (very fast, less accurate)
+"""
 
 def predict_face(request):
     from deepface import DeepFace
@@ -818,23 +824,23 @@ def predict_face(request):
     mp_face_detection = mp.solutions.face_detection
     face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
     if request.method == "POST":
-        vs = VideoStream(src=1).start()  # Use default camera (change src if needed)
+        vs = VideoStream(src=0).start()  # Use default camera "0" (change src if needed)
         time.sleep(2.0)  # Allow camera to warm up
 
         face_detected_time = None  # Timestamp when a face is initially detected
         delay_duration = 1.5  # Delay in seconds
-
+        #Call Model
+        model = get_face_model()
         while True:
             frame = vs.read()
             if frame is None:
                 break
 
-            frame = imutils.resize(frame, width=400)
+            frame = imutils.resize(frame, width=720)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # --- Face Detection (MediaPipe) ---
             results = face_detection.process(frame_rgb)
-
             if results.detections:
                 if face_detected_time is None:
                     face_detected_time = time.time()  # Record initial detection time
@@ -847,25 +853,25 @@ def predict_face(request):
                     # --- Cropping ---
                     face_roi = frame[y:y + h, x:x + w]
 
-                    #Call Model
-                    model = get_face_model()
-                    
                     # --- Feature Extraction and Prediction (after delay) ---
                     if time.time() - face_detected_time >= delay_duration:
                         try:
-                            embedding = DeepFace.represent(face_roi, model=model, enforce_detection=False, detector_backend='opencv')[0]['embedding']
+                            embedding = DeepFace.represent(face_roi, model_name="SFace", enforce_detection=False, detector_backend='opencv')[0]['embedding']
                             embedding = np.array(embedding).reshape(1, -1)
 
                             probabilities = svc.predict_proba(embedding)[0]
                             predicted_class_index = np.argmax(probabilities)
+                            confidence_threshold = 0.7 #Adjust when needed
+
                             confidence = probabilities[predicted_class_index]
+                            if confidence >= confidence_threshold:
+                                predicted_name = encoder_classes[predicted_class_index]
+                            else:
+                                predicted_name = "Unknown"
 
-                            predicted_name = encoder_classes[predicted_class_index]
-
-                            # --- Draw on the Frame ---
-                            label = f"{predicted_name}: {confidence:.2f}"
+                            label = f"{predicted_name}: {confidence:.2f}" if predicted_name != "Unknown" else "Unknown"
                             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                            y_label = y - 15 if y - 15 > 15 else y + 15  # Adjust label position
+                            y_label = y - 15 if y - 15 > 15 else y + 15
                             cv2.putText(frame, label, (x, y_label), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
                         except Exception as e:
@@ -882,6 +888,6 @@ def predict_face(request):
 
         cv2.destroyAllWindows()
         vs.stop()
-        return JsonResponse({'message': 'Stream ended'})
+        return render(request, "attendance_open_camera.html")
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
