@@ -4,7 +4,32 @@ from .models import LeaveRequest
 from django.core.exceptions import ValidationError
 from django.templatetags.static import static
 from datetime import timedelta, datetime
-from .models import Employee
+from .models import Employee, Shift
+
+class ShiftForm(forms.ModelForm):
+    class Meta:
+        model = Shift
+        fields = ['shift_start', 'shift_end']
+        widgets = {
+            'shift_start': forms.TimeInput(
+                attrs={
+                    'type': 'time',
+                    'class': 'form-control',
+                    'placeholder': 'Start time'
+                }
+            ),
+            'shift_end': forms.TimeInput(
+                attrs={
+                    'type': 'time',
+                    'class': 'form-control',
+                    'placeholder': 'End time'
+                }
+            ),
+        }
+        labels = {
+            'shift_start': 'Shift Start',
+            'shift_end': 'Shift End',
+        }
 
 class ShiftBulkCreateForm(forms.Form):
     employee = forms.ModelChoiceField(queryset=Employee.objects.all(), label="Employee")

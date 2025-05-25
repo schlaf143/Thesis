@@ -42,13 +42,38 @@ from django import forms
 from django.contrib import messages
 from datetime import timedelta
 from django.utils import timezone
-from .forms import ShiftBulkCreateForm
+from .forms import ShiftBulkCreateForm,  ShiftForm
 from django.db.models import Value, CharField
 from django.db.models.functions import Concat
 
 
 
 from django.db.models import Q
+
+
+def delete_shift_view(request, shift_id):
+    shift = get_object_or_404(Shift, id=shift_id)
+
+    if request.method == 'POST':
+        shift.delete()
+        messages.success(request, "Shift deleted successfully.")
+        return redirect('view_schedule_list')  # Change this to your actual redirect view
+
+    # If someone tries to access this via GET, just redirect
+    return redirect('view_schedule_list', shift_id=shift.id)
+
+def edit_shift_view(request, pk):
+    shift = get_object_or_404(Shift, pk=pk)
+
+    if request.method == 'POST':
+        form = ShiftForm(request.POST, instance=shift)
+        if form.is_valid():
+            form.save()
+            return redirect('view_schedule_list')
+    else:
+        form = ShiftForm(instance=shift)
+
+    return render(request, 'edit_shift.html', {'form': form, 'shift': shift})
 
 def create_bulk_shifts(request):
     if request.method == 'POST':
@@ -189,17 +214,20 @@ class EmployeeHTMxTableView(SingleTableMixin, FilterView):
 
 class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeScheduleHTMxTable
-    queryset = EmployeeSchedule.objects.all()
     filterset_class = EmployeeScheduleFilter
     paginate_by = 10
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated and hasattr(user, 'employee') and user.employee.department:
+            return Employee.objects.filter(department=user.employee.department)
+        return Employee.objects.none()
+    
     def get_template_names(self):
         if self.request.htmx:
-            template_name = "view_schedule_list_htmx_partial.html"
-        else:
-            template_name = "view_schedule_list_htmx.html"
+            return "view_schedule_list_htmx_partial.html"
+        return "view_schedule_list_htmx.html"
 
-        return template_name
 
 class EmployeeFaceEmbeddingsHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeFaceEmbeddingsHTMxTable

@@ -36,6 +36,8 @@ urlpatterns = [
     path("my-leave-requests/", views.my_leave_requests, name="my_leave_requests"),
     path('department/<int:department_id>/respondents/', views.department_respondents_view, name='department_respondents'),
     path('shifts/create/', views.create_bulk_shifts, name='create_bulk_shifts'),
+    path('shift/edit/<int:pk>/', views.edit_shift_view, name='edit_shift'),
+    path('shift/<int:shift_id>/delete/', views.delete_shift_view, name='delete_shift'),
     
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 
