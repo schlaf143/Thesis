@@ -4,8 +4,8 @@ from .models import LeaveRequest
 from django.core.exceptions import ValidationError
 from django.templatetags.static import static
 from datetime import timedelta, datetime
-<<<<<<< Updated upstream
 from .models import Employee, Shift
+from django.forms.widgets import DateInput, DateTimeInput, Select
 
 class ShiftForm(forms.ModelForm):
     class Meta:
@@ -31,9 +31,6 @@ class ShiftForm(forms.ModelForm):
             'shift_start': 'Shift Start',
             'shift_end': 'Shift End',
         }
-=======
-from django.forms.widgets import DateInput, DateTimeInput, Select
->>>>>>> Stashed changes
 
 class ShiftBulkCreateForm(forms.Form):
     employee = forms.ModelChoiceField(queryset=Employee.objects.all(), label="Employee")
