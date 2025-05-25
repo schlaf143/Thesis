@@ -57,10 +57,9 @@ def delete_shift_view(request, shift_id):
     if request.method == 'POST':
         shift.delete()
         messages.success(request, "Shift deleted successfully.")
-        return redirect('view_schedule_list')  # Change this to your actual redirect view
+        return redirect('view_schedule_list')
 
-    # If someone tries to access this via GET, just redirect
-    return redirect('view_schedule_list', shift_id=shift.id)
+    return redirect('view_schedule_list') 
 
 def edit_shift_view(request, pk):
     shift = get_object_or_404(Shift, pk=pk)
