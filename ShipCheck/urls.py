@@ -58,12 +58,15 @@ urlpatterns = [
     #! Attendance module
     #path('attendance/camera/', views.open_camera, name='open_camera'),
     path('attendance/camera/predict', views.predict_face, name='predict_face'),
+    path('attendance/register/', views.add_employee_attendance, name='add_employee_attendance'),
+    path('attendance/view', views.EmployeeAttendanceHTMxTableView.as_view(), name='view_attendance_list'),
     #path('attendance/time-in/', views.attendance_time_in, name='attendance_time_in'),
 
-    #!! Face Recognition Dataset and Training
+    #!! Face Recognition Dataset and Trainings
     path('face_embeddings/view/', views.EmployeeFaceEmbeddingsHTMxTableView.as_view(), name='view_face_embeddings_list'),
     path('face_embeddings/register_face/', views.add_face_embeddings, name='register_face'),
     path('face_embeddings/train_dataset/', views.train_dataset, name='train_dataset'),
+    path('face_embeddings/delete_embeddings/<int:employee_id>/', views.delete_face_embeddings, name='delete_face_embeddings'),
 ]
 
 # Serve static files in development

@@ -25,10 +25,10 @@ from sklearn.svm import SVC
 import pickle
 import pytz
 
-from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm, LeaveResponseForm
+from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm, LeaveResponseForm, AttendanceForm
 from .models import Employee, EmployeeSchedule, User, LeaveRequest, Shift, Attendance
-from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable, EmployeeFaceEmbeddingsHTMxTable
-from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddingsFilter
+from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable, EmployeeFaceEmbeddingsHTMxTable, EmployeeAttendanceHTMxTable
+from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddingsFilter, AttendanceFilter
 
 from django_tables2 import SingleTableMixin
 from django_filters.views import FilterView
@@ -45,7 +45,8 @@ from django.utils import timezone
 from .forms import ShiftBulkCreateForm,  ShiftForm
 from django.db.models import Value, CharField
 from django.db.models.functions import Concat
-
+from django.http import HttpResponse, Http404
+import shutil
 
 
 from django.db.models import Q
@@ -241,7 +242,20 @@ class EmployeeFaceEmbeddingsHTMxTableView(SingleTableMixin, FilterView):
             template_name = "view_face_embeddings_list_htmx.html"
 
         return template_name
-    
+
+class EmployeeAttendanceHTMxTableView(SingleTableMixin, FilterView):
+    table_class = EmployeeAttendanceHTMxTable
+    queryset = Attendance.objects.all()
+    filterset_class = AttendanceFilter
+    paginate_by = 10
+
+    def get_template_names(self):
+        if self.request.htmx:
+            template_name = "view_attendance_list_partial.html"
+        else:
+            template_name = "view_attendance_list_htmx.html"
+
+        return template_name
 
 def respond_leave_request(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
@@ -547,6 +561,19 @@ def add_employee(request):
         'departments': departments
     })
 
+def add_employee_attendance(request):
+    if request.method == 'POST':
+        form = AttendanceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('view_attendance_list')  # Or redirect to another page if you prefer
+    else:
+        form = AttendanceForm()
+
+    return render(request, 'add_attendance.html', {
+        'attendance_form': form
+    })
+    
 def add_schedule(request):
     if request.method == 'POST':
         schedule_form = EmployeeScheduleForm(request.POST)
@@ -560,7 +587,6 @@ def add_schedule(request):
         schedule_form = EmployeeScheduleForm()
 
     return render(request, 'add_schedule.html', {'schedule_form': schedule_form})
-
 
 def view_employee_information(request, pk):
     employee = get_object_or_404(Employee, employee_id=pk)
@@ -579,7 +605,6 @@ def view_employee_information(request, pk):
     }
 
     return render(request, 'view_employee_information.html', context)
-
 
 def add_face_embeddings(request):
     if request.method == 'POST':
@@ -1000,62 +1025,6 @@ def predict_face(request):
                                     attendance_recorded = True
                                     exit_loop = True
                                     break
-                                print(predicted_name)
-                                try:
-                                    employee = (
-                                        Employee.objects.annotate(
-                                            full_name=Concat(
-                                                'first_name', Value(' '),
-                                                'middle_name', Value(' '),
-                                                'last_name',
-                                                output_field=CharField()
-                                            )
-                                        )
-                                        .filter(full_name__iexact=predicted_name.strip())
-                                        .first()
-                                    )
-                                    print(employee)
-                                except Employee.DoesNotExist:
-                                    break
-
-                                now = datetime.now()
-
-                                attendance = Attendance.objects.filter(employee=employee, date=now.date()).first()
-
-                                #Check if employee has a shift scheduled today
-                                try:
-                                    shift = Shift.objects.get(employee=employee, shift_date=now.date())
-                                except Shift.DoesNotExist:
-                                    print(f"No shift found for {employee} on {now.date()}. Skipping attendance recording.")
-                                    label = "No scheduled shift"
-                                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-                                    y_label = y - 15 if y - 15 > 15 else y + 15
-                                    cv2.putText(frame, label, (x, y_label), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                                    continue  # Skip this iteration of the loop
-
-
-                                if attendance:
-                                    if not attendance.time_out:
-                                        attendance.time_out = now
-                                        attendance.save()
-                                        print("Time-out recorded.")
-                                        attendance_recorded = True
-                                        exit_loop = True
-                                        break
-                                    else:
-                                        print("Time-out already recorded.")
-                                        exit_loop = True
-                                        break
-                                else:
-                                    Attendance.objects.create(
-                                        employee=employee,
-                                        date=now.date(),
-                                        time_in=now
-                                    )
-                                    print("Time-in recorded.")
-                                    attendance_recorded = True
-                                    exit_loop = True
-                                    break
                             else:
                                 predicted_name = "Unknown"
 
@@ -1084,3 +1053,26 @@ def predict_face(request):
         return redirect("camera")
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+def delete_face_embeddings(request, employee_id):
+    if request.method == "DELETE":
+        try:
+            employee = Employee.objects.get(pk=employee_id)
+
+            # Generate the embedding directory path
+            middle = f"{employee.middle_name}" if employee.middle_name else ""
+            name = f"{employee.first_name} {middle} {employee.last_name}"
+            embed_dir = os.path.join(
+                settings.BASE_DIR, 'core', 'static', 'registered_faces', f"{name}_{employee.company_id}"
+            )
+
+            # Delete folder if it exists
+            if os.path.exists(embed_dir):
+                shutil.rmtree(embed_dir)
+                
+            response = HttpResponse()
+            response["HX-Redirect"] = "/face_embeddings/view/"  # adjust to your actual view URL
+            return response
+        except Employee.DoesNotExist:
+            raise Http404("Employee not found")
+
+    return HttpResponse(status=405)  # Method not allowed

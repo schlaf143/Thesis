@@ -127,11 +127,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
+#Maybe try Asia/Manila?
 TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_TZ = True
+#Make it True if ever we use Timezone
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

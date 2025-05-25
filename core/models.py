@@ -328,8 +328,14 @@ class Attendance(models.Model):
         grace_period_minutes = getattr(self.employee, 'grace_period_minutes', 15)
         grace_cutoff = scheduled_start_dt + timedelta(minutes=grace_period_minutes)
 
-        if self.time_in > grace_cutoff:
-            self.late_minutes = int((self.time_in - scheduled_start_dt).total_seconds() // 60)
+        # Convert self.time_in to naive if it's timezone-aware
+        if self.time_in and self.time_in.tzinfo is not None:
+            time_in_naive = self.time_in.replace(tzinfo=None)
+        else:
+            time_in_naive = self.time_in
+
+        if time_in_naive > grace_cutoff:
+            self.late_minutes = int((time_in_naive - scheduled_start_dt).total_seconds() // 60)
             self.arrival_status = 'Late'
         else:
             self.arrival_status = 'On-Time'
@@ -343,9 +349,15 @@ class Attendance(models.Model):
 
         undertime_grace_minutes = getattr(self.employee, 'undertime_grace_minutes', 5)
         grace_cutoff = scheduled_end_dt - timedelta(minutes=undertime_grace_minutes)
-
-        if self.time_out < grace_cutoff:
-            self.undertime_minutes = int((scheduled_end_dt - self.time_out).total_seconds() // 60)
+        
+        # Convert self.time_out to naive if it's timezone-aware
+        if self.time_out and self.time_out.tzinfo is not None:
+            time_out_naive = self.time_out.replace(tzinfo=None)
+        else:
+            time_out_naive = self.time_out
+            
+        if time_out_naive < grace_cutoff:
+            self.undertime_minutes = int((scheduled_end_dt - time_out_naive).total_seconds() // 60)
             self.departure_status = 'Undertime'
         else:
             self.departure_status = 'On-Time'
