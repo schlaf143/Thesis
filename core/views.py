@@ -20,7 +20,7 @@ import time
 import numpy as np
 import mediapipe as mp
 from skimage.metrics import structural_similarity as ssim
-from deepface import DeepFace
+#from deepface import DeepFace
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 import pickle
@@ -716,7 +716,20 @@ def create_dataset(name, company_id):
     vs.stop()
     cv2.destroyAllWindows()
 
+#Call Facenet Model
+_face_model = None
+
+def get_face_model():
+    from deepface import DeepFace
+    global _face_model
+    if _face_model is None:
+        print("Loading FaceNet model...")
+        _face_model = DeepFace.build_model("Facenet")
+        print("FaceNet model loaded.")
+    return _face_model
+
 def train_dataset(request):
+    from deepface import DeepFace
     # --- Main training directory ---
     dataset = os.path.join(settings.BASE_DIR, 'core', 'static', 'registered_faces')
 
@@ -737,18 +750,18 @@ def train_dataset(request):
         if not os.path.isdir(person_path):
             continue
 
+        #call the model once
+        model = get_face_model()
         # --- Iterate through each image in the person's directory ---
         for imagefile in os.listdir(person_path):
             image_path = os.path.join(person_path, imagefile)
-            image = cv2.imread(image_path)  # Load the already cropped image
+            image = cv2.imread(image_path)
             if image is None:
                 print(f"Could not load image: {image_path}")
                 continue
 
-            # --- Feature Extraction (DeepFace) ---
             try:
-                # Pass the already cropped image directly to DeepFace
-                embedding = DeepFace.represent(image, model_name="Facenet", enforce_detection=False)[0]['embedding']
+                embedding = DeepFace.represent(image, model=model, enforce_detection=False)[0]['embedding']
                 X.append(embedding)
                 y.append(person_name)
             except Exception as e:
@@ -780,20 +793,30 @@ def train_dataset(request):
 
 
 # Load the trained SVM model and label encoder (global variables)
-model_dir = os.path.join(settings.BASE_DIR, 'core', 'static', 'trained_model')
-svc_load_path = os.path.join(model_dir, "svc.sav")
-encoder_load_path = os.path.join(model_dir, "classes.npy")
+_loaded_model = None
+def load_trained_model():
+    global _loaded_model
+    if _loaded_model is None:
+        model_dir = os.path.join(settings.BASE_DIR, 'core', 'static', 'trained_model')
+        svc_load_path = os.path.join(model_dir, "svc.sav")
+        encoder_load_path = os.path.join(model_dir, "classes.npy")
 
-with open(svc_load_path, 'rb') as f:
-    svc = pickle.load(f)
+        with open(svc_load_path, 'rb') as f:
+            svc = pickle.load(f)
 
-encoder_classes = np.load(encoder_load_path)
+        encoder_classes = np.load(encoder_load_path)
+        _loaded_model = (svc, encoder_classes)
 
-# MediaPipe face detection setup (global)
-mp_face_detection = mp.solutions.face_detection
-face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
+
 
 def predict_face(request):
+    from deepface import DeepFace
+    #Call Model
+    load_trained_model()
+    svc, encoder_classes = _loaded_model
+    # MediaPipe face detection setup (global)
+    mp_face_detection = mp.solutions.face_detection
+    face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
     if request.method == "POST":
         vs = VideoStream(src=1).start()  # Use default camera (change src if needed)
         time.sleep(2.0)  # Allow camera to warm up
@@ -824,10 +847,13 @@ def predict_face(request):
                     # --- Cropping ---
                     face_roi = frame[y:y + h, x:x + w]
 
+                    #Call Model
+                    model = get_face_model()
+                    
                     # --- Feature Extraction and Prediction (after delay) ---
                     if time.time() - face_detected_time >= delay_duration:
                         try:
-                            embedding = DeepFace.represent(face_roi, model_name="Facenet", enforce_detection=False, detector_backend='opencv')[0]['embedding']
+                            embedding = DeepFace.represent(face_roi, model=model, enforce_detection=False, detector_backend='opencv')[0]['embedding']
                             embedding = np.array(embedding).reshape(1, -1)
 
                             probabilities = svc.predict_proba(embedding)[0]
