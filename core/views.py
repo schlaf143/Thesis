@@ -45,10 +45,6 @@ from django.utils import timezone
 from .forms import ShiftBulkCreateForm
 from django.db.models import Value, CharField
 from django.db.models.functions import Concat
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
 
 
@@ -854,6 +850,7 @@ def load_trained_model():
 def predict_face(request):
     from deepface import DeepFace
     # Call Model
+    # Call Model
     load_trained_model()
     svc, encoder_classes = _loaded_model
     # MediaPipe face detection setup (global)
@@ -868,7 +865,19 @@ def predict_face(request):
         face_detected_time = None
         delay_duration = 1.5
 
+        vs = VideoStream(src=0).start()
+        time.sleep(1.0)
+
+        recognized_employee = None
+        attendance_recorded = False
+        face_detected_time = None
+        delay_duration = 1.5
+
         model = get_face_model()
+
+        # Flag to break the entire while loop after recording attendance
+        exit_loop = False
+
 
         # Flag to break the entire while loop after recording attendance
         exit_loop = False
@@ -882,8 +891,10 @@ def predict_face(request):
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             results = face_detection.process(frame_rgb)
 
+
             if results.detections:
                 if face_detected_time is None:
+                    face_detected_time = time.time()
                     face_detected_time = time.time()
 
                 for detection in results.detections:
@@ -900,6 +911,7 @@ def predict_face(request):
 
                             probabilities = svc.predict_proba(embedding)[0]
                             predicted_class_index = np.argmax(probabilities)
+                            confidence_threshold = 0.7
                             confidence_threshold = 0.7
 
                             confidence = probabilities[predicted_class_index]
@@ -961,9 +973,66 @@ def predict_face(request):
                                     attendance_recorded = True
                                     exit_loop = True
                                     break
+                                print(predicted_name)
+                                try:
+                                    employee = (
+                                        Employee.objects.annotate(
+                                            full_name=Concat(
+                                                'first_name', Value(' '),
+                                                'middle_name', Value(' '),
+                                                'last_name',
+                                                output_field=CharField()
+                                            )
+                                        )
+                                        .filter(full_name__iexact=predicted_name.strip())
+                                        .first()
+                                    )
+                                    print(employee)
+                                except Employee.DoesNotExist:
+                                    break
+
+                                now = datetime.now()
+
+                                attendance = Attendance.objects.filter(employee=employee, date=now.date()).first()
+
+                                #Check if employee has a shift scheduled today
+                                try:
+                                    shift = Shift.objects.get(employee=employee, shift_date=now.date())
+                                except Shift.DoesNotExist:
+                                    print(f"No shift found for {employee} on {now.date()}. Skipping attendance recording.")
+                                    label = "No scheduled shift"
+                                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                                    y_label = y - 15 if y - 15 > 15 else y + 15
+                                    cv2.putText(frame, label, (x, y_label), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                                    continue  # Skip this iteration of the loop
+
+
+                                if attendance:
+                                    if not attendance.time_out:
+                                        attendance.time_out = now
+                                        attendance.save()
+                                        print("Time-out recorded.")
+                                        attendance_recorded = True
+                                        exit_loop = True
+                                        break
+                                    else:
+                                        print("Time-out already recorded.")
+                                        exit_loop = True
+                                        break
+                                else:
+                                    Attendance.objects.create(
+                                        employee=employee,
+                                        date=now.date(),
+                                        time_in=now
+                                    )
+                                    print("Time-in recorded.")
+                                    attendance_recorded = True
+                                    exit_loop = True
+                                    break
                             else:
                                 predicted_name = "Unknown"
 
+                            #label = f"{predicted_name}: {confidence:.2f}" if predicted_name != "Unknown" else "Unknown"
                             #label = f"{predicted_name}: {confidence:.2f}" if predicted_name != "Unknown" else "Unknown"
                             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                             y_label = y - 15 if y - 15 > 15 else y + 15
@@ -973,6 +1042,7 @@ def predict_face(request):
                             print(f"Error during feature extraction or prediction: {e}")
 
             else:
+                face_detected_time = None
                 face_detected_time = None
 
             cv2.imshow("Real-time Face Recognition", frame)
@@ -985,5 +1055,5 @@ def predict_face(request):
 
         # Redirect or render your attendance page after exiting loop
         return redirect("camera")
-
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
