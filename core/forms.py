@@ -4,6 +4,7 @@ from .models import LeaveRequest
 from django.core.exceptions import ValidationError
 from django.templatetags.static import static
 from datetime import timedelta, datetime
+<<<<<<< Updated upstream
 from .models import Employee, Shift
 
 class ShiftForm(forms.ModelForm):
@@ -197,7 +198,7 @@ class FaceEmbeddingsForm(forms.Form):
         queryset=Employee.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'}),
         label="Select Employee"
-    )    )
+    )
 
 class AttendanceForm(forms.ModelForm):
     class Media:
