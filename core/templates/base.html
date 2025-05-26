@@ -19,35 +19,70 @@
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/flatpickr.js' %}"></script>
     <script src="{% static 'js/flatpickr_init.js' %}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            color: #333;
+            background-color:rgb(235, 232, 220);
+        }
+        
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        .form-control {
+            font-size: 0.95rem;
+        }
+
+        
+    </style>
+
 </head>
 <body class="pt-5">  
 
 {% if user.is_authenticated %}
     <!-- Navigation Bar -->
     
-    <nav class="navbar navbar-expand-lg fixed-top bg-white shadow">
-        
+    <nav class="navbar navbar-expand-lg fixed-top bg-white shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <h4 class="mb-0">
-                    <img src="{% static 'img/Malasaga Trading Corporation Logo.jpg' %}" alt="Malasaga Trading Corporation Logo" class="img-fluid" style="width: 50px; height: auto;">
-                </h4>
+            <!-- Brand Logo -->
+            <a class="navbar-brand" href="{% url 'dashboard' %}">
+                <img src="{% static 'img/Malasaga Trading Corporation Logo.jpg' %}" 
+                    alt="Malasaga Logo" 
+                    class="img-fluid" 
+                    style="width: 50px; height: auto;">
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+            <!-- Toggle Button for Mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
+            <!-- Navbar Links -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+
+                    <!-- Dashboard -->
                     <li class="nav-item">
-                        <a class="nav-link py-1" href="{% url 'dashboard' %}">Dashboard <i class='bx bx-home-alt ms-2'></i></a>
+                        <a class="nav-link py-1" href="{% url 'dashboard' %}">
+                            Dashboard <i class='bx bx-home-alt ms-2'></i>
+                        </a>
                     </li>
-                    {% if user.is_authenticated and user.employee.role != "President" and user.employee.department.name == "Human Resources" %}
+
+                    <!-- Management (HR, not President) -->
+                    {% if user.employee.role != "President" and user.employee.department.name == "Human Resources" %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link  py-1" href="#" id="manageEmpDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Management <i class='bx bxs-down-arrow ms-2'></i>
+                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageEmpDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Management
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'view_employee_list' %}">View Employee List</a></li>
@@ -56,39 +91,46 @@
                     </li>
                     {% endif %}
 
-                    {% if user.is_authenticated and user.employee.shift_departments.exists or user.employee.department.name == "Human Resources" and user.employee.role != "President" %}
+                    <!-- Manage Shifts -->
+                    {% if user.employee.department.name == "Human Resources" and user.employee.role != "President" %}
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link py-1" href="" id="manageShftDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Manage Shifts <i class='bx bxs-down-arrow ms-2'></i>
+                        <a class="nav-link dropdown-toggle py-1" href="#" id="manageShftDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage Shifts
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'view_schedule_list' %}">View Shift Schedule</a></li>
-                            {% comment %} <li><a class="dropdown-item" href="#">Another Action</a></li> {% endcomment %}
                         </ul>
                     </li>
                     {% endif %}
-                    {% if user.is_authenticated and user.employee.leave_departments.exists or user.employee.department.name == "Human Resources" or user.employee.role == "President"%}
-       
-        
+
+                    <!-- Leave Requests (for HR, President, or authorized) -->
+                    {% if user.employee.leave_departments.exists or user.employee.department.name == "Human Resources" or user.employee.role == "President" %}
                     <li class="nav-item">
-
-                        <a class="nav-link py-1" href="{% url 'gen_leave' %}">Leave Requests<i class='bx bx-home-alt ms-2'></i></a>
-
+                        <a class="nav-link py-1" href="{% url 'gen_leave' %}">
+                            Leave Requests <i class='bx bx-calendar ms-2'></i>
+                        </a>
                     </li>
                     {% endif %}
-                    {% if user.employee.role != "President"%}
-                        <li class="nav-item">
-                            <a class="nav-link py-1" href="{% url 'submit_leave_request' %}">Request Leave<i class='bx bx-home-alt ms-2'></i></a>
-                        </li>
+
+                    <!-- Submit Leave (not President) -->
+                    {% if user.employee.role != "President" %}
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="{% url 'submit_leave_request' %}">
+                            Request Leave <i class='bx bx-edit ms-2'></i>
+                        </a>
+                    </li>
                     {% endif %}
                 </ul>
 
+                <!-- Logout Button -->
                 <div class="d-flex">
-                    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Logout</a>
                 </div>
             </div>
         </div>
     </nav>
+
 
     <!-- Main Content -->
     <div class="container-fluid d-flex flex-column p-0">

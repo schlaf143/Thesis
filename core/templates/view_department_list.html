@@ -7,8 +7,8 @@
     <div class="row g-4">
 
         {% for department in departments %}
-            <div class="col-12 col-md-6">
-                <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow h-100">
+            <div class="col-12 col-md-6 ">
+                <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow h-100 bg-light">
                     <h3>{{ department.name }}</h3>
                     <hr>
                     <div class="d-flex flex-column flex-md-row gap-3">
@@ -50,7 +50,7 @@
 
         <!-- Add Department Form -->
         <div class="col-12">
-            <div class="border border-dark-subtle rounded shadow p-3">
+            <div class="border border-dark-subtle rounded shadow p-3 bg-light">
                 <h4>Add Department</h4>
                 <form method="post" novalidate>
                     {% csrf_token %}
