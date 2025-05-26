@@ -146,6 +146,19 @@
                 </div>
             </div>
         </form>
+
+        <!-- Password Reset Section -->
+        <hr class="my-4">
+        <div class="d-flex justify-content-end">
+            <form method="POST" action="{% url 'reset_employee_password' employee.employee_id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning"
+                        onclick="return confirm('Reset this employee\'s password to their Company ID?');">
+                    <i class='bx bx-key'></i> Reset Password to Company ID
+                </button>
+            </form>
+        </div>
+
     </div>
 </div>
 {% endblock %}

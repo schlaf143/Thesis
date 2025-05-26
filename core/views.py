@@ -47,10 +47,31 @@ from django.db.models import Value, CharField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, Http404
 import shutil
-
-
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
 from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.hashers import make_password
 
+def reset_employee_password(request, pk):
+    employee = get_object_or_404(Employee, pk=pk)
+
+    if request.method == "POST":
+        if employee.user_account:
+            employee.user_account.password = make_password(employee.company_id)
+            employee.user_account.save()
+            messages.success(request, f"{employee.first_name}'s password has been reset to their Company ID.")
+        else:
+            messages.error(request, "This employee does not have an associated user account.")
+    
+    return redirect('employee_edit', pk=pk)
+
+
+class AccountSettingsView(SuccessMessageMixin, PasswordChangeView):
+    template_name = 'account_settings.html'
+    success_url = reverse_lazy('dashboard')  # Change to wherever you want to redirect after success
+    success_message = "Your password was updated successfully."
 
 def delete_shift_view(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id)

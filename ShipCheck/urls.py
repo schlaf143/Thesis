@@ -21,6 +21,8 @@ from core import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
+from core.views import AccountSettingsView
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -38,6 +40,10 @@ urlpatterns = [
     path('shifts/create/', views.create_bulk_shifts, name='create_bulk_shifts'),
     path('shift/edit/<int:pk>/', views.edit_shift_view, name='edit_shift'),
     path('shift/<int:shift_id>/delete/', views.delete_shift_view, name='delete_shift'),
+    path('account/settings/', AccountSettingsView.as_view(), name='account_settings'),
+    path('employee/<int:pk>/reset-password/', views.reset_employee_password, name='reset_employee_password'),
+
+
     
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 
