@@ -9,16 +9,19 @@
             <div class="p-4 border rounded shadow-sm bg-light border border-1 border-secondary">
                 <h4>Welcome back, {{ user.employee.first_name }} {{ user.employee.last_name }}!</h4>
                 <hr>
+                {% if user.employee.role != "President" %}
                 <p class="mb-1 fw-semibold">{{ user.employee.role }} in {{ user.employee.department.name }}</p>
+                {% endif %}
                 <p class="text-muted">Today is {{ today|date:"l, F j, Y" }}</p>
             </div>
         </div>
     </div>
 
-    <div class="mt-3 w-100 border">
+    <div class="mt-3 w-100">
         <a href="{% url 'account_settings' %}" class="btn btn-secondary btn-sm">Account Settings</a>
     </div>
 
+    {% if user.employee.role != "President" %}
     <hr>
     <!-- Leave Credits & Quick Links -->
     <div class="row mb-4 g-4">
@@ -180,5 +183,6 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
