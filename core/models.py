@@ -7,6 +7,7 @@ from django.db.models import Max
 from django.core.validators import MaxValueValidator
 import pytz
 from django.db.models import JSONField
+import math
 
 class Shift(models.Model):
     employee = models.ForeignKey(
@@ -362,3 +363,57 @@ class Attendance(models.Model):
         else:
             self.departure_status = 'On-Time'
             self.undertime_minutes = 0
+            
+    def worked_hours(self):
+        """
+        Calculates the total worked hours excluding overtime.
+        Dynamically fetches scheduled_start and scheduled_end from linked Shift.
+        """
+        print(f"\n--- DEBUG worked_hours for {self.date} ---")
+
+        if not self.shift:
+            print("No shift assigned")
+            return 0
+
+        scheduled_start = self.shift.shift_start
+        scheduled_end = self.shift.shift_end
+        is_rest_day = False  # You may also store this in Shift
+
+        print(f"scheduled_start: {scheduled_start}")
+        print(f"scheduled_end: {scheduled_end}")
+        print(f"time_in: {self.time_in}")
+        print(f"time_out: {self.time_out}")
+
+        if not self.time_in or not self.time_out:
+            print("Missing time_in or time_out")
+            return 0
+
+        # Combine shift times with date
+        scheduled_start_dt = datetime.combine(self.date, scheduled_start)
+        scheduled_end_dt = (
+            datetime.combine(self.date + timedelta(days=1), scheduled_end)
+            if scheduled_end < scheduled_start
+            else datetime.combine(self.date, scheduled_end)
+        )
+
+        time_in = self.time_in.replace(tzinfo=None) if self.time_in.tzinfo else self.time_in
+        time_out = self.time_out.replace(tzinfo=None) if self.time_out.tzinfo else self.time_out
+
+        start = max(time_in, scheduled_start_dt)
+        end = min(time_out, scheduled_end_dt)
+
+        if end <= start:
+            print("End is before or equal to start")
+            return 0
+
+        worked_seconds = (end - start).total_seconds()
+        worked_hours = worked_seconds / 3600
+
+        # Subtract 1 hour for break if worked hours > 1
+        if worked_hours > 1:
+            worked_hours -= 1
+
+        # Prevent negative or zero hours after subtracting break
+        worked_hours = max(worked_hours, 0)
+
+        return worked_hours

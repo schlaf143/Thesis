@@ -468,34 +468,61 @@ def dashboard(request):
     end_date = today
 
     # Get attendance records for the last 14 days
-    attendance_records = Attendance.objects.filter(
-        employee=employee,
-        date__range=(start_date, end_date)
-    ).select_related('shift').order_by('date')
-
-    # Prepare structured DTR data
+    attendance_dict = {
+        record.date: record
+        for record in Attendance.objects.filter(
+            employee=employee,
+            date__range=(start_date, end_date)
+        ).select_related('shift')
+    }
+    # DTR data
     dtr_data = []
 
-    for record in attendance_records:
-        # Handle shift time formatting safely
-        shift = record.shift
-        if shift:
-            shift_start = shift.shift_start.strftime('%I:%M %p') if shift.shift_start else 'N/A'
-            shift_end = shift.shift_end.strftime('%I:%M %p') if shift.shift_end else 'N/A'
-            shift_range = f"{shift_start} - {shift_end}"
+    current_date = start_date
+    total_hours = 0
+    while current_date <= end_date:
+        record = attendance_dict.get(current_date)
+        worked_hours = 0 
+
+        if record:
+            shift = record.shift
+            worked_hours = record.worked_hours()
+            print(round(worked_hours))
+            total_hours += round(worked_hours)
+            
+            if shift:
+                shift_start = shift.shift_start.strftime('%I:%M %p') if shift.shift_start else 'N/A'
+                shift_end = shift.shift_end.strftime('%I:%M %p') if shift.shift_end else 'N/A'
+                shift_range = f"{shift_start} - {shift_end}"
+            else:
+                shift_range = 'No Shift'
+
+            time_in = record.time_in.strftime('%I:%M %p') if record.time_in else 'N/A'
+            time_out = record.time_out.strftime('%I:%M %p') if record.time_out else 'N/A'
+
+            arrival_status = record.arrival_status or 'N/A'
+            departure_status = record.departure_status or 'N/A'
+
         else:
-            shift_range = 'No Shift'
+            shift_range = 'None'
+            time_in = 'None'
+            time_out = 'None'
+            arrival_status = 'Off'
+            departure_status = 'Off'
 
         dtr_data.append({
-            'date': record.date.strftime('%Y-%m-%d'),
-            'day': record.date.strftime('%A'), 
-            'shift': shift_range,               
-            'time_in': record.time_in.strftime('%I:%M %p') if record.time_in else 'N/A',
-            'time_out': record.time_out.strftime('%I:%M %p') if record.time_out else 'N/A',
-            'arrival_status': record.arrival_status,
-            'departure_status': record.departure_status,
+            'date': current_date.strftime('%Y-%m-%d'),
+            'day': current_date.strftime('%A'),
+            'shift': shift_range,
+            'time_in': time_in,
+            'time_out': time_out,
+            'arrival_status': arrival_status,
+            'departure_status': departure_status,
+            'worked_hours': round(worked_hours),
         })
-    # ------------------------------------------------
+
+        current_date += timedelta(days=1)
+        # ------------------------------------------------
     context = {
         'departments': departments,
         'employee': employee,
@@ -505,6 +532,7 @@ def dashboard(request):
         'dtr_records': dtr_data,
         'start_date': start_date,
         'end_date': end_date,
+        'total_hours': total_hours
     }
 
     return render(request, 'dashboard.html', context)
