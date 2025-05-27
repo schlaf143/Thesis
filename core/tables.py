@@ -92,7 +92,7 @@ class EmployeeScheduleHTMxTable(tables.Table):
 
     def render_view(self, record):
         return format_html(
-            '<a href="/employee/view/{}/" class="btn btn-sm btn-warning me-1">View</a>',
+            '<a href="/employee/view/{}/" class="btn btn-sm btn-outline-primary me-1">View</a>',
             record.employee_id 
         )
 #record.employee_id -> employee

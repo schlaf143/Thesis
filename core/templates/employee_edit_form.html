@@ -2,10 +2,10 @@
 {% block content %}
 <div class="container-fluid" style="max-width: 1200px;">
     <!-- Header Section -->
-    <div class="bg-orange p-4 rounded-top" style="background-color: #e2a25a;">
+    <div class="bg-primary p-4 rounded-top">
         <div class="d-flex align-items-center">
             <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Edit Employee</h3>
-            <a class="btn btn-white text-orange" href="{% url 'view_employee_list' %}" style="border: 1px solid #e2a25a;">
+            <a class="btn btn-white text-orange" href="{% url 'view_employee_list' %}">
                 <i class='bx bx-arrow-back'></i> Back to List
             </a>
         </div>
@@ -128,12 +128,11 @@
             <!-- Form Footer -->
             <div class="col-12">
                 <div class="d-flex justify-content-end gap-3 mt-4">
-                    <a class="btn btn-lg btn-outline-orange" href="{% url 'view_employee_list' %}" 
-                       style="border-color: #e2a25a; color: #e2a25a;">
+                    <a class="btn btn-lg btn-outline-primary" href="{% url 'view_employee_list' %}" >
                         Cancel
                     </a>
-                    <button type="submit" class="btn btn-lg btn-orange text-white" 
-                            style="background-color: #e2a25a;">
+                    <button type="submit" class="btn btn-lg btn-primary text-white" 
+                           >
                         Save Changes
                     </button>
                     <form method="POST" action="{% url 'employee_delete' employee.employee_id %}" class="d-inline">
