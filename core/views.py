@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -11,7 +12,7 @@ from pathlib import Path
 from imutils.video import VideoStream
 import imutils
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 import os
 import cv2
@@ -412,30 +413,25 @@ class EmployeeScheduleDeleteView(DeleteView):
 def camera_view(request):
     return render(request, 'attendance_open_camera.html')
 
+@login_required
 def dashboard(request):
-    if request.user.is_authenticated:
-        try:
-            employee = request.user.employee
-            print("First Name:", employee.first_name)
-            print("Last Name:", employee.last_name)
-            print("Company ID:", employee.company_id)
+    # Get employee linked to user (your DTR code uses user_account)
+    employee = get_object_or_404(Employee, user_account=request.user)
 
-            leave_depts = employee.leave_departments.all()
-            shift_depts = employee.shift_departments.all()
+    print("First Name:", employee.first_name)
+    print("Last Name:", employee.last_name)
+    print("Company ID:", employee.company_id)
 
-            print("Leave Respondent for Departments:")
-            for dept in leave_depts:
-                print(f"- {dept.name}")
+    leave_depts = employee.leave_departments.all()
+    shift_depts = employee.shift_departments.all()
 
-            print("Shift Respondent for Departments:")
-            for dept in shift_depts:
-                print(f"- {dept.name}")
+    print("Leave Respondent for Departments:")
+    for dept in leave_depts:
+        print(f"- {dept.name}")
 
-        except Employee.DoesNotExist:
-            employee = None
-            print("No linked employee record.")
-    else:
-        employee = None
+    print("Shift Respondent for Departments:")
+    for dept in shift_depts:
+        print(f"- {dept.name}")
 
     today = timezone.now().date()
     start_of_week = today - timedelta(days=today.weekday())  # Monday
@@ -443,16 +439,13 @@ def dashboard(request):
 
     week_days = []
 
-    if employee:
-        shifts_this_week = Shift.objects.filter(
-            employee=employee,
-            shift_date__range=[start_of_week, end_of_week]
-        ).values('shift_date', 'shift_start', 'shift_end')
+    shifts_this_week = Shift.objects.filter(
+        employee=employee,
+        shift_date__range=[start_of_week, end_of_week]
+    ).values('shift_date', 'shift_start', 'shift_end')
 
-        # Map shift by date for easy lookup
-        shifts_map = {shift['shift_date']: shift for shift in shifts_this_week}
-    else:
-        shifts_map = {}
+    # Map shifts by date for quick lookup
+    shifts_map = {shift['shift_date']: shift for shift in shifts_this_week}
 
     for i in range(7):
         day = start_of_week + timedelta(days=i)
@@ -466,15 +459,52 @@ def dashboard(request):
             'shift_end': shift_info['shift_end'] if shift_info else None,
         })
 
-    recent_leaves = LeaveRequest.objects.filter(employee=employee).order_by('-created_at')[:5] if employee else []
+    recent_leaves = LeaveRequest.objects.filter(employee=employee).order_by('-created_at')[:5]
+
     departments = Department.objects.prefetch_related('shift_respondents', 'leave_respondents').all()
 
+    # --- DTR integration with detailed columns ---
+    start_date = today - timedelta(days=13)
+    end_date = today
+
+    # Get attendance records for the last 14 days
+    attendance_records = Attendance.objects.filter(
+        employee=employee,
+        date__range=(start_date, end_date)
+    ).select_related('shift').order_by('date')
+
+    # Prepare structured DTR data
+    dtr_data = []
+
+    for record in attendance_records:
+        # Handle shift time formatting safely
+        shift = record.shift
+        if shift:
+            shift_start = shift.shift_start.strftime('%I:%M %p') if shift.shift_start else 'N/A'
+            shift_end = shift.shift_end.strftime('%I:%M %p') if shift.shift_end else 'N/A'
+            shift_range = f"{shift_start} - {shift_end}"
+        else:
+            shift_range = 'No Shift'
+
+        dtr_data.append({
+            'date': record.date.strftime('%Y-%m-%d'),
+            'day': record.date.strftime('%A'), 
+            'shift': shift_range,               
+            'time_in': record.time_in.strftime('%I:%M %p') if record.time_in else 'N/A',
+            'time_out': record.time_out.strftime('%I:%M %p') if record.time_out else 'N/A',
+            'arrival_status': record.arrival_status,
+            'departure_status': record.departure_status,
+        })
+    # ------------------------------------------------
     context = {
         'departments': departments,
         'employee': employee,
         'recent_leaves': recent_leaves,
         'today': today,
         'week_days': week_days,
+        'dtr_records': dtr_data,
+        'start_date': start_date,
+        'end_date': end_date,
     }
 
     return render(request, 'dashboard.html', context)
@@ -599,7 +629,31 @@ def add_employee_attendance(request):
     return render(request, 'add_attendance.html', {
         'attendance_form': form
     })
-    
+
+@login_required
+def employee_dtr(request):
+    # Assuming User is linked to Employee via OneToOneField
+    employee = get_object_or_404(Employee, user_account=request.user)
+
+    today = date.today()
+    start_date = today - timedelta(days=13)
+    end_date = today
+
+    # Get attendance records for the last 14 days
+    attendance_records = Attendance.objects.filter(
+        employee=employee,
+        date__range=(start_date, end_date)
+    ).order_by('date')
+
+    context = {
+        'employee': employee,
+        'dtr_records': attendance_records,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    return render(request, 'employee_dtr.html', context)
+ 
 def add_schedule(request):
     if request.method == 'POST':
         schedule_form = EmployeeScheduleForm(request.POST)
