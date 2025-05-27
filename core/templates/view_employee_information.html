@@ -110,15 +110,17 @@
                             <td>{{ shift.shift_date|date:"l" }}</td> <!-- Displays day of week like "Monday" -->
                             <td>{{ shift.shift_start }}</td>
                             <td>{{ shift.shift_end }}</td>
-
+                            {% if user.employee in user.employee.department.shift_respondents.all %}
                             <td>
                                 {% if shift.shift_date > today %}
 
                                     <a href="{% url 'edit_shift' shift.id %}" class="btn btn-sm btn-warning me-1">Edit Shift</a>
                                 {% else %}
+
                                     <button class="btn btn-sm  me-1" disabled>Edit Shift</button>
                                 {% endif %}
                             </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
