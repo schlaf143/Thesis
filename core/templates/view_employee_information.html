@@ -2,10 +2,10 @@
 {% block content %}
 <div class="container-fluid" style="max-width: 1200px;">
     <!-- Header Section -->
-    <div class="bg-orange p-4 rounded-top" style="background-color: #e2a25a;">
+    <div class="bg-primary p-4 rounded-top">
         <div class="d-flex align-items-center">
             <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Employee Information</h3>
-            <a class="btn btn-white text-orange" href="{% url 'view_employee_list' %}" style="border: 1px solid #e2a25a;">
+            <a class="btn btn-white " href="{% url 'view_employee_list' %}">
                 <i class='bx bx-arrow-back'></i> Back to List
             </a>
         </div>
@@ -21,11 +21,11 @@
                     <div class="col-md-6">
                         <div class="d-flex flex-column gap-3">
                             <div class="border-bottom pb-2">
-                                <label class="fw-bold text-orange">Company ID</label>
+                                <label class="fw-bold ">Company ID</label>
                                 <p class="mb-0">{{ employee.company_id }}</p>
                             </div>
                             <div class="border-bottom pb-2">
-                                <label class="fw-bold text-orange">Name</label>
+                                <label class="fw-bold ">Name</label>
                                 <p class="mb-0">
                                     {{ employee.first_name }}
                                     {% if employee.middle_name %}{{ employee.middle_name }}{% endif %}
@@ -33,11 +33,11 @@
                                 </p>
                             </div>
                             <div class="border-bottom pb-2">
-                                <label class="fw-bold text-orange">Sex</label>
+                                <label class="fw-bold ">Sex</label>
                                 <p class="mb-0">{{ employee.sex }}</p>
                             </div>
                             <div class="border-bottom pb-2">
-                                <label class="fw-bold text-orange">Leave Credits</label>
+                                <label class="fw-bold ">Leave Credits</label>
                                 <p class="mb-0">Sick Leave: {{ employee.leave_credits }}</p>
                                 <p class="mb-0">Vacation Leave: {{ employee.leave_credits2 }}</p>
                             </div>
@@ -49,23 +49,23 @@
                     <div class="col-md-6">
                         <div class="d-flex flex-column gap-3">
                             <div class="border-bottom pb-2">
-                                <label class="fw-bold text-orange">Department</label>
+                                <label class="fw-bold ">Department</label>
                                 <p class="mb-0">{{ employee.department }}</p>
                             </div>
                             <div class="border-bottom pb-2">
-                                <label class="fw-bold text-orange">Role</label>
+                                <label class="fw-bold ">Role</label>
                                 <p class="mb-0">{{ employee.role }}</p>
                             </div>
                             <div class="border-bottom pb-2">
-                                <label class="fw-bold text-orange">Contact</label>
+                                <label class="fw-bold ">Contact</label>
                                 <p class="mb-0">{{ employee.contact_number }}</p>
                             </div>
                             <div class="border-bottom pb-2">
-                                <label class="fw-bold text-orange">Date Employed</label>
+                                <label class="fw-bold ">Date Employed</label>
                                 <p class="mb-0">{{ employee.date_employed|date:"M d, Y" }}</p>
                             </div>
                             <div class="d-flex justify-content-end">
-                                <a href="{% url 'employee_edit' employee.employee_id %}" class="btn btn-outline-orange btn-sm">
+                                <a href="{% url 'employee_edit' employee.employee_id %}" class="btn btn-outline-primary btn-sm">
                                     <i class='bx bx-edit me-2'></i> Edit Profile
                                 </a>
                             </div>
@@ -78,7 +78,7 @@
 
         <!-- Schedule Section -->
         <div class="card border-0 shadow mb-4">
-            <div class="card-header bg-orange text-white">
+            <div class="card-header bg-primary text-white">
                 <h5 class="mb-0 text-uppercase">Work Schedule</h5>
             </div>
             <div class="card-body">
@@ -131,7 +131,7 @@
 
 
         <div class="d-flex justify-content-center">
-            <a href="{% url 'employee_edit' employee.employee_id %}" class="btn btn-outline-orange btn-sm">
+            <a href="{% url 'employee_edit' employee.employee_id %}" class="btn btn-outline-primary btn-sm">
                 <i class='bx bx-edit me-2'></i> Open DTR
             </a>
         </div>
@@ -139,20 +139,6 @@
 </div>
 
 <style>
-    .text-orange { color: #e2a25a; }
-    .bg-orange { background-color: #e2a25a; }
-    .btn-orange { 
-        background-color: #e2a25a; 
-        border-color: #e2a25a;
-        color: white;
-    }
-    .btn-outline-orange {
-        border-color: #e2a25a;
-        color: #e2a25a;
-    }
-    .btn-outline-orange:hover {
-        background-color: #e2a25a;
-        color: white;
-    }
+
 </style>
 {% endblock %}

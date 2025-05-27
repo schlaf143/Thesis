@@ -85,16 +85,21 @@ def delete_shift_view(request, shift_id):
 
 def edit_shift_view(request, pk):
     shift = get_object_or_404(Shift, pk=pk)
+    print(shift.employee)
+    print(type(shift.employee))
+    print(dir(shift.employee))
+    employee_id = shift.employee.employee_id
 
     if request.method == 'POST':
         form = ShiftForm(request.POST, instance=shift)
         if form.is_valid():
             form.save()
-            return redirect('view_schedule_list')
+            return redirect('employee_information', pk=employee_id)
     else:
         form = ShiftForm(instance=shift)
 
     return render(request, 'edit_shift.html', {'form': form, 'shift': shift})
+
 
 def create_bulk_shifts(request):
     if request.method == 'POST':

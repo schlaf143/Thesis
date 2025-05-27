@@ -5,6 +5,8 @@ from .models import Employee, EmployeeSchedule, Attendance
 import os
 from django.conf import settings
 from django.utils.timezone import localtime
+
+
 class EmployeeHTMxTable(tables.Table):
     full_name = tables.Column(empty_values=(), orderable=False, verbose_name='FULL NAME')
     view = tables.Column(empty_values=(), orderable=True, verbose_name='ACTIONS')
@@ -47,7 +49,7 @@ class EmployeeHTMxTable(tables.Table):
 
     def render_view(self, record):
         return format_html(
-            '<a href="/employee/view/{}/" class="btn btn-sm btn-warning me-1">View</a>',
+            '<a href="/employee/view/{}/" class="btn btn-sm btn-outline-primary me-1">View</a>',
             record.employee_id 
         )
         
