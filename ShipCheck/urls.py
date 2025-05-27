@@ -52,7 +52,7 @@ urlpatterns = [
     path('employee/view/<int:pk>/', views.view_employee_information, name='employee_information'),
     path('employee/edit/<int:pk>/', views.EmployeeEditView.as_view(), name='employee_edit'),
     path('employee/delete/<int:pk>/', views.EmployeeDeleteView.as_view(), name='employee_delete'),
-    
+    path('employee/dtr/', views.employee_dtr, name='employee_dtr'),
     #!
     
     #! CRUD operations for employee schedules | HR Side
