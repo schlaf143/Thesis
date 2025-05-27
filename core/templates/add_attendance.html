@@ -26,6 +26,15 @@
                     {% endif %}
                 </div>
 
+                <!-- Shift -->
+                <div class="mb-3">
+                    <label for="id_shift" class="form-label">Shift</label>
+                    {{ attendance_form.shift|add_class:"form-select" }}
+                    {% if attendance_form.shift.errors %}
+                        <div class="text-danger small">{{ attendance_form.shift.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
                 <!-- Date -->
                 <div class="mb-3">
                     <label for="id_date" class="form-label">Date</label>
@@ -50,51 +59,6 @@
                     {{ attendance_form.time_out|add_class:"form-control" }}
                     {% if attendance_form.time_out.errors %}
                         <div class="text-danger small">{{ attendance_form.time_out.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Arrival Status -->
-                <div class="mb-3">
-                    <label for="id_arrival_status" class="form-label">Arrival Status</label>
-                    {{ attendance_form.arrival_status|add_class:"form-select" }}
-                    {% if attendance_form.arrival_status.errors %}
-                        <div class="text-danger small">{{ attendance_form.arrival_status.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Departure Status -->
-                <div class="mb-3">
-                    <label for="id_departure_status" class="form-label">Departure Status</label>
-                    {{ attendance_form.departure_status|add_class:"form-select" }}
-                    {% if attendance_form.departure_status.errors %}
-                        <div class="text-danger small">{{ attendance_form.departure_status.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Shift -->
-                <div class="mb-3">
-                    <label for="id_shift" class="form-label">Shift</label>
-                    {{ attendance_form.shift|add_class:"form-select" }}
-                    {% if attendance_form.shift.errors %}
-                        <div class="text-danger small">{{ attendance_form.shift.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Late Minutes -->
-                <div class="mb-3">
-                    <label for="id_late_minutes" class="form-label">Late Minutes</label>
-                    {{ attendance_form.late_minutes|add_class:"form-control" }}
-                    {% if attendance_form.late_minutes.errors %}
-                        <div class="text-danger small">{{ attendance_form.late_minutes.errors.0 }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Undertime Minutes -->
-                <div class="mb-3">
-                    <label for="id_undertime_minutes" class="form-label">Undertime Minutes</label>
-                    {{ attendance_form.undertime_minutes|add_class:"form-control" }}
-                    {% if attendance_form.undertime_minutes.errors %}
-                        <div class="text-danger small">{{ attendance_form.undertime_minutes.errors.0 }}</div>
                     {% endif %}
                 </div>
 

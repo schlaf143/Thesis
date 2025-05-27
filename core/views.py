@@ -26,7 +26,7 @@ from sklearn.svm import SVC
 import pickle
 import pytz
 
-from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm, LeaveResponseForm, AttendanceForm
+from .forms import EmployeeForm, EmployeeScheduleForm, FaceEmbeddingsForm, LeaveRequestForm, DepartmentCreateForm, RespondentSelectionForm, LeaveResponseForm, AttendanceForm, AttendanceFormEdit
 from .models import Employee, EmployeeSchedule, User, LeaveRequest, Shift, Attendance
 from .tables import EmployeeHTMxTable, EmployeeScheduleHTMxTable, EmployeeFaceEmbeddingsHTMxTable, EmployeeAttendanceHTMxTable
 from .filters import EmployeeFilter, EmployeeScheduleFilter, EmployeeFaceEmbeddingsFilter, AttendanceFilter
@@ -101,7 +101,6 @@ def edit_shift_view(request, pk):
 
     return render(request, 'edit_shift.html', {'form': form, 'shift': shift})
 
-
 def create_bulk_shifts(request):
     if request.method == 'POST':
         form = ShiftBulkCreateForm(request.POST)
@@ -145,7 +144,6 @@ def create_bulk_shifts(request):
         'form': form,
         'disabled_dates': [],  # Now unused, but you can remove this from your template too
     })
-
 
 def my_leave_requests(request):
     leave_requests = LeaveRequest.objects.filter(employee=request.user.employee).order_by('-created_at')
@@ -255,7 +253,6 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
             return "view_schedule_list_htmx_partial.html"
         return "view_schedule_list_htmx.html"
 
-
 class EmployeeFaceEmbeddingsHTMxTableView(SingleTableMixin, FilterView):
     table_class = EmployeeFaceEmbeddingsHTMxTable
     queryset = Employee.objects.all()
@@ -348,7 +345,7 @@ class EmployeeEditView(UpdateView):
     model = Employee
     form_class = EmployeeForm
     template_name = 'employee_edit_form.html'
-    success_url = reverse_lazy('view_employee_list')  # Redirect to the employee list page after successful edit
+    success_url = reverse_lazy('view_employee_list')
 
     def get_object(self, queryset=None):
         # Retrieve the employee object by primary key (from the URL)
@@ -410,6 +407,36 @@ class EmployeeScheduleDeleteView(DeleteView):
         # Return the schedule associated with this employee
         return get_object_or_404(EmployeeSchedule, employee__employee_id=employee_id)
 
+class EmployeeAttendanceEditView(UpdateView):
+    model = Attendance
+    form_class = AttendanceFormEdit
+    template_name = 'attendance_edit_form.html'
+    success_url = reverse_lazy('view_attendance_list')
+
+    def get_object(self, queryset=None):
+        # Retrieve the employee object by primary key (from the URL)
+        print("Get Success")
+        return get_object_or_404(Attendance, pk=self.kwargs['pk'])
+
+    def form_valid(self, form):
+        # Save the form and redirect to the success URL
+        self.object = form.save()
+        print("Form save uccess")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # If the form is invalid, render the same form with error messages
+        print("Form is INVALID:", form.errors)
+        return self.render_to_response(self.get_context_data(form=form))
+    
+class EmployeeAttendanceDeleteView(DeleteView):
+    model = Attendance
+    template_name = 'attendance_confirm_delete.html'  
+    success_url = reverse_lazy('view_attendance_list') 
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Attendance, pk=self.kwargs['pk'])
+        
 def camera_view(request):
     return render(request, 'attendance_open_camera.html')
 

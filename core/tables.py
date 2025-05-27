@@ -5,6 +5,7 @@ from .models import Employee, EmployeeSchedule, Attendance
 import os
 from django.conf import settings
 from django.utils.timezone import localtime
+from django.urls import reverse
 
 
 class EmployeeHTMxTable(tables.Table):
@@ -102,7 +103,7 @@ class EmployeeScheduleHTMxTable(tables.Table):
 class EmployeeFaceEmbeddingsHTMxTable(tables.Table):
     full_name = tables.Column(empty_values=(), orderable=True, verbose_name='FULL NAME')
     face_embeddings = tables.Column(empty_values=(), orderable=False, verbose_name="FACE EMBEDDINGS")
-    edit = tables.Column(empty_values=(), orderable=False, verbose_name='ACTIONS')
+    edit = tables.Column(empty_values=(), orderable=False, verbose_name='ACTION')
     
     class Meta:
         model = Employee
@@ -178,10 +179,11 @@ class EmployeeFaceEmbeddingsHTMxTable(tables.Table):
         )
         
 class EmployeeAttendanceHTMxTable(tables.Table):
-    company_id = tables.Column(empty_values=(), verbose_name='FULL NAME', orderable=False)
+    company_id = tables.Column(empty_values=(), verbose_name='COMPANY ID', orderable=False)
     full_name = tables.Column(empty_values=(), verbose_name='FULL NAME', orderable=False)
     scheduled_start = tables.Column(empty_values=(), verbose_name='SCHEDULED START', orderable=False)
     scheduled_end = tables.Column(empty_values=(), verbose_name='SCHEDULED END', orderable=False)
+    edit = tables.Column(empty_values=(), orderable=False, verbose_name='ACTION')
 
     class Meta:
         model = Attendance
@@ -231,3 +233,9 @@ class EmployeeAttendanceHTMxTable(tables.Table):
     def render_scheduled_end(self, record):
         dt = record.shift.shift_end if record.shift else None
         return dt.strftime("%I:%M %p") if dt else "None"
+    
+    def render_edit(self, record):
+        url = reverse('employee_attendance_edit', kwargs={'pk': record.id})
+        return format_html(
+            '<a href="{}" class="btn btn-sm btn-outline-primary me-1">View</a>', url
+        )

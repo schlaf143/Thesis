@@ -205,17 +205,53 @@ class AttendanceForm(forms.ModelForm):
             'all': (static('css/flatpickr.min.css'),)  # Include Flatpickr CSS from the static directory
         }
     class Meta:
-        model = Attendance
+        model = Attendance 
         fields = [
             'employee',
             'date',
             'time_in',
             'time_out',
+            'shift',
+        ]
+
+        widgets = {
+            'employee': Select(attrs={'class': 'form-control'}),
+            'date': DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'time_in': DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'time_out': DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'arrival_status': Select(attrs={'class': 'form-control'}),
+            'departure_status': Select(attrs={'class': 'form-control'}),
+            'shift': Select(attrs={'class': 'form-control'}),
+            'late_minutes': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'undertime_minutes': forms.NumberInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+        }
+
+    def clean_late_minutes(self):
+        return self.instance.late_minutes
+
+    def clean_undertime_minutes(self):
+        return self.instance.undertime_minutes
+
+class AttendanceFormEdit(forms.ModelForm):
+    class Media:
+        # Reference to the local static files using the static tag
+        js = (static('js/flatpickr.js'), static('js/flatpickr_init.js'))  # Include Flatpickr JS from the static directory
+        css = {
+            'all': (static('css/flatpickr.min.css'),)  # Include Flatpickr CSS from the static directory
+        }
+    class Meta:
+        model = Attendance 
+        exclude = [
+            'employee'
             'arrival_status',
             'departure_status',
             'shift',
             'late_minutes',
-            'undertime_minutes'
+            'undertime_minutes']
+        fields = [
+            'date',
+            'time_in',
+            'time_out',
         ]
 
         widgets = {

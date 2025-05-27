@@ -66,6 +66,8 @@ urlpatterns = [
     path('attendance/camera/predict', views.predict_face, name='predict_face'),
     path('attendance/register/', views.add_employee_attendance, name='add_employee_attendance'),
     path('attendance/view', views.EmployeeAttendanceHTMxTableView.as_view(), name='view_attendance_list'),
+    path('attendance/edit/<int:pk>/', views.EmployeeAttendanceEditView.as_view(), name='employee_attendance_edit'),
+    path('attendance/delete/<int:pk>/', views.EmployeeAttendanceDeleteView.as_view(), name='employee_delete_attendance'),
     #path('attendance/time-in/', views.attendance_time_in, name='attendance_time_in'),
 
     #!! Face Recognition Dataset and Trainings
