@@ -57,6 +57,7 @@ from django.contrib.auth.hashers import make_password
 from .decorators import hr_only
 from core.mixins import HROnlyMixin
 
+@hr_only
 def reset_employee_password(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
 
@@ -147,12 +148,14 @@ def create_bulk_shifts(request):
         'disabled_dates': [],  # Now unused, but you can remove this from your template too
     })
 
+
 def my_leave_requests(request):
     leave_requests = LeaveRequest.objects.filter(employee=request.user.employee).order_by('-created_at')
     return render(request, 'my_leave_requests.html', {
         'leave_requests': leave_requests
     })
 
+@hr_only
 def department_respondents_view(request, department_id):
     department = get_object_or_404(Department, id=department_id)
 
@@ -343,7 +346,7 @@ def respond_leave_request(request, pk):
     })
 
 
-class EmployeeEditView(UpdateView):
+class EmployeeEditView(HROnlyMixin,UpdateView):
     model = Employee
     form_class = EmployeeForm
     template_name = 'employee_edit_form.html'
@@ -583,12 +586,14 @@ def gen_leave(request):
 
     return render(request, 'leave_response_general.html', {'leave_requests': leave_requests})
 
+@hr_only
 def delete_department(request, pk):
     department = get_object_or_404(Department, pk=pk)
     department.delete()
     messages.success(request, "Department deleted successfully.")
     return redirect('view_department_list')
 
+@hr_only
 def view_departments(request):    
     if request.method == 'POST':
         form = DepartmentCreateForm(request.POST)
@@ -604,6 +609,7 @@ def view_departments(request):
         'departments': departments
     })
 
+@hr_only
 def add_employee(request):
     if request.method == 'POST':
         employee_form = EmployeeForm(request.POST)
@@ -687,6 +693,7 @@ def add_employee_attendance(request):
         'attendance_form': form
     })
 
+@hr_only
 @login_required
 def employee_dtr(request, pk):
     # Get employee linked to user (your DTR code uses user_account)
