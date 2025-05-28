@@ -54,6 +54,8 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
+from .decorators import hr_only
+from core.mixins import HROnlyMixin
 
 def reset_employee_password(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
@@ -223,7 +225,7 @@ def custom_logout_view(request):
     logout(request) 
     return redirect('login') 
 
-class EmployeeHTMxTableView(SingleTableMixin, FilterView):
+class EmployeeHTMxTableView(HROnlyMixin, SingleTableMixin, FilterView):
     table_class = EmployeeHTMxTable
     queryset = Employee.objects.all()
     filterset_class = EmployeeFilter
@@ -237,7 +239,7 @@ class EmployeeHTMxTableView(SingleTableMixin, FilterView):
 
         return template_name
 
-class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
+class EmployeeScheduleHTMxTableView(HROnlyMixin, SingleTableMixin, FilterView):
     table_class = EmployeeScheduleHTMxTable
     filterset_class = EmployeeScheduleFilter
     paginate_by = 10
@@ -253,7 +255,7 @@ class EmployeeScheduleHTMxTableView(SingleTableMixin, FilterView):
             return "view_schedule_list_htmx_partial.html"
         return "view_schedule_list_htmx.html"
 
-class EmployeeFaceEmbeddingsHTMxTableView(SingleTableMixin, FilterView):
+class EmployeeFaceEmbeddingsHTMxTableView(HROnlyMixin, SingleTableMixin, FilterView):
     table_class = EmployeeFaceEmbeddingsHTMxTable
     queryset = Employee.objects.all()
     filterset_class = EmployeeFaceEmbeddingsFilter
@@ -267,7 +269,7 @@ class EmployeeFaceEmbeddingsHTMxTableView(SingleTableMixin, FilterView):
 
         return template_name
 
-class EmployeeAttendanceHTMxTableView(SingleTableMixin, FilterView):
+class EmployeeAttendanceHTMxTableView(HROnlyMixin, SingleTableMixin, FilterView):
     table_class = EmployeeAttendanceHTMxTable
     queryset = Attendance.objects.all()
     filterset_class = AttendanceFilter
@@ -792,6 +794,7 @@ def view_employee_information(request, pk):
 
     return render(request, 'view_employee_information.html', context)
 
+@hr_only
 def add_face_embeddings(request):
     if request.method == 'POST':
         form = FaceEmbeddingsForm(request.POST)
