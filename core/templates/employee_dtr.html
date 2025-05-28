@@ -1,107 +1,76 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid" style="max-width: 1200px;">
-    <!-- Header -->
-    <div class="bg-orange p-4 rounded-top">
-        <div class="d-flex align-items-center">
-            <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Daily Time Record</h3>
-            <a class="btn btn-white text-orange" href="{% url 'view_employee_list' %}" style="border: 1px solid #e2a25a;">
-                <i class='bx bx-arrow-back'></i> Back to List
-            </a>
-        </div>
-    </div>
+    <!-- Daily Time Record Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-3 border rounded shadow-sm bg-light">
+                <!-- Employee Details -->
+                <div class="mb-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="fw-bold">Employee Name</label>
+                            <p class="mb-0">{{ employee.first_name }} {{ employee.last_name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold">Company ID</label>
+                            <p class="mb-0">{{ employee.company_id }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold">Date Range</label>
+                            <p class="mb-0">{{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Content -->
-    <div class="bg-white p-4 rounded shadow">
-        <!-- Employee Details -->
-        <div class="card border-0 shadow mb-4">
-            <div class="card-body">
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label class="fw-bold text-orange">Employee Name</label>
-                        <p class="mb-0">{{ employee.first_name }} {{ employee.last_name }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="fw-bold text-orange">Date Range</label>
-                        <p class="mb-0">{{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }}</p>
-                    </div>
+                <!-- DTR Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered text-sm mt-4">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-2">Date</th>
+                                <th class="px-4 py-2">Day</th>
+                                <th class="px-4 py-2">Shift</th>
+                                <th class="px-4 py-2">Time-In</th>
+                                <th class="px-4 py-2">Time-Out</th>
+                                <th class="px-4 py-2">Arrival Status</th>
+                                <th class="px-4 py-2">Departure Status</th>
+                                <th class="px-4 py-2">Hours Worked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dtr in dtr_records %}
+                            <tr>
+                                <td class="px-4 py-2">{{ dtr.date }}</td>
+                                <td class="px-4 py-2">{{ dtr.day }}</td>
+                                <td class="px-4 py-2">{{ dtr.shift }}</td>
+                                <td class="px-4 py-2">{{ dtr.time_in }}</td>
+                                <td class="px-4 py-2">{{ dtr.time_out }}</td>
+                                <td class="px-4 py-2">{{ dtr.arrival_status }}</td>
+                                <td class="px-4 py-2">{{ dtr.departure_status }}</td>
+                                <td class="px-4 py-2">{{ dtr.worked_hours }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">No DTR record found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-light">
+                                <td colspan="8" class="px-4 py-2">
+                                    <a href="{% url 'employee_information' employee.employee_id %}" class="btn btn-secondary btn-sm">
+                                        Back
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="bg-light fw-bold">
+                                <td colspan="7" class="text-end px-4 py-2">Total Hours Worked:</td>
+                                <td class="px-4 py-2">{{ total_hours }} Hours</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
-
-        <!-- DTR Table -->
-        <div class="card border-0 shadow mb-4">
-            <div class="card-header bg-orange text-white">
-                <h5 class="mb-0 text-uppercase">DTR Records</h5>
-            </div>
-            <div class="card-body">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Date</th>
-                            <th>Day</th>
-                            <th>Time In</th>
-                            <th>Time Out</th>
-                            <th>Total Hours</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in dtr_records %}
-                        <tr>
-                            <td>{{ record.date }}</td>
-                            <td>{{ record.date|date:"l" }}</td>
-                            <td>{{ record.time_in|default:"—" }}</td>
-                            <td>{{ record.time_out|default:"—" }}</td>
-                            <td>
-                                {% if record.total_hours %}
-                                    {{ record.total_hours }}
-                                {% else %}
-                                    —
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if record.time_in and record.time_out %}
-                                    <span class="badge bg-success">Present</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Absent</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center">No DTR records found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-end">
-            <a href="{% url 'employee_edit' employee.employee_id %}" class="btn btn-outline-orange btn-sm">
-                <i class='bx bx-edit me-2'></i> Edit Profile
-            </a>
-        </div>
     </div>
-</div>
-
-<!-- Styles -->
-<style>
-    .text-orange { color: #e2a25a; }
-    .bg-orange { background-color: #e2a25a; }
-    .btn-orange {
-        background-color: #e2a25a;
-        border-color: #e2a25a;
-        color: white;
-    }
-    .btn-outline-orange {
-        border-color: #e2a25a;
-        color: #e2a25a;
-    }
-    .btn-outline-orange:hover {
-        background-color: #e2a25a;
-        color: white;
-    }
-</style>
 {% endblock %}

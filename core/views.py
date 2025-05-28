@@ -686,25 +686,76 @@ def add_employee_attendance(request):
     })
 
 @login_required
-def employee_dtr(request):
-    # Assuming User is linked to Employee via OneToOneField
-    employee = get_object_or_404(Employee, user_account=request.user)
-
-    today = date.today()
+def employee_dtr(request, pk):
+    # Get employee linked to user (your DTR code uses user_account)
+    employee = get_object_or_404(Employee, employee_id=pk)
+    
+    # --- DTR integration with detailed columns ---
+    today = timezone.now().date()
     start_date = today - timedelta(days=13)
     end_date = today
+    dtr_data = []
 
     # Get attendance records for the last 14 days
-    attendance_records = Attendance.objects.filter(
-        employee=employee,
-        date__range=(start_date, end_date)
-    ).order_by('date')
+    attendance_dict = {
+        record.date: record
+        for record in Attendance.objects.filter(
+            employee=employee,
+            date__range=(start_date, end_date)
+        ).select_related('shift')
+    }
+    
+    current_date = start_date
+    total_hours = 0
+    while current_date <= end_date:
+        record = attendance_dict.get(current_date)
+        worked_hours = 0 
 
+        if record:
+            shift = record.shift
+            worked_hours = record.worked_hours()
+            print(round(worked_hours))
+            total_hours += round(worked_hours)
+            
+            if shift:
+                shift_start = shift.shift_start.strftime('%I:%M %p') if shift.shift_start else 'N/A'
+                shift_end = shift.shift_end.strftime('%I:%M %p') if shift.shift_end else 'N/A'
+                shift_range = f"{shift_start} - {shift_end}"
+            else:
+                shift_range = 'No Shift'
+
+            time_in = record.time_in.strftime('%I:%M %p') if record.time_in else 'N/A'
+            time_out = record.time_out.strftime('%I:%M %p') if record.time_out else 'N/A'
+
+            arrival_status = record.arrival_status or 'N/A'
+            departure_status = record.departure_status or 'N/A'
+
+        else:
+            shift_range = 'None'
+            time_in = 'None'
+            time_out = 'None'
+            arrival_status = 'Off'
+            departure_status = 'Off'
+
+        dtr_data.append({
+            'date': current_date.strftime('%Y-%m-%d'),
+            'day': current_date.strftime('%A'),
+            'shift': shift_range,
+            'time_in': time_in,
+            'time_out': time_out,
+            'arrival_status': arrival_status,
+            'departure_status': departure_status,
+            'worked_hours': round(worked_hours),
+        })
+
+        current_date += timedelta(days=1)
+        # ------------------------------------------------
     context = {
         'employee': employee,
-        'dtr_records': attendance_records,
+        'dtr_records': dtr_data,
         'start_date': start_date,
         'end_date': end_date,
+        'total_hours': total_hours
     }
 
     return render(request, 'employee_dtr.html', context)

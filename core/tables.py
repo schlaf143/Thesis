@@ -238,4 +238,4 @@ class EmployeeAttendanceHTMxTable(tables.Table):
         url = reverse('employee_attendance_edit', kwargs={'pk': record.id})
         return format_html(
             '<a href="{}" class="btn btn-sm btn-outline-primary me-1">View</a>', url
-        )
+        )   
